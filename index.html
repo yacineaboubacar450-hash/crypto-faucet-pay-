@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LTC MEGA FAUCET</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #020202; color: white; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+        .content-section { display: none; padding-bottom: 180px; animation: fadeIn 0.4s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-btn { transition: all 0.3s; cursor: pointer; }
+        .tab-btn:active { scale: 0.95; }
+        .btn-main { background: linear-gradient(135deg, #ea580c, #f97316); box-shadow: 0 10px 20px rgba(234, 88, 12, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="fixed inset-0 z-[500] bg-[#020202] flex items-center justify-center p-6">
+        <div class="glass p-10 rounded-[2.5rem] w-full max-w-md text-center border-orange-500/20">
+            <div class="w-20 h-20 bg-orange-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+                <i class="fas fa-coins text-3xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-black mb-2 uppercase italic tracking-tighter">LTC FAUCET</h1>
+            <p class="text-gray-500 text-[10px] mb-8 uppercase font-bold tracking-[0.2em]">Connectez votre portefeuille crypto</p>
+            <input type="text" id="wallet-input" placeholder="Adresse Litecoin (LTC)" class="w-full bg-white/5 border border-white/10 p-5 rounded-2xl text-white text-center mb-4 focus:border-orange-500 outline-none transition-all font-mono text-xs">
+            <button onclick="login()" class="w-full btn-main py-5 rounded-2xl font-black uppercase text-sm tracking-widest">Entrer dans le Hub</button>
+        </div>
+    </div>
+
+    <header class="fixed top-0 left-0 w-full glass p-4 z-40 flex justify-between items-center px-6 border-b border-white/5">
+        <div>
+            <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Solde LTC</p>
+            <p id="user-balance" class="text-orange-500 font-black text-xl">0.00000000</p>
+        </div>
+        <div class="text-right">
+            <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Niveau XP</p>
+            <p id="user-xp" class="text-cyan-400 font-black text-xl">0 XP</p>
+        </div>
+    </header>
+
+    <main class="pt-28">
+        <section id="dashboard" class="content-section active p-4">
+            <h2 class="text-[10px] font-black uppercase text-gray-500 mb-4 px-2 tracking-widest">Tâches Disponibles (40)</h2>
+            <div id="links-container" class="grid grid-cols-1 gap-4"></div>
+        </section>
+
+        <section id="advertiser" class="content-section p-6">
+            <div class="glass p-8 rounded-[2rem] border-cyan-500/20">
+                <h2 class="text-2xl font-black text-cyan-400 mb-2 uppercase italic">Déposer Pub</h2>
+                <p class="text-gray-500 text-xs mb-6 uppercase">Promouvez votre lien avec vos LTC</p>
+                <form action="https://formsubmit.co/e632fe80d418fe53f9fb694ee63940fc" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <input type="url" name="Lien" placeholder="URL du site" required class="w-full bg-white/5 p-5 rounded-2xl border border-white/10 outline-none">
+                    <div class="p-4 bg-orange-500/10 rounded-2xl border border-orange-500/20">
+                        <p class="text-[10px] text-orange-500 font-bold uppercase mb-1">Adresse de paiement LTC :</p>
+                        <p class="text-xs font-mono break-all font-black">VOTRE_ADRESSE_LTC_ICI</p>
+                    </div>
+                    <label class="block text-[10px] text-gray-500 font-bold uppercase px-2">Preuve (Capture d'écran)</label>
+                    <input type="file" name="Preuve" class="text-xs">
+                    <button class="w-full bg-cyan-600 py-5 rounded-2xl font-black uppercase text-xs">Lancer la Campagne</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="withdraw" class="content-section p-6">
+            <div class="glass p-8 rounded-[2rem] border-red-500/20">
+                <h2 class="text-2xl font-black text-red-500 mb-2 uppercase italic">Retrait</h2>
+                <p class="text-gray-500 text-xs mb-6 uppercase">Minimum : 0.05000000 LTC</p>
+                <form action="https://formsubmit.co/e632fe80d418fe53f9fb694ee63940fc" method="POST" class="space-y-4">
+                    <input type="hidden" name="Portefeuille" id="form-wallet">
+                    <input type="hidden" name="Solde_Site" id="form-balance">
+                    <input type="number" step="any" name="Montant" placeholder="0.05" required class="w-full bg-white/5 p-5 rounded-2xl border border-white/10 outline-none">
+                    <button class="w-full bg-red-600 py-5 rounded-2xl font-black uppercase text-xs">Demander le Retrait</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div class="fixed bottom-0 left-0 w-full p-6 z-50">
+        <div class="glass rounded-[2.5rem] p-4 flex justify-around items-center border-white/10 shadow-2xl relative">
+            <button onclick="showSection('dashboard')" class="tab-btn text-orange-500 flex flex-col items-center">
+                <i class="fas fa-th-large text-xl"></i>
+                <span class="text-[8px] font-bold uppercase mt-1">Gagner</span>
+            </button>
+            <button onclick="showSection('advertiser')" class="tab-btn text-gray-500 flex flex-col items-center">
+                <i class="fas fa-ad text-xl"></i>
+                <span class="text-[8px] font-bold uppercase mt-1">Pub</span>
+            </button>
+            
+            <button onclick="toggleSidebar()" class="tab-btn bg-orange-600 w-16 h-16 rounded-full flex items-center justify-center -mt-12 border-4 border-[#020202] shadow-xl">
+                <i class="fas fa-plus text-white text-2xl"></i>
+            </button>
+
+            <button onclick="showSection('withdraw')" class="tab-btn text-gray-500 flex flex-col items-center">
+                <i class="fas fa-wallet text-xl"></i>
+                <span class="text-[8px] font-bold uppercase mt-1">Retrait</span>
+            </button>
+            <button onclick="logout()" class="tab-btn text-red-800 flex flex-col items-center">
+                <i class="fas fa-power-off text-xl"></i>
+                <span class="text-[8px] font-bold uppercase mt-1">Quitter</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let balance = parseFloat(localStorage.getItem('bal')) || 0;
+        let xp = parseInt(localStorage.getItem('xp')) || 0;
+        let wallet = localStorage.getItem('wallet_addr') || "";
+
+        const myLinks = [
+            "https://otieu.com/4/10459296", "https://otieu.com/4/10459295", "https://otieu.com/4/10459294",
+            "https://otieu.com/4/10459293", "https://otieu.com/4/10459292", "https://otieu.com/4/10459291",
+            "https://otieu.com/4/10459290", "https://otieu.com/4/10459285", "https://otieu.com/4/10459284",
+            "https://otieu.com/4/10396969", "https://otieu.com/4/10459297", "https://otieu.com/4/10459298",
+            "https://otieu.com/4/10459299", "https://otieu.com/4/10459300", "https://otieu.com/4/10459301",
+            "https://otieu.com/4/10459302", "https://otieu.com/4/10459303", "https://otieu.com/4/10459304",
+            "https://otieu.com/4/10459305", "https://otieu.com/4/10459308"
+        ];
+
+        function login() {
+            let addr = document.getElementById('wallet-input').value;
+            if(addr.length > 10) {
+                localStorage.setItem('wallet_addr', addr);
+                location.reload();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('wallet_addr');
+            location.reload();
+        }
+
+        if(wallet !== "") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('user-balance').innerText = balance.toFixed(8);
+            document.getElementById('user-xp').innerText = xp + " XP";
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'withdraw') {
+                document.getElementById('form-wallet').value = wallet;
+                document.getElementById('form-balance').value = balance.toFixed(8);
+            }
+        }
+
+        function startTask(btn, url) {
+            btn.disabled = true;
+            let sec = 10;
+            let timer = setInterval(() => {
+                btn.innerHTML = `<i class="fas fa-clock mr-2"></i> ${sec}s`;
+                sec--;
+                if(sec < 0) {
+                    clearInterval(timer);
+                    balance += 0.0005;
+                    xp += 15;
+                    localStorage.setItem('bal', balance);
+                    localStorage.setItem('xp', xp);
+                    btn.innerHTML = "VALIDÉ ✔";
+                    btn.className = "w-full bg-green-600 py-4 rounded-2xl font-black text-[10px]";
+                    setTimeout(() => { window.location.href = url; }, 500);
+                }
+            }, 1000);
+        }
+
+        function generate() {
+            let html = '';
+            for(let i=0; i<40; i++) {
+                let link = myLinks[i % myLinks.length];
+                html += `
+                <div class="glass p-6 rounded-[2rem] flex items-center justify-between">
+                    <div>
+                        <p class="text-[9px] text-gray-500 font-bold mb-1 uppercase tracking-widest">TASK #${i+1}</p>
+                        <p class="text-white font-black text-sm">0.00050000 LTC</p>
+                    </div>
+                    <button onclick="startTask(this, '${link}')" class="bg-white/5 border border-white/10 px-6 py-4 rounded-2xl font-black text-[10px] uppercase hover:bg-orange-600 transition-all">Visiter</button>
+                </div>`;
+            }
+            document.getElementById('links-container').innerHTML = html;
+        }
+
+        window.onload = () => { if(wallet !== "") generate(); };
+    </script>
+</body>
+</html>
