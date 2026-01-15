@@ -241,6 +241,25 @@
         alert("Félicitations ! +0.0005 LTC ajoutés à votre solde !");
     }
 }
+function recupererBonus() {
+    const dernierBonus = localStorage.getItem('dernier_bonus');
+    const aujourdhui = new Date().toLocaleDateString();
+
+    if (dernierBonus === aujourdhui) {
+        alert("Patience partenaire ! Déjà récupéré. Revenez demain !");
+    } else {
+        // On donne 100 points au lieu de LTC
+        balance += 100; 
+        xp += 10;
+        localStorage.setItem('bal', balance);
+        localStorage.setItem('xp', xp);
+        localStorage.setItem('dernier_bonus', aujourdhui);
+        
+        // On met à jour l'affichage en haut
+        document.getElementById('user-balance').innerText = Math.floor(balance);
+        alert("Félicitations ! +100 Points ajoutés !");
+    }
+}
 
     </script>
 </body>
