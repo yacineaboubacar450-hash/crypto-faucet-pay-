@@ -149,23 +149,36 @@
         }
 
         function startTask(btn, url) {
-            btn.disabled = true;
-            let sec = 10;
-            let timer = setInterval(() => {
-                btn.innerHTML = `<i class="fas fa-clock mr-2"></i> ${sec}s`;
-                sec--;
-                if(sec < 0) {
-                    clearInterval(timer);
-                    balance += 0.0005;
-                    xp += 15;
-                    localStorage.setItem('bal', balance);
-                    localStorage.setItem('xp', xp);
-                    btn.innerHTML = "VALIDÉ ✔";
-                    btn.className = "w-full bg-green-600 py-4 rounded-2xl font-black text-[10px]";
-                    setTimeout(() => { window.location.href = url; }, 500);
-                }
-            }, 1000);
+    btn.disabled = true;
+    let sec = 10;
+    let timer = setInterval(() => {
+        btn.innerHTML = `<i class="fas fa-clock mr-2"></i> ${sec}s`;
+        sec--;
+        if(sec < 0) {
+            clearInterval(timer);
+            
+            // 1. MISE À JOUR DU CALCUL
+            balance += 0.0005;
+            xp += 15;
+            
+            // 2. SAUVEGARDE DANS LE TÉLÉPHONE
+            localStorage.setItem('bal', balance);
+            localStorage.setItem('xp', xp);
+            
+            // 3. MISE À JOUR VISUELLE (C'est ce qui manquait !)
+            document.getElementById('user-balance').innerText = balance.toFixed(8);
+            document.getElementById('user-xp').innerText = xp + " XP";
+            
+            // 4. CHANGEMENT DU BOUTON
+            btn.innerHTML = "VALIDÉ ✔";
+            btn.className = "w-full bg-green-600 py-4 rounded-2xl font-black text-[10px]";
+            
+            // 5. OUVERTURE DU LIEN
+            setTimeout(() => { window.open(url, '_blank'); }, 500);
         }
+    }, 1000);
+}
+
 
         function generate() {
             let html = '';
