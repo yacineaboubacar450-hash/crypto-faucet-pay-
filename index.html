@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <div class="flex justify-center my-4 px-4">
+    <div id="top-ad-slot" class="w-full max-w-[728px] h-[90px] glass rounded-xl flex items-center justify-center text-[10px] text-gray-500 uppercase font-bold border border-white/10">
+        Espace Publicitaire Premium
+    </div>
+</div>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LTC MEGA FAUCET</title>
@@ -220,7 +226,13 @@
         }
 
         window.onload = () => { if(wallet !== "") generate(); };
-    function recupererBonus() {
+    <div class="flex justify-center mb-4">
+    <div id="bonus-ad-slot" class="w-full h-[60px] glass rounded-xl flex items-center justify-center text-[9px] text-gray-600 border border-orange-500/20">
+        Publicité Partenaire
+    </div>
+</div>
+
+        function recupererBonus() {
     const dernierBonus = localStorage.getItem('dernier_bonus');
     const aujourdhui = new Date().toLocaleDateString();
 
