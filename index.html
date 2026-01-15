@@ -187,7 +187,7 @@
             clearInterval(timer);
             
             // 1. MISE À JOUR DU CALCUL
-            balance += 0.0005;
+            balance += 0.000005;
             xp += 15;
             
             // 2. SAUVEGARDE DANS LE TÉLÉPHONE
@@ -239,7 +239,7 @@
     if (dernierBonus === aujourdhui) {
         alert("Patience partenaire ! Vous avez déjà récupéré votre bonus aujourd'hui. Revenez demain !");
     } else {
-        balance += 0.0005;
+        balance += 0.000005;
         xp += 10;
         localStorage.setItem('bal', balance.toFixed(8));
         localStorage.setItem('xp', xp);
