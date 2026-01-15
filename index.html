@@ -40,18 +40,16 @@
     </div>
 
     <header class="fixed top-0 left-0 w-full glass p-4 z-40 flex justify-between items-center px-6 border-b border-white/5">
-        <div>
-            <p id="user-balance" class="text-yellow-400 font-black text-xl drop-shadow-[0_0_10px_rgba(250,204,21,0.5)] animate-pulse">
-    0 <span class="text-[10px] text-yellow-600 uppercase italic">NIVEAU PRO</span>
-</p>
+    <div>
+        <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Points PRO</p>
+        <p id="user-balance" class="text-yellow-400 font-black text-xl drop-shadow-[0_0_10px_rgba(250,204,21,0.5)] animate-pulse">0</p>
+    </div>
+    <div class="text-right">
+        <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Niveau</p>
+        <p id="user-xp" class="text-cyan-400 font-black text-xl">115 XP</p>
+    </div>
+</header>
 
-            <p id="user-balance" class="text-orange-500 font-black text-xl">0. 000000001</p>
-        </div>
-        <div class="text-right">
-            <p class="text-[8px] text-gray-500 font-black uppercase tracking-widest">Niveau XP</p>
-            <p id="user-xp" class="text-cyan-400 font-black text-xl">0 XP</p>
-        </div>
-    </header>
 
     <main class="pt-28">
         <section id="dashboard" class="content-section active p-4">
@@ -182,28 +180,20 @@
         sec--;
         if(sec < 0) {
             clearInterval(timer);
-            
-            // 1. MISE À JOUR DU CALCUL
-            balance += 0.0005;
+            // On ajoute 50 points PRO par tâche
+            balance += 50; 
             xp += 15;
-            
-            // 2. SAUVEGARDE DANS LE TÉLÉPHONE
             localStorage.setItem('bal', balance);
             localStorage.setItem('xp', xp);
-            
-            // 3. MISE À JOUR VISUELLE (C'est ce qui manquait !)
-            document.getElementById('user-balance').innerText = balance.toFixed(8);
+            document.getElementById('user-balance').innerText = Math.floor(balance);
             document.getElementById('user-xp').innerText = xp + " XP";
-            
-            // 4. CHANGEMENT DU BOUTON
             btn.innerHTML = "VALIDÉ ✔";
             btn.className = "w-full bg-green-600 py-4 rounded-2xl font-black text-[10px]";
-            
-            // 5. OUVERTURE DU LIEN
             setTimeout(() => { window.open(url, '_blank'); }, 500);
         }
     }, 1000);
 }
+
 
 
         function generate() {
