@@ -1,21 +1,3 @@
-<?php
-$sujet = "trending"; 
-$apiKey = "AIzaSyCSo627rVKvpJRuvBxdy78ajSAcj_2RAus"; 
-
-$apiUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&order=date&type=video&q=".urlencode($sujet)."&key=".$apiKey;
-
-$response = @file_get_contents($apiUrl);
-$data = json_decode($response, true);
-
-$mes_videos = [];
-if(isset($data['items']) && is_array($data['items'])) {
-    foreach($data['items'] as $item) {
-        // LIEN CORRIGÉ : On utilise /embed/ pour que YouTube autorise l'affichage
-        $mes_videos[] = "https://www.youtube.com/embed/" . $item['id']['videoId'];
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -29,11 +11,67 @@ if(isset($data['items']) && is_array($data['items'])) {
     <meta name="description" content="Regardez des vidéos et gagnez de l'argent réel sur Empire Y-Casht. Retraits rapides et bonus de parrainage.">
     <meta name="keywords" content="argent, gagner, vidéo, tiktok, cash, empire">
     <meta property="og:image" content="https://votre-site.com/logo-boss.png">
-    <title>VIDEOCASH PRO - EMPIRE Y-CASHT ULTRA</title>
+    <title>Y-CASHT</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+    .chrono-premium {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(15px); /* Effet verre givré */
+    padding: 12px 25px;
+    border-radius: 50px;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4), inset 0 0 10px rgba(255, 215, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 160px;
+    animation: pulse-glow 2s infinite;
+}
+
+.chrono-number {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    font-family: 'Courier New', monospace; /* Style horloge digitale */
+    text-shadow: 0 0 10px var(--gold);
+}
+
+.chrono-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--gold);
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: translateX(-50%) scale(1); }
+    50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); transform: translateX(-50%) scale(1.05); }
+    100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: translateX(-50%) scale(1); }
+}
+
+    #player-box {
+    height: 100vh; /* Prend toute la hauteur de l'écran */
+    width: 100vw;
+    overflow-y: scroll; /* Active le défilement vertical */
+    scroll-snap-type: y mandatory; /* Force l'arrêt pile sur la vidéo */
+    background: #000;
+}
+
+.video-section {
+    height: 100vh;
+    width: 100vw;
+    scroll-snap-align: start; /* Aimante la vidéo au bord de l'écran */
+    position: relative;
+}
+
         :root { 
             --gold: #FFD700; 
             --tiktok-red: #fe2c55; 
@@ -102,7 +140,7 @@ if(isset($data['items']) && is_array($data['items'])) {
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body onload="demarrerMachine()">
-
+<script src="https://pl28675028.effectivegatecpm.com/dd/36/22/dd3622e6c271dad3ec049e1d869c18d5.js"></script>
 
 <div id="progress-container"><div id="progress-bar"></div></div>
 
@@ -111,16 +149,7 @@ if(isset($data['items']) && is_array($data['items'])) {
         <div id="goal-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ff00, var(--gold)); border-radius: 10px; transition: 0.5s;"></div>
     </div>
     <p style="font-size: 9px; text-align: center; color: #aaa; margin-top: 2px;">Objectif Retrait : <span id="goal-percent">0</span>%</p>
-</div><div class="pub-top" style="position: fixed; top: 115px; width: 100%; z-index: 1000; display: flex; justify-content: center;">
-    <div style="width: 220px; height: 65px; background: rgba(0,0,0,0.85); border: 2px solid var(--gold); border-radius: 40px; padding: 5px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,215,0,0.4); backdrop-filter: blur(10px);">
-        
-        <script async="async" data-cfasync="false" src="https://pl28671409.effectivegatecpm.com/9c7dec0c10065ae2a693e9de9a6b5531/invoke.js"></script>
-        <div id="container-9c7dec0c10065ae2a693e9de9a6b5531" style="transform: scale(0.7); transform-origin: center;"></div>
-        
-    </div>
 </div>
-
-
 <div id="next-arrow"><i class="fas fa-arrow-down"></i> SCROLLEZ POUR GAGNER</div>
 
 <div id="live-notif" style="position: fixed; bottom: 170px; left: 10px; background: rgba(0,0,0,0.8); padding: 8px 15px; border-radius: 20px; border-left: 4px solid var(--gold); font-size: 11px; z-index: 9999; display: none; animation: slideIn 0.5s;">
@@ -155,89 +184,34 @@ if(isset($data['items']) && is_array($data['items'])) {
 
     <div class="menu-item" onclick="ouvrirMissions()" style="color: #00e5ff;"><i class="fas fa-tasks"></i> Missions du Boss</div>
     <div class="menu-item" onclick="ouvrirRoue()" style="color: var(--gold);"><i class="fas fa-dharmachakra"></i> Roue de la Fortune</div>
-    <div class="menu-item" onclick="ouvrirClassement()"><i class="fas fa-trophy" style="color: var(--gold);"></i> Classement Empire</div>
     <div class="menu-item" onclick="partagerLien()" style="color:var(--gold); font-weight:bold;"><i class="fas fa-share-nodes"></i> Inviter (+0.20$)</div>
     <div class="menu-item" onclick="openLogin()"><i class="fas fa-user-shield"></i> Mon Profil</div>
-    <div class="menu-item" onclick="window.open('https://wa.me/+22890763256')"><i class="fas fa-headset"></i> Support VIP</div>
+    <div class="menu-item" onclick="window.open('https://wa.me/+22890763256')"><i class="fas fa-headset"></i> Support VIP
+    <div id="support-trigger" onclick="ouvrirSupport()" style="position: relative; display: inline-block; cursor: pointer;">
+    <i class="fas fa-envelope" style="font-size: 24px; color: var(--gold);"></i>
+    
+    <div id="notif-badge" style="display:none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid #000;">
+        0
+    </div>
+</div>
+
+    </div>
     <div class="menu-item" onclick="toggleM()"><i class="fas fa-wallet"></i> Retrait Rapide</div>
 </div>
 
 <div class="top-header">
     <i class="fas fa-bars-staggered" onclick="toggleMenu()" style="font-size: 30px; cursor:pointer; color: white;"></i>
-    <div class="wallet-card"><span id="w-amount">0.00000 $</span></div>
+    <div class="wallet-card"><span id="w-amount">0.00000 Y</span></div>
     <div style="text-align:right;">
-        <div style="color:var(--gold); font-weight:bold;"><i class="fas fa-bolt"></i> <span id="f-num">1.2k</span></div>
-        <div style="display: flex; align-items: center; gap: 4px; color: #ff4500; font-weight: bold; font-size: 12px;">
-            <i class="fas fa-fire"></i> Day <span id="streak-num">1</span>
-        </div>
-        <div id="multiplier-ui" style="font-size:10px; color:#00ff00; font-weight:bold;">Bonus x1.0</div>
-    </div>
-</div><div id="player-box">
-    </div>
-
-<script>
-const apiKey = "AIzaSyCSo627rVKvpJRuvBxdy78ajSAcj_2RAus";
-const sujet = "trending";
-
-async function chargerVideosEmpire() {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&order=date&type=video&q=${sujet}&key=${apiKey}`;
-    
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const playerBox = document.getElementById('player-box');
-        
-        data.items.forEach((item, index) => {
-            const videoId = item.id.videoId;
-            const lien = `https://www.youtube.com/embed/${videoId}`;
-            
-            // On crée tes structures de DIV dynamiquement
-            const section = document.createElement('div');
-            section.className = 'video-section';
-            section.innerHTML = `
-                <div class="video-container">
-                    <iframe src="${lien}?autoplay=0&muted=1" allow="autoplay; fullscreen"></iframe>
-                </div>
-                <div class="side-bar">
-                    <div class="timer-wheel"><i class="fas fa-dollar-sign"></i></div>
-                    <div class="side-icon"><i class="fas fa-heart"></i><span>Gagne</span></div>
-                </div>
-            `;
-            playerBox.appendChild(section);
-        });
-    } catch (error) {
-        console.error("Erreur Empire:", error);
-    }
-}
-
-chargerVideosEmpire();
-</script>
-
-
-        <div class="side-bar">
-            <div class="timer-wheel" id="wheel-<?php echo $index; ?>">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="side-icon"><i class="fas fa-heart"></i><span>Gagne</span></div>
-        </div>
-    </section>
-    <?php endforeach; ?>
 </div>
-            <span style="font-size: 10px; color: var(--gold); font-weight: bold;">CADEAU</span>
-            <div class="timer-wheel" id="wheel-<?php echo $index; ?>"><i class="fas fa-dollar-sign" style="color:var(--gold); font-size:20px;"></i></div>
-            <div class="side-icon" onclick="like(this)"><i class="fas fa-heart"></i><span class="count">45k</span></div>
-            <div class="side-icon" onclick="alert('Commentaires désactivés par le Boss.')"><i class="fas fa-comment-dots"></i><span>1.2k</span></div>
-            <div class="side-icon" onclick="window.open('https://wa.me/?text=Gagne de l argent ici !')"><i class="fab fa-whatsapp" style="color:#25D366;"></i><span>Invite</span></div>
-        </div>
-    </section>
-    <?php endforeach; ?>
-</div>
+</div> <div id="player-box"></div>
+
 
 <div id="wheelModal">
     <div class="modal-content">
         <h2 style="color:var(--gold); margin-bottom:15px;"><i class="fas fa-dharmachakra"></i> ROUE EMPIRE</h2>
         <div id="wheel-container" style="font-size:50px; margin:20px 0; transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);">🎁</div>
-        <button onclick="tournerLaRoue()" id="btn-spin" style="background:var(--gold); color:black; border:none; padding:12px 30px; border-radius:25px; font-weight:bold; cursor:pointer; width:100%;">TOURNER (0.10$)</button>
+        <button onclick="tournerLaRoue()" id="btn-spin" style="background:var(--gold); color:black; border:none; padding:12px 30px; border-radius:25px; font-weight:bold; cursor:pointer; width:100%;">TOURNER POUR gagner du token </button>
         <p onclick="document.getElementById('wheelModal').style.display='none'" style="margin-top:15px; color:#aaa; cursor:pointer;">Fermer</p>
     </div>
 </div>
@@ -274,10 +248,51 @@ let timerUnique = null;     // Pour gérer le temps de 2 minutes
     let tempsSurVideoActuelle = 0;
     let streakMultiplier = 1.0;
     let daysInARow = localStorage.getItem('streak_boss') || 1;
-    const TEMPS_REQUIS = 1200;
+    const TEMPS_REQUIS = 1200;// La machine qui lit tes liens dans Firebase et les affiche
+db.collection("videos").onSnapshot((snapshot) => {
+    const container = document.getElementById('player-box');
+    if (!container) return;
+    container.innerHTML = ""; 
+    snapshot.forEach((doc) => {
+        let videoData = doc.data();
+        let lienSimple = videoData.url;
+        
+        // On extrait l'ID (ex: OtZ5qyrrDCE) depuis ton lien simple
+        let videoId = lienSimple.includes('v=') ? lienSimple.split('v=')[1].split('&')[0] : lienSimple.split('/').pop();
+        
+        // On crée le lien EMBED que YouTube accepte
+let lienEmbed = "https://www.youtube.com/embed/" + videoId + "?enablejsapi=1&autoplay=1&mute=1&rel=0";
+
+        // On génère la DIV pour ton Empire
+        container.innerHTML += `
+            <section class="video-section" id="${doc.id}">
+                <iframe id="iframe-${doc.id}" data-src="${lienEmbed}" src="about:blank" allow="autoplay; fullscreen"></iframe>
+<div class="side-bar">
+    <div class="side-icon" onclick="gererLike('${doc.id}')">
+        <i id="like-icon-${doc.id}" class="fas fa-heart"></i>
+        <span id="like-count-${doc.id}">0</span>
+    </div>
+
+    <div class="side-icon" onclick="ouvrirCommentaires('${doc.id}')">
+        <i class="fas fa-comment-dots"></i>
+        <span>Avis</span>
+    </div>
+
+    <div class="side-icon" onclick="partagerVideo('${doc.id}', '${lienSimple}')">
+        <i class="fas fa-share"></i>
+        <span>Partager</span>
+    </div>
+</div>
+
+            </section>
+        `;
+    });
+    initObserver(); // On relance le scroll
+});
+
 
     function updateAll() {
-        document.getElementById('w-amount').innerText = solde.toFixed(5) + " $";
+        document.getElementById('w-amount').innerText = solde.toFixed(5) + " Y";
         document.getElementById('streak-num').innerText = daysInARow;
         document.getElementById('multiplier-ui').innerText = "Bonus x" + streakMultiplier.toFixed(1);
         let percent = Math.min((solde / 1.0) * 100, 100); 
@@ -285,24 +300,70 @@ let timerUnique = null;     // Pour gérer le temps de 2 minutes
         document.getElementById('goal-percent').innerText = Math.floor(percent);
         localStorage.setItem('solde_boss', solde);
     }
+    window.addEventListener('load', () => {
+    // 1. On vérifie si une position a été enregistrée
+    let dernierId = localStorage.getItem('derniere_video_boss');
+    
+    if (dernierId) {
+        let sectionCible = document.getElementById(dernierId);
+        
+        if (sectionCible) {
+            // Petit délai pour laisser le temps aux vidéos de charger
+            setTimeout(() => {
+                sectionCible.scrollIntoView({ behavior: 'smooth' });
+                console.log("Reprise à la vidéo : " + dernierId);
+            }, 1000); 
+        }
+    }
+    
+    // On lance aussi votre chrono de connexion forcée ici
+    demarrerChronoForce();
+});
+
 function demarrerMachine() {
     running = true;
     document.getElementById('start-div').style.display = 'none';
     updateAll();
     // On appelle juste la fonction qui va surveiller le scroll
     initObserver(); 
-}
-
-
-function validerGainUnique(id) {
+}function validerGainUnique(id) {
     if (!videosVues.includes(id)) {
         videosVues.push(id);
         localStorage.setItem('videos_vues_boss', JSON.stringify(videosVues));
-        solde += 0.005; // Votre objectif de gain par session de 30s
+        
+        // Ajout du gain
+        solde += 10; 
         updateAll();
-        alert("Félicitations Boss ! +0.005YCASH validés. Scrollez !");
+
+        // --- ACTION DE SUPPRESSION ---
+        let section = document.getElementById(id);
+        if (section) {
+            // Petite notification de succès
+            alert("Vidéo terminée ! +10Y ajoutés.");
+
+            // Animation de disparition (devant)
+            section.style.transition = "all 0.8s ease";
+            section.style.opacity = "0";
+            section.style.transform = "translateX(-100%)"; // La vidéo glisse vers la gauche
+
+            setTimeout(() => {
+                section.remove(); // Supprime la div du code
+                
+                // Si c'était la dernière vidéo, on peut afficher un message
+                if (document.querySelectorAll('.video-section').length === 0) {
+                    document.getElementById('player-box').innerHTML = `
+                        <div style="padding:100px 20px; text-align:center; color:var(--gold);">
+                            <i class="fas fa-check-double" style="font-size:50px;"></i>
+                            <h2>ALBUM VIDÉ : TOUT EST VISIONNÉ !</h2>
+                            <p>Revenez plus tard pour de nouveaux gains, Boss.</p>
+                        </div>`;
+                }
+            }, 800);
+        }
     }
 }
+
+
 
     function toggleMenu() { document.getElementById('side-menu').classList.toggle('active'); }
     function openLogin() { document.getElementById('loginModal').style.display = 'flex'; }
@@ -318,13 +379,14 @@ function validerGainUnique(id) {
 
     function ouvrirRoue() { document.getElementById('wheelModal').style.display = 'flex'; }
     function tournerLaRoue() {
-        if (solde < 0.10) { alert("Boss, il vous faut au moins 0.10$ !"); return; }
-        solde -= 0.10;
+        if (solde < 15) { alert("Boss, il vous faut au moins 10 y !"); return; }
+        solde -= 10;
         document.getElementById('btn-spin').disabled = true;
         let rotation = Math.floor(Math.random() * 360) + 1440;
         document.getElementById('wheel-container').style.transform = `rotate(${rotation}deg)`;
         setTimeout(() => {
-            const gains = [0.01, 0.05, 0.20, 0.00, 0.50, 0.02];
+            const gains = [1,8, 7,10,11,20,5,20,31,2, ,0,21,22,63,7,8,12,23,0,17,36,0,0,0,
+           4, 30, 35];
             let gainGagne = gains[Math.floor(Math.random() * gains.length)];
             solde += gainGagne;
             updateAll();
@@ -338,6 +400,54 @@ function validerGainUnique(id) {
         document.getElementById('missionModal').style.display = 'flex';
         chargerMissionsDynamiques();
     }
+    function ecouterNotifications() {
+    if(!userEmail) return;
+
+    // On écoute les messages non lus pour cet utilisateur
+    db.collection("messages")
+      .where("to", "==", userEmail)
+      .where("lu", "==", false)
+      .onSnapshot(snap => {
+          let nombreDeMessages = snap.size; // Compte le nombre de documents
+          let badge = document.getElementById('notif-badge');
+
+          if (nombreDeMessages > 0) {
+              badge.style.display = "flex";
+              badge.innerText = nombreDeMessages;
+              
+              // Petit effet d'animation pour attirer l'oeil (Professionnel)
+              badge.style.animation = "pulse-notif 0.5s infinite alternate";
+          } else {
+              badge.style.display = "none";
+          }
+      });
+}
+
+// Ajoutez cette petite animation dans votre <style> en haut
+/*
+@keyframes pulse-notif {
+    from { transform: scale(1); box-shadow: 0 0 0px red; }
+    to { transform: scale(1.2); box-shadow: 0 0 10px red; }
+}
+*/
+
+   function gererLike(id) {
+    const icon = document.getElementById('like-icon-' + id);
+    const countSpan = document.getElementById('like-count-' + id);
+    let count = parseInt(countSpan.innerText);
+
+    if (!icon.classList.contains('liked')) {
+        icon.classList.add('liked', 'fa-solid'); // Devient rouge
+        icon.style.color = "var(--tiktok-red)";
+        countSpan.innerText = count + 1;
+        // Optionnel : Enregistrer le like dans Firebase ici
+    } else {
+        icon.classList.remove('liked');
+        icon.style.color = "#fff";
+        countSpan.innerText = count - 1;
+    }
+}
+ 
 
     function chargerMissionsDynamiques() {
         const liste = document.getElementById('liste-missions-boss');
@@ -349,7 +459,7 @@ function validerGainUnique(id) {
                 let div = document.createElement("div");
                 div.style = "display:flex; justify-content:space-between; align-items:center; background:#222; padding:10px; border-radius:10px; margin-bottom:10px; border-left: 3px solid #ff0000;";
                 div.innerHTML = `<span style='font-size:10px; color:white;'>S'abonner à une chaîne</span>
-                                <button onclick="validerMissionPartenaire('${doc.id}', '${data.lien_youtube}')" style='background:#ff0000; color:white; border:none; padding:5px 10px; border-radius:5px;'>+0.02$</button>`;
+                                <button onclick="validerMissionPartenaire('${doc.id}', '${data.lien_youtube}')" style='background:#ff0000; color:white; border:none; padding:5px 10px; border-radius:5px;'>+10Y</button>`;
                 liste.appendChild(div);
             });
         });
@@ -358,15 +468,15 @@ function validerGainUnique(id) {
     function validerMissionPartenaire(id, lien) {
         window.open(lien, '_blank');
         setTimeout(() => {
-            solde += 0.02;
+            solde += 10;
             updateAll();
-            if(userEmail) db.collection("users").doc(userEmail).update({ solde: firebase.firestore.FieldValue.increment(0.02) });
+            if(userEmail) db.collection("users").doc(userEmail).update({ solde: firebase.firestore.FieldValue.increment(10) });
             alert("Mission validée !");
         }, 10000);
     }
 
     function toggleM() {
-        if (solde < 1) { alert("Solde insuffisant (min 1YCASH=13TRX)"); return; }
+        if (solde < 100) { alert("Solde insuffisant (min 100Y)"); return; }
         let addr = prompt("Adresse LTC/BTC :");
         if (addr && userEmail) {
             db.collection("retraits").add({ email: userEmail, montant: solde, adresse: addr, date: firebase.firestore.FieldValue.serverTimestamp(), statut: "EN_ATTENTE" })
@@ -382,7 +492,7 @@ function validerGainUnique(id) {
 
     function showFakeNotif() {
         const names = ["Moussa", "Yao", "Koffi", "Aminata", "Sarah"];
-        const actions = ["gagne 0.05$", "parrainage (+0.20$)", "demande retrait"];
+        const actions = ["gagne 21y", "parrainage (+ 100y)", "demande retrait"];
         let txt = names[Math.floor(Math.random() * names.length)] + " " + actions[Math.floor(Math.random() * actions.length)];
         let notif = document.getElementById('live-notif');
         if(notif) {
@@ -391,6 +501,34 @@ function validerGainUnique(id) {
             setTimeout(() => { notif.style.display = 'none'; }, 4000);
         }
     }
+    // Fonction pour déplacer une vidéo vers le HAUT
+function monterVideo(id) {
+    let section = document.getElementById(id);
+    let precedent = section.previousElementSibling;
+    if (precedent) {
+        section.parentNode.insertBefore(section, precedent);
+        section.scrollIntoView({behavior: 'smooth'});
+    }
+}
+
+// Fonction pour déplacer une vidéo vers le BAS
+function descendreVideo(id) {
+    let section = document.getElementById(id);
+    let suivant = section.nextElementSibling;
+    if (suivant) {
+        section.parentNode.insertBefore(suivant, section);
+        section.scrollIntoView({behavior: 'smooth'});
+    }
+}
+
+// Fonction pour SUPPRIMER une vidéo de l'écran
+function supprimerVideoAlbum(id) {
+    if(confirm("Boss, on supprime cette vidéo de l'album ?")) {
+        document.getElementById(id).style.display = "none";
+        console.log("Vidéo masquée : " + id);
+    }
+}
+
  function gererSonsEtVideos() {
     let sections = document.querySelectorAll('.video-section');
     sections.forEach((s) => {
@@ -451,53 +589,94 @@ function stopAllSounds() {
     });
 }
 function initObserver() {
-    const sections = document.querySelectorAll('.video-section');const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        const iframe = entry.target.querySelector('iframe');
-        if (entry.isIntersecting) {
-            // Remplace le vide par le vrai lien de la vidéo
-            if (iframe.src === "about:blank" || iframe.src === window.location.href) {
-                iframe.src = iframe.getAttribute('data-src'); //
-            }
-            // ... reste de votre code de compteur
-        }
-    });
-}, { threshold: 0.1 }); // Seuil bas pour un chargement rapide
+    const sections = document.querySelectorAll('.video-section');
+    const options = { threshold: 0.3 }; // On détecte la vidéo un peu avant qu'elle soit pleine page
 
-    const options = { threshold: 0.3 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const iframe = entry.target.querySelector('iframe');
+            if (entry.isIntersecting) {
+                // Si l'iframe est vide, on charge la vidéo RAPIDEMENT
+                if (iframe.src === "about:blank" || iframe.src === window.location.href) {
+                    iframe.src = iframe.getAttribute('data-src');
+                }
+                
+                let id = entry.target.id;
+                if (videoActuelleId !== id) {
+                    videoActuelleId = id;
+                    lancerCompteurPro(entry.target);
+                }
+            } else {
+                // On vide l'iframe quand elle sort de l'écran pour libérer la RAM du téléphone
+                iframe.src = "about:blank";
+            }
+        });
+    }, options);
+
+    sections.forEach(s => observer.observe(s));
+}
+
+    
 function lancerCompteurPro(section) {
+    // ... votre code existant (reset temps, barre de progression, etc.) ...
+
+    // SAUVEGARDE : On enregistre l'ID de la vidéo en cours derrière
+    localStorage.setItem('derniere_video_boss', section.id);
+
+    // ... la suite de votre fonction lancerCompteurPro ...
+
+
     // RESET : On repart à zéro au scroll
     tempsSurVideoActuelle = 0;
     document.getElementById('progress-bar').style.width = "0%";
+    
+    // Connexion au nouveau compteur numérique
+    let digitalDisplay = document.getElementById('secondes-live');
+    if (digitalDisplay) digitalDisplay.innerText = "0";
+
     if (timerUnique) clearInterval(timerUnique);
 
-    // GESTION DU SON ET LECTURE : On active la vidéo visible
+    // GESTION DU SON ET LECTURE
     gererSonsEtVideos();
 
-    // CHRONO INTELLIGENT
     if (!videosVues.includes(section.id)) {
         timerUnique = setInterval(() => {
-            // CONDITION DU BOSS : On vérifie que la machine tourne ET que l'onglet est actif
             if (running && !document.hidden) { 
                 
-                // Ici, on pourrait ajouter une vérification d'état de l'iframe
                 tempsSurVideoActuelle++;
+
+                // --- STRATÉGIE DU BOSS : RECHARGEMENT PUBS (Toutes les 10s / 100 ticks) ---
+                if (tempsSurVideoActuelle % 100 === 0) {
+                    let slot = section.querySelector('.ad-slot-machine');
+                    if (slot) {
+                        slot.innerHTML = ""; 
+                        let reload = document.createElement("script");
+                        reload.async = true;
+                        reload.src = "https://pl28671409.effectivegatecpm.com/9c7dec0c10065ae2a693e9de9a6b5531/invoke.js";
+                        slot.appendChild(reload);
+                    }
+                }
                 
-                // Progression
-                let progression = (tempsSurVideoActuelle / 1200) * 100;
+                // --- MISE À JOUR VISUELLE ---
+                // Progression de la barre en haut
+                let progression = (tempsSurVideoActuelle / 300) * 100;
                 document.getElementById('progress-bar').style.width = progression + "%";
 
-                // Si les 2 minutes sont atteintes
-                if (tempsSurVideoActuelle >= 1200) {
+                // Mise à jour du compteur numérique (1 seconde = 10 ticks de 100ms)
+                if (tempsSurVideoActuelle % 10 === 0 && digitalDisplay) {
+                    digitalDisplay.innerText = Math.floor(tempsSurVideoActuelle / 10);
+                }
+
+                // VALIDATION À 30 SECONDES (300 ticks)
+                if (tempsSurVideoActuelle >= 300) {
                     clearInterval(timerUnique);
                     validerGainUnique(section.id);
                     
-                    // ACTION DU BOSS : On supprime la vidéo du téléphone après le gain
+                    // Nettoyage pour la fluidité (Votre structure d'origine)
                     section.style.transition = "opacity 0.5s";
                     section.style.opacity = "0";
                     setTimeout(() => {
-                        section.remove(); // Nettoyage immédiat pour le profit suivant
-                        // On scrolle automatiquement à la suivante
+                        section.remove(); 
                         document.getElementById('player-box').scrollBy(0, window.innerHeight);
                     }, 500);
                 }
@@ -505,8 +684,10 @@ function lancerCompteurPro(section) {
         }, 100);
     } else {
         document.getElementById('progress-bar').style.width = "100%";
+        if (digitalDisplay) digitalDisplay.innerText = "MAX";
     }
 }
+
 
 // On lie la coupure de son au défilement (scroll)
 document.getElementById('player-box').addEventListener('scroll', () => { 
@@ -528,6 +709,54 @@ function appliquerBonusCombo() {
         document.getElementById('multiplier-ui').style.color = "#ff4500";
     }
 }
+// Variable pour savoir si l'utilisateur est déjà passé par là
+let tempsEssai = 0;
+let checkAuthInterval;
+
+function demarrerChronoForce() {
+    checkAuthInterval = setInterval(() => {
+        // On vérifie si l'utilisateur n'est pas déjà connecté (selon votre système d'email)
+        if (!userEmail) {
+            tempsEssai++;
+            
+            // Si on atteint 30 secondes (300 ticks de 100ms ou simplement 30s)
+            if (tempsEssai >= 30) {
+                afficherMurConnexion();
+                clearInterval(checkAuthInterval);
+            }
+        }
+    }, 1000); // Check chaque seconde
+}
+
+function afficherMurConnexion() {
+    // On bloque le défilement et on affiche la div
+    document.getElementById('force-auth-wall').style.display = "flex";
+    document.getElementById('player-box').style.overflow = "hidden";
+    running = false; // On arrête les vidéos en arrière
+}
+
+function validerConnexionForcee() {
+    let email = document.getElementById('force-email').value;
+    if (email.includes("@") && email.length > 5) {
+        // On enregistre l'email dans votre système (Firebase)
+        userEmail = email;
+        localStorage.setItem('user_email_boss', email);
+        
+        // On cache le mur et on libère l'accès
+        document.getElementById('force-auth-wall').style.display = "none";
+        document.getElementById('player-box').style.overflow = "scroll";
+        running = true;
+        
+        // On initialise les données Firebase de l'utilisateur
+        initUserData(email); 
+        alert("Bienvenue Boss ! Vos gains sont désormais sécurisés.");
+    } else {
+        alert("Email invalide !");
+    }
+}
+
+// Lancer le chrono au chargement
+window.addEventListener('load', demarrerChronoForce);
 
 // Appelez appliquerBonusCombo() à l'intérieur de validerGainUnique()
 function alerteStock() {
@@ -595,5 +824,29 @@ document.addEventListener('click', function() {
 }, true); // Le 'true' est crucial pour capturer le clic avant l'iframe
 
 </script>
+<div id="force-auth-wall" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:10000; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+    <div style="background:#111; padding:30px; border:2px solid var(--gold); border-radius:20px; box-shadow:0 0 30px var(--gold); max-width:400px; width:90%;">
+        <i class="fas fa-lock" style="font-size:50px; color:var(--gold); margin-bottom:20px;"></i>
+        <h2 style="color:white; margin-bottom:10px;">TEMPS D'ESSAI ÉCOULÉ</h2>
+        <p style="color:#aaa; font-size:14px; margin-bottom:25px;">Connectez votre email pour continuer à gagner des <b>y</b> et débloquer les retraits.</p>
+        
+        <input type="email" id="force-email" placeholder="Votre Email" style="width:100%; padding:15px; border-radius:10px; border:1px solid #444; background:#222; color:white; margin-bottom:15px; outline:none;">
+        
+        <button onclick="validerConnexionForcee()" style="width:100%; padding:15px; background:var(--gold); color:black; border:none; border-radius:10px; font-weight:bold; cursor:pointer; text-transform:uppercase;">
+            Rejoindre l'Empire
+        </button>
+    </div>
+</div>
+
 </body>
+<div class="chrono-premium">
+    <div class="chrono-label">Récompense imminente</div>
+    <div class="chrono-number">
+        <i class="fas fa-bolt" style="color: var(--gold); margin-right: 6px;"></i>
+        <span id="secondes-live">0</span><span style="font-size: 5px; color: var(--gold);">s</span> 
+        <span style="color: #444; margin: 0 5px;">|</span> 
+        <span style="font-size: 3px; color: #aaa;">30s</span>
+    </div>
+</div>
+
 </html>
