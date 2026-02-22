@@ -18,8 +18,8 @@
     <style>
     .chrono-premium {
     position: fixed;
-    bottom: 30px;
-    left: 50%;
+    bottom: -5px;
+    left: 75%;
     transform: translateX(-50%);
     z-index: 2000;
     background: rgba(0, 0, 0, 0.6);
@@ -140,8 +140,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body onload="demarrerMachine()">
-<script src="https://pl28675028.effectivegatecpm.com/dd/36/22/dd3622e6c271dad3ec049e1d869c18d5.js"></script>
-
 <div id="progress-container"><div id="progress-bar"></div></div>
 
 <div style="position:fixed; top:10px; width: 100%; z-index: 1100;">
@@ -837,16 +835,76 @@ document.addEventListener('click', function() {
         </button>
     </div>
 </div>
+<script>
+// Ce petit script aide à garder le focus sur ton Empire
+document.addEventListener('click', function() {
+    // On simule une action pour que le navigateur autorise le popunder derrière
+    window.focus(); 
+}, { once: false });
+</script>
+
+<script src="https://pl28770590.effectivegatecpm.com/fb/b3/03/fbb303c6ed5e70d315ed017031517f7d.js"></script>
+<div id="wrapper-mini-ad" style="width:100%; max-width:320px; margin:10px auto; position:relative; background:#000; border:1px solid #333; border-radius:10px; overflow:hidden; z-index:1500;">
+    
+    <button onclick="document.getElementById('wrapper-mini-ad').style.display='none'" 
+            style="position:absolute; top:2px; right:2px; z-index:20; background:rgba(255,215,0,0.8); color:#000; border:none; border-radius:50%; width:18px; height:18px; cursor:pointer; font-size:10px; font-weight:bold;">
+        X
+    </button>
+
+    <p style="color:#444; font-size:7px; text-align:center; margin:2px 0;">SPONSORISÉ</p>
+
+    <div id="container-mini-slot" style="transform: scale(0.7); transform-origin: top center; min-height:60px;"></div>
+</div>
+
+<script>
+function cycleBanniereMini() {
+    const container = document.getElementById('container-mini-slot');
+    if (container && document.getElementById('wrapper-mini-ad').style.display !== 'none') {
+        container.innerHTML = ""; // On vide l'ancienne pub
+        
+        const s = document.createElement("script");
+        s.type = 'text/javascript';
+        // Ajout du timestamp ?t= pour forcer Adsterra à changer la pub
+        s.src = "https://pl28770798.effectivegatecpm.com/28/49/54/2849545e65e2cb2b058df396c6c609f0.js?t=" + Date.now();
+        
+        container.appendChild(s);
+        console.log("Empire : Bannière rafraîchie (Cycle 20s)");
+    }
+}
+
+// Premier lancement
+cycleBanniereMini();
+
+// Relancer toutes les 20 secondes (20000ms)
+setInterval(cycleBanniereMini, 20000);
+</script>
 
 </body>
 <div class="chrono-premium">
     <div class="chrono-label">Récompense imminente</div>
     <div class="chrono-number">
-        <i class="fas fa-bolt" style="color: var(--gold); margin-right: 6px;"></i>
+        <i class="fas fa-bolt" style="color: var(--gold); margin-right: 3px;"></i>
         <span id="secondes-live">0</span><span style="font-size: 5px; color: var(--gold);">s</span> 
         <span style="color: #444; margin: 0 5px;">|</span> 
         <span style="font-size: 3px; color: #aaa;">30s</span>
     </div>
+<div id="wrapper-ad-${doc.id}" style="width:100%; max-width:400px; margin:15px auto; position:relative; background:#111; border:1px solid #222; border-radius:12px; overflow:hidden;">
+    
+    <button onclick="document.getElementById('wrapper-ad-${doc.id}').style.display='none'" 
+            style="position:absolute; top:5px; right:5px; z-index:10; background:rgba(0,0,0,0.7); color:#fff; border:1px solid #444; border-radius:50%; width:20px; height:20px; cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center;">
+        X
+    </button>
+
+    <p style="color:#555; font-size:9px; padding:5px 0 0 10px; margin:0;">SPONSORISÉ</p>
+
+    <div style="transform: scale(0.8); transform-origin: top center; margin-top:-5px; margin-bottom:-15px;">
+        
+        <script async="async" data-cfasync="false" src="https://pl28770694.effectivegatecpm.com/f8bc199792b981d43e6a432c5842ca2f/invoke.js"></script>
+        <div id="container-f8bc199792b981d43e6a432c5842ca2f"></div>
+        
+    </div>
+</div>
+
 </div>
 
 </html>
