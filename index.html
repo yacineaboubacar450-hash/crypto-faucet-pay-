@@ -292,6 +292,42 @@ let lienEmbed = "https://www.youtube.com/embed/" + videoId + "?enablejsapi=1&aut
     initObserver(); // On relance le scroll
 });
 
+// --- ANCRAGE LOCAL STORAGE ---
+function synchroniserAppareil() {
+    // 1. On demande à l'appareil s'il connaît ce soldat
+    const memoireEmpire = localStorage.getItem('empire_user');
+
+    if (memoireEmpire) {
+        const soldat = JSON.parse(memoireEmpire);
+        
+        // 2. On réinsère tout "comme avant" dans les variables du site
+        solde = parseFloat(soldat.balance) || 0;
+        userEmail = soldat.faucet_address;
+        
+        // 3. On met à jour l'affichage devant ses yeux
+        document.getElementById('w-amount').innerText = solde.toFixed(5) + " Y";
+        
+        // Si tu as une barre de profil, on insère l'email
+        const emailDisplay = document.getElementById('display-email');
+        if(emailDisplay) emailDisplay.innerText = userEmail;
+
+        console.log("Multivers : Solde et Email restaurés depuis l'appareil.");
+        updateAll(); // Ta fonction qui gère les barres de progression
+    }
+}
+
+// 4. On s'assure que chaque gain est gravé dans le marbre (LocalStorage)
+function graverDansAppareil() {
+    const donneesAAncrer = {
+        faucet_address: userEmail,
+        balance: solde,
+        rank: localStorage.getItem('empire_rank') || "SOLDAT"
+    };
+    localStorage.setItem('empire_user', JSON.stringify(donneesAAncrer));
+}
+
+// On lance la synchro dès que le soldat arrive
+window.addEventListener('load', synchroniserAppareil);
 
     function updateAll() {
         document.getElementById('w-amount').innerText = solde.toFixed(5) + " Y";
