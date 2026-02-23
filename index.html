@@ -290,54 +290,33 @@ let lienEmbed = "https://www.youtube.com/embed/" + videoId + "?enablejsapi=1&aut
         `;
     });
     initObserver(); // On relance le scroll
-});
-
-// --- ANCRAGE LOCAL STORAGE ---
-function synchroniserAppareil() {
-    // 1. On demande à l'appareil s'il connaît ce soldat
-    const memoireEmpire = localStorage.getItem('empire_user');
-
-    if (memoireEmpire) {
-        const soldat = JSON.parse(memoireEmpire);
-        
-        // 2. On réinsère tout "comme avant" dans les variables du site
-        solde = parseFloat(soldat.balance) || 0;
-        userEmail = soldat.faucet_address;
-        
-        // 3. On met à jour l'affichage devant ses yeux
-        document.getElementById('w-amount').innerText = solde.toFixed(5) + " Y";
-        
-        // Si tu as une barre de profil, on insère l'email
-        const emailDisplay = document.getElementById('display-email');
-        if(emailDisplay) emailDisplay.innerText = userEmail;
-
-        console.log("Multivers : Solde et Email restaurés depuis l'appareil.");
-        updateAll(); // Ta fonction qui gère les barres de progression
+});function updateAll() {
+    // On récupère la valeur du stockage
+    let soldeStocke = parseFloat(localStorage.getItem('solde_boss')) || 0;
+    
+    // Si le solde en mémoire est 0 mais qu'on a une valeur stockée, on la récupère
+    if (solde === 0 && soldeStocke > 0) {
+        solde = soldeStocke;
     }
-}
 
-// 4. On s'assure que chaque gain est gravé dans le marbre (LocalStorage)
-function graverDansAppareil() {
-    const donneesAAncrer = {
-        faucet_address: userEmail,
-        balance: solde,
-        rank: localStorage.getItem('empire_rank') || "SOLDAT"
-    };
-    localStorage.setItem('empire_user', JSON.stringify(donneesAAncrer));
-}
+    // Mise à jour de l'affichage dans la div
+    const afficheur = document.getElementById('w-amount');
+    if (afficheur) {
+        afficheur.innerText = solde.toFixed(5) + " Y";
+    }
 
-// On lance la synchro dès que le soldat arrive
-window.addEventListener('load', synchroniserAppareil);
-
-    function updateAll() {
-        document.getElementById('w-amount').innerText = solde.toFixed(5) + " Y";
-        document.getElementById('streak-num').innerText = daysInARow;
-        document.getElementById('multiplier-ui').innerText = "Bonus x" + streakMultiplier.toFixed(1);
-        let percent = Math.min((solde / 1.0) * 100, 100); 
+    // Mise à jour de la barre d'objectif
+    let percent = Math.min((solde / 100) * 100, 100); 
+    if(document.getElementById('goal-bar')) {
         document.getElementById('goal-bar').style.width = percent + "%";
         document.getElementById('goal-percent').innerText = Math.floor(percent);
-        localStorage.setItem('solde_boss', solde);
     }
+    
+    // On sauvegarde proprement
+    localStorage.setItem('solde_boss', solde);
+}
+
+
     window.addEventListener('load', () => {
     // 1. On vérifie si une position a été enregistrée
     let dernierId = localStorage.getItem('derniere_video_boss');
@@ -364,7 +343,8 @@ function demarrerMachine() {
     updateAll();
     // On appelle juste la fonction qui va surveiller le scroll
     initObserver(); 
-}function validerGainUnique(id) {
+}
+function validerGainUnique(id) {
     if (!videosVues.includes(id)) {
         videosVues.push(id);
         localStorage.setItem('videos_vues_boss', JSON.stringify(videosVues));
@@ -372,9 +352,7 @@ function demarrerMachine() {
         // Ajout du gain
         solde += 10; 
         updateAll();
-graverDansAppareil(); 
-        
-        updateAll();
+
         // --- ACTION DE SUPPRESSION ---
         let section = document.getElementById(id);
         if (section) {
