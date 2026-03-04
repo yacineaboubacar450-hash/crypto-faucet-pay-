@@ -278,25 +278,14 @@
             animation: slideUp 0.4s ease;
         }
 
-        .btn-success:hover {
+        .btn-success:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
         }
 
-        .btn-secondary {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            background: rgba(0, 242, 254, 0.05);
+        .btn-success:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .info-box {
@@ -321,10 +310,33 @@
             margin-top: 10px;
         }
 
-        .cooldown-text {
+        .queue-info {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .queue-info p {
             color: var(--warning);
             font-weight: bold;
-            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 1s linear;
         }
 
         .stats-grid {
@@ -355,19 +367,32 @@
             font-weight: bold;
         }
 
-        .progress-bar {
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 15px 0;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            transition: width 1s linear;
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
         .footer-nav {
@@ -411,6 +436,11 @@
 </head>
 <body>
 
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner-large"></div>
+        <p style="color: var(--primary); font-weight: bold;">CHARGEMENT DE LA PROCHAINE PUB...</p>
+    </div>
+
     <header>
         <div class="header-content">
             <div class="logo">🏄 SURF ADS</div>
@@ -425,6 +455,10 @@
         <div class="logo-container">🏄 GAGNEZ EN REGARDANT</div>
 
         <div id="message-container"></div>
+
+        <div id="queue-info" class="queue-info" style="display: none;">
+            <p id="queue-text">Chargement des publicités...</p>
+        </div>
 
         <div id="surf-container" class="card">
             <div class="surf-header">
@@ -441,18 +475,13 @@
             </div>
 
             <div class="surf-actions">
-                <button class="btn-primary" id="btn-visit-site" onclick="visitSite()">
+                <button class="btn-primary" id="btn-visit-site" onclick="visitSite()" disabled>
                     🌐 VISITER LE SITE
                 </button>
 
-                <button class="btn-success" id="btn-valider" onclick="validateSurf()">
+                <button class="btn-success" id="btn-valider" onclick="validateSurf()" disabled>
                     ✅ VALIDER MON VISIONNAGE
                 </button>
-            </div>
-
-            <div class="info-box" id="cooldown-info" style="display: none;">
-                <p>⏳ Temps d'attente avant de pouvoir revoir cette publicité</p>
-                <p class="cooldown-text" id="cooldown-timer">24:00:00</p>
             </div>
 
             <div class="info-box">
@@ -462,7 +491,7 @@
                 </p>
                 <p class="reward-text">+<span id="reward-text">0.0005</span>$</p>
                 <p style="color: #999; font-size: 0.85rem; margin-top: 10px;">
-                    ⚡ Une seule fois par publicité toutes les 24h
+                    ⚡ Une seule validation par publicité
                 </p>
             </div>
         </div>
@@ -473,16 +502,16 @@
                 <div class="stat-value" id="stat-viewed">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Gains du jour</div>
-                <div class="stat-value" id="stat-daily">0.00$</div>
+                <div class="stat-label">En attente</div>
+                <div class="stat-value" id="stat-queue">0</div>
             </div>
             <div class="stat-item">
                 <div class="stat-label">Solde total</div>
                 <div class="stat-value" id="stat-balance">0.00$</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">Pubs disponibles</div>
-                <div class="stat-value" id="stat-available">0</div>
+                <div class="stat-label">Gagné aujourd'hui</div>
+                <div class="stat-value" id="stat-today">0.00$</div>
             </div>
         </div>
 
@@ -496,7 +525,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
-            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, onSnapshot, setDoc, getDoc
+            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, onSnapshot, setDoc, getDoc, writeBatch
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -512,20 +541,23 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let currentUser = null;
         let currentAd = null;
-        let user = null;
         let timerActive = false;
         let visitTime = null;
-        let cooldownInterval = null;
+        let isProcessing = false;
+        let availableSurfs = [];
+        let currentIndex = 0;
+        let timerInterval = null;
 
-        onAuthStateChanged(auth, async (u) => {
-            if (!u) {
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
                 showMessage("Vous devez être connecté", "error");
                 setTimeout(() => window.location.href = "index.html", 2000);
                 return;
             }
 
-            user = u;
+            currentUser = user;
             document.getElementById('user-badge').innerText = user.email;
 
             // Real-time user data
@@ -536,85 +568,78 @@
                     document.getElementById('stat-balance').innerText = (userData.balance || 0).toFixed(2) + '$';
                     document.getElementById('stat-viewed').innerText = userData.surfViews || 0;
                     
-                    // Calcul des gains du jour
+                    // Gains du jour
                     const today = new Date().toDateString();
                     if (userData.lastSurfDate === today) {
-                        document.getElementById('stat-daily').innerText = (userData.dailySurfEarnings || 0).toFixed(2) + '$';
+                        document.getElementById('stat-today').innerText = (userData.dailySurfEarnings || 0).toFixed(2) + '$';
                     } else {
-                        document.getElementById('stat-daily').innerText = '0.00$';
+                        document.getElementById('stat-today').innerText = '0.00$';
                     }
                 }
             });
 
-            loadSurfs();
+            await loadAvailableSurfs();
         });
 
-        async function loadSurfs() {
+        // ========== CHARGER LES PUBS DISPONIBLES ==========
+        async function loadAvailableSurfs() {
             try {
                 showMessage("Chargement des publicités...", "warning");
+                
+                document.getElementById("btn-visit-site").disabled = true;
+                document.getElementById("btn-valider").disabled = true;
+                document.getElementById("btn-valider").classList.remove('show');
 
                 const surfsRef = collection(db, "surfs");
                 const q = query(surfsRef, where("status", "==", "active"));
                 const snapshot = await getDocs(q);
 
-                // Filtrer les surfs avec clics restants
-                const activeSurfs = snapshot.docs.map(doc => ({
+                // Récupérer toutes les surfs actives avec clics restants
+                const allActiveSurfs = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 })).filter(s => s.clicksRemaining > 0);
 
-                // Filtrer celles que l'utilisateur n'a pas vues aujourd'hui
-                const availableSurfs = [];
+                // Vérifier celles que l'utilisateur n'a PAS déjà validées
+                availableSurfs = [];
                 
-                for (const surf of activeSurfs) {
-                    const viewRef = doc(db, "surfs", surf.id, "views", user.uid);
+                for (const surf of allActiveSurfs) {
+                    const viewRef = doc(db, "surfs", surf.id, "views", currentUser.uid);
                     const viewSnap = await getDoc(viewRef);
                     
                     if (!viewSnap.exists()) {
-                        // Jamais vu
+                        // Jamais vue = disponible
                         availableSurfs.push(surf);
-                    } else {
-                        const viewData = viewSnap.data();
-                        const lastView = viewData.lastViewAt.toDate();
-                        const now = new Date();
-                        const hoursSince = (now - lastView) / (1000 * 60 * 60);
-                        
-                        if (hoursSince >= 24) {
-                            // Plus de 24h, disponible
-                            availableSurfs.push(surf);
-                        }
                     }
                 }
 
-                document.getElementById('stat-available').innerText = availableSurfs.length;
+                // Mettre à jour le compteur
+                document.getElementById('stat-queue').innerText = availableSurfs.length;
 
                 if (availableSurfs.length === 0) {
-                    showMessage("⏳ Aucune nouvelle publicité disponible pour aujourd'hui", "warning");
-                    document.getElementById("ad-title").innerText = "Plus de publicités aujourd'hui";
-                    document.getElementById("ad-url").innerText = "Revenez demain !";
+                    // Plus de publicités disponibles
+                    document.getElementById("ad-title").innerText = "🎉 FÉLICITATIONS !";
+                    document.getElementById("ad-url").innerText = "Vous avez vu toutes les publicités disponibles";
+                    document.getElementById("reward-text").innerText = "0.0000";
+                    document.getElementById("duration-text").innerText = "0";
+                    document.getElementById("queue-info").style.display = 'block';
+                    document.getElementById("queue-text").innerText = "✅ Vous avez terminé toutes les publicités ! Revenez plus tard pour de nouvelles.";
                     document.getElementById("btn-visit-site").disabled = true;
                     document.getElementById("btn-valider").classList.remove('show');
+                    showMessage("🎉 Toutes les publicités ont été vues !", "success");
                     return;
                 }
 
-                // Choisir une publicité aléatoire
-                currentAd = availableSurfs[Math.floor(Math.random() * availableSurfs.length)];
+                // Afficher la file d'attente
+                document.getElementById("queue-info").style.display = 'block';
+                document.getElementById("queue-text").innerHTML = `📊 <strong>${availableSurfs.length}</strong> publicité${availableSurfs.length > 1 ? 's' : ''} disponible${availableSurfs.length > 1 ? 's' : ''} • Une par une`;
 
-                document.getElementById("ad-title").innerText = currentAd.title;
-                document.getElementById("ad-url").innerText = "🔗 " + currentAd.url;
-                document.getElementById("duration-text").innerText = currentAd.duration;
-                document.getElementById("reward-text").innerText = currentAd.reward.toFixed(4);
+                // Mélanger aléatoirement
+                availableSurfs = shuffleArray(availableSurfs);
+                currentIndex = 0;
                 
-                // Réinitialiser l'interface
-                document.getElementById("btn-visit-site").disabled = false;
-                document.getElementById("btn-visit-site").style.display = 'block';
-                document.getElementById("btn-valider").classList.remove('show');
-                document.getElementById("cooldown-info").style.display = 'none';
-                document.getElementById("timer-display").innerText = '⏳';
-                document.getElementById("timer-display").classList.remove('finished', 'waiting');
-                document.getElementById("progress-bar").style.display = 'none';
-
-                showMessage("✅ Publicité disponible ! Cliquez sur 'Visiter le site'", "success");
+                // Afficher la première
+                displayCurrentSurf();
 
             } catch (error) {
                 console.error("Erreur:", error);
@@ -622,14 +647,74 @@
             }
         }
 
-        // ========== VISITER LE SITE (OUVRE UN NOUVEL ONGLET) ==========
-        window.visitSite = () => {
-            if (!currentAd) {
-                showMessage("❌ Aucune publicité sélectionnée", "error");
+        // ========== MÉLANGER LE TABLEAU ==========
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // ========== AFFICHER LA PUB COURANTE ==========
+        function displayCurrentSurf() {
+            if (currentIndex >= availableSurfs.length) {
+                // Plus de pubs, recharger
+                loadAvailableSurfs();
                 return;
             }
 
-            // Ouvrir le site dans un nouvel onglet
+            currentAd = availableSurfs[currentIndex];
+            
+            document.getElementById("ad-title").innerText = currentAd.title;
+            document.getElementById("ad-url").innerText = "🔗 " + currentAd.url;
+            document.getElementById("duration-text").innerText = currentAd.duration;
+            document.getElementById("reward-text").innerText = currentAd.reward.toFixed(4);
+            
+            // Réinitialiser l'interface
+            resetInterface();
+            
+            // Activer le bouton visiter
+            document.getElementById("btn-visit-site").disabled = false;
+            
+            // Mettre à jour le compteur de file
+            const remaining = availableSurfs.length - currentIndex;
+            document.getElementById('stat-queue').innerText = remaining;
+            document.getElementById("queue-text").innerHTML = `📊 <strong>${remaining}</strong> publicité${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}`;
+            
+            showMessage(`✅ Publicité ${currentIndex + 1}/${availableSurfs.length} disponible`, "success");
+        }
+
+        // ========== RÉINITIALISER L'INTERFACE ==========
+        function resetInterface() {
+            // Arrêter tous les timers
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerActive = false;
+            isProcessing = false;
+            
+            document.getElementById("timer-display").innerText = '⏳';
+            document.getElementById("timer-display").classList.remove('finished', 'waiting');
+            document.getElementById("progress-bar").style.display = 'none';
+            document.getElementById("btn-valider").classList.remove('show');
+            document.getElementById("btn-valider").disabled = false;
+            document.getElementById("btn-visit-site").disabled = false;
+            document.getElementById("loading-overlay").classList.remove('active');
+        }
+
+        // ========== VISITER LE SITE ==========
+        window.visitSite = () => {
+            if (!currentAd) {
+                showMessage("❌ Aucune publicité", "error");
+                return;
+            }
+
+            if (timerActive) {
+                showMessage("⏳ Vous avez déjà commencé à regarder cette pub", "warning");
+                return;
+            }
+
+            // Ouvrir dans un nouvel onglet
             window.open(currentAd.url, '_blank');
             
             // Démarrer le timer
@@ -638,12 +723,13 @@
             // Désactiver le bouton visiter
             document.getElementById("btn-visit-site").disabled = true;
             
-            // Enregistrer l'heure de visite
+            // Enregistrer l'heure
             visitTime = Date.now();
             
-            showMessage("⏳ Timer démarré ! Revenez après " + currentAd.duration + " secondes", "warning");
+            showMessage(`⏳ Timer de ${currentAd.duration}s démarré !`, "warning");
         };
 
+        // ========== DÉMARRER LE TIMER ==========
         function startTimer(duration) {
             if (timerActive) return;
             timerActive = true;
@@ -660,77 +746,74 @@
             progressBar.style.display = 'block';
             progressFill.style.width = '0%';
 
-            const interval = setInterval(() => {
+            timerInterval = setInterval(() => {
                 time--;
                 timerDisplay.innerText = time + "s";
                 
-                // Mettre à jour la barre de progression
                 const percent = ((duration - time) / duration) * 100;
                 progressFill.style.width = percent + '%';
 
                 if (time <= 0) {
-                    clearInterval(interval);
+                    clearInterval(timerInterval);
                     timerDisplay.classList.add('finished');
                     timerDisplay.innerText = "✅";
                     btnValider.classList.add('show');
                     progressFill.style.width = '100%';
                     timerActive = false;
                     
-                    showMessage("✅ Temps écoulé ! Vous pouvez valider maintenant", "success");
+                    showMessage("✅ Temps écoulé ! Vous pouvez valider", "success");
                 }
             }, 1000);
         }
 
         // ========== VALIDER LE SURF ==========
         window.validateSurf = async () => {
-            if (!user || !currentAd) {
+            if (!currentUser || !currentAd) {
                 showMessage("❌ Erreur: Données manquantes", "error");
                 return;
             }
 
-            // Vérifier que le timer est bien fini
+            // Vérifier que le timer est fini
             if (timerActive) {
                 showMessage("⏳ Veuillez attendre la fin du timer", "warning");
                 return;
             }
 
+            // Empêcher les doubles clics
+            if (isProcessing) return;
+            isProcessing = true;
+
             try {
                 const btn = document.getElementById("btn-valider");
                 btn.disabled = true;
-                btn.innerText = "⏳ Traitement...";
+                btn.innerText = "⏳ TRAITEMENT...";
 
-                // Vérifier une dernière fois que l'utilisateur n'a pas déjà vu cette pub aujourd'hui
-                const viewRef = doc(db, "surfs", currentAd.id, "views", user.uid);
+                // Vérifier une dernière fois que cette pub n'a pas déjà été validée
+                const viewRef = doc(db, "surfs", currentAd.id, "views", currentUser.uid);
                 const viewSnap = await getDoc(viewRef);
                 
                 if (viewSnap.exists()) {
-                    const viewData = viewSnap.data();
-                    const lastView = viewData.lastViewAt.toDate();
-                    const now = new Date();
-                    const hoursSince = (now - lastView) / (1000 * 60 * 60);
-                    
-                    if (hoursSince < 24) {
-                        showMessage("⛔ Vous avez déjà vu cette publicité aujourd'hui", "error");
-                        setTimeout(() => location.reload(), 2000);
-                        return;
-                    }
+                    showMessage("⛔ Vous avez déjà validé cette publicité", "error");
+                    setTimeout(() => location.reload(), 2000);
+                    return;
                 }
 
-                // Mettre à jour l'utilisateur
-                const userRef = doc(db, "users", user.uid);
+                // Préparer le batch pour atomicité
+                const batch = writeBatch(db);
+
+                // 1. Mettre à jour l'utilisateur
+                const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
                 const userData = userSnap.data();
                 
                 const today = new Date().toDateString();
-                let dailyEarnings = 0;
+                let dailyEarnings = currentAd.reward;
                 
                 if (userData.lastSurfDate === today) {
                     dailyEarnings = (userData.dailySurfEarnings || 0) + currentAd.reward;
-                } else {
-                    dailyEarnings = currentAd.reward;
                 }
 
-                await updateDoc(userRef, {
+                batch.update(userRef, {
                     balance: increment(currentAd.reward),
                     totalEarned: increment(currentAd.reward),
                     surfViews: increment(1),
@@ -739,71 +822,54 @@
                     lastLogin: serverTimestamp()
                 });
 
-                // Mettre à jour la surf ad
+                // 2. Mettre à jour la surf ad
                 const surfRef = doc(db, "surfs", currentAd.id);
-                await updateDoc(surfRef, {
+                batch.update(surfRef, {
                     clicksRemaining: increment(-1),
                     clicksCompleted: increment(1)
                 });
 
-                // Enregistrer la vue pour cette publicité
-                await setDoc(viewRef, {
-                    userId: user.uid,
-                    lastViewAt: serverTimestamp(),
+                // 3. Enregistrer la vue
+                batch.set(viewRef, {
+                    userId: currentUser.uid,
+                    viewedAt: serverTimestamp(),
                     earned: currentAd.reward
                 });
 
-                showMessage(`✅ Gagné ${currentAd.reward.toFixed(4)}$ !`, "success");
+                // Exécuter le batch
+                await batch.commit();
 
-                // Afficher le cooldown
-                const cooldownInfo = document.getElementById("cooldown-info");
-                const cooldownTimer = document.getElementById("cooldown-timer");
-                cooldownInfo.style.display = 'block';
+                showMessage(`✅ +${currentAd.reward.toFixed(4)}$ gagnés !`, "success");
+
+                // Afficher l'overlay de chargement
+                document.getElementById("loading-overlay").classList.add('active');
+
+                // Passer à la pub suivante
+                currentIndex++;
                 
-                // Démarrer le compte à rebours de 24h
-                startCooldown(24 * 60 * 60);
-
-                setTimeout(() => {
-                    loadSurfs();
-                }, 3000);
+                if (currentIndex < availableSurfs.length) {
+                    // Afficher la prochaine pub après 2 secondes
+                    setTimeout(() => {
+                        displayCurrentSurf();
+                        document.getElementById("loading-overlay").classList.remove('active');
+                    }, 2000);
+                } else {
+                    // Plus de pubs, recharger la liste
+                    setTimeout(async () => {
+                        await loadAvailableSurfs();
+                        document.getElementById("loading-overlay").classList.remove('active');
+                    }, 2000);
+                }
 
             } catch (error) {
                 console.error("Erreur:", error);
                 showMessage("❌ Erreur: " + error.message, "error");
+                isProcessing = false;
                 document.getElementById("btn-valider").disabled = false;
                 document.getElementById("btn-valider").innerText = "✅ VALIDER MON VISIONNAGE";
+                document.getElementById("loading-overlay").classList.remove('active');
             }
         };
-
-        // ========== COOLDOWN 24H ==========
-        function startCooldown(totalSeconds) {
-            if (cooldownInterval) clearInterval(cooldownInterval);
-            
-            const timerDisplay = document.getElementById("timer-display");
-            const cooldownTimer = document.getElementById("cooldown-timer");
-            
-            timerDisplay.classList.add('waiting');
-            timerDisplay.innerText = '⏳ 24h';
-            
-            let seconds = totalSeconds;
-            
-            cooldownInterval = setInterval(() => {
-                seconds--;
-                
-                if (seconds <= 0) {
-                    clearInterval(cooldownInterval);
-                    document.getElementById("cooldown-info").style.display = 'none';
-                    timerDisplay.classList.remove('waiting');
-                    timerDisplay.innerText = '⏳';
-                } else {
-                    const hours = Math.floor(seconds / 3600);
-                    const minutes = Math.floor((seconds % 3600) / 60);
-                    const secs = seconds % 60;
-                    
-                    cooldownTimer.innerText = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-                }
-            }, 1000);
-        }
 
         function showMessage(message, type = 'success') {
             const container = document.getElementById('message-container');
@@ -820,7 +886,7 @@
             container.innerHTML = '';
             container.appendChild(div);
 
-            if (type === 'success') {
+            if (type === 'success' || type === 'warning') {
                 setTimeout(() => {
                     if (div.parentNode) div.remove();
                 }, 4000);
