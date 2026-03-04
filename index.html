@@ -42,7 +42,6 @@
             overflow-x: hidden;
         }
 
-        /* ========== SCROLLBAR ========== */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -60,7 +59,7 @@
             background: var(--primary-dark);
         }
 
-        /* ========== HEADER STICKY ========== */
+        /* ========== HEADER ========== */
         header {
             position: fixed;
             top: 0;
@@ -164,7 +163,7 @@
             transform: translateY(-2px);
         }
 
-        /* ========== MAIN CONTENT ========== */
+        /* ========== MAIN ========== */
         main {
             margin-top: 80px;
             min-height: calc(100vh - 80px);
@@ -176,7 +175,7 @@
             margin: 0 auto;
         }
 
-        /* ========== HERO SECTION ========== */
+        /* ========== HERO ========== */
         .hero {
             text-align: center;
             margin-bottom: 60px;
@@ -215,7 +214,7 @@
             margin-right: auto;
         }
 
-        /* ========== USER STATS SECTION ========== */
+        /* ========== STATS ========== */
         .user-stats {
             display: none;
             margin-bottom: 50px;
@@ -236,30 +235,12 @@
             padding: 25px;
             text-align: center;
             transition: 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(0, 242, 254, 0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: 0.3s;
         }
 
         .stat-card:hover {
             border-color: var(--primary);
             transform: translateY(-5px);
             box-shadow: 0 10px 40px rgba(0, 242, 254, 0.15);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
         }
 
         .stat-icon {
@@ -284,7 +265,7 @@
             background-clip: text;
         }
 
-        /* ========== REFERRAL CARD ========== */
+        /* ========== REFERRAL ========== */
         .referral-section {
             background: linear-gradient(135deg, rgba(0, 242, 254, 0.1), rgba(255, 0, 204, 0.1));
             border: 2px solid var(--primary);
@@ -294,6 +275,7 @@
             text-align: center;
             position: relative;
             overflow: hidden;
+            display: none;
         }
 
         .referral-section::before {
@@ -368,7 +350,7 @@
             margin-top: 5px;
         }
 
-        /* ========== ACHIEVEMENTS SECTION ========== */
+        /* ========== ACHIEVEMENTS ========== */
         .achievements-section {
             margin-bottom: 50px;
             display: none;
@@ -511,12 +493,6 @@
             margin-bottom: 20px;
         }
 
-        .action-stats span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
         .btn-action {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--dark);
@@ -535,10 +511,6 @@
         .btn-action:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
-        }
-
-        .btn-action:active {
-            transform: translateY(-1px);
         }
 
         /* ========== AUTH OVERLAY ========== */
@@ -648,7 +620,7 @@
             color: var(--primary);
         }
 
-        /* ========== LEADERBOARD SECTION ========== */
+        /* ========== LEADERBOARD ========== */
         .leaderboard-section {
             margin-bottom: 50px;
             display: none;
@@ -757,81 +729,7 @@
             margin-top: 60px;
         }
 
-        /* ========== RESPONSIVE ========== */
-        @media (max-width: 1024px) {
-            .auth-container {
-                flex-direction: column;
-            }
-
-            .auth-left {
-                display: none !important;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .actions-grid {
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            header {
-                padding: 12px 0;
-            }
-
-            .header-container {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .logo {
-                font-size: 1.3rem;
-            }
-
-            main {
-                margin-top: 100px;
-                padding: 20px 15px;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero p {
-                font-size: 0.95rem;
-            }
-
-            .actions-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .action-card {
-                padding: 20px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .referral-section {
-                padding: 25px;
-            }
-
-            .achievements-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            }
-
-            .notification {
-                bottom: 20px;
-                right: 20px;
-                left: 20px;
-                max-width: none;
-            }
-        }
-
-        /* ========== LOADING SPINNER ========== */
+        /* ========== SPINNER ========== */
         .spinner {
             display: inline-block;
             width: 20px;
@@ -847,9 +745,14 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ========== ANIMATIONS ========== */
-        .fade-in {
-            animation: slideDown 0.6s ease;
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            header { padding: 12px 0; }
+            .header-container { flex-direction: column; gap: 10px; }
+            main { margin-top: 100px; padding: 20px 15px; }
+            .hero h1 { font-size: 2rem; }
+            .actions-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -863,7 +766,7 @@
                 YCASH EMPIRE
             </div>
 
-            <div class="header-actions" id="header-actions">
+            <div class="header-actions">
                 <div class="user-card" id="user-card" style="display: none;">
                     <span class="status-indicator"></span>
                     <div>
@@ -878,17 +781,17 @@
         </div>
     </header>
 
-    <!-- ========== MAIN CONTENT ========== -->
+    <!-- ========== MAIN ========== -->
     <main>
         <div class="container">
 
             <!-- ========== HERO ========== -->
-            <section class="hero" id="hero">
+            <section class="hero">
                 <h1>💰 Gagnez de l'Argent en Ligne</h1>
                 <p>Complétez des tâches, regardez des publicités, gagnez des récompenses. C'est simple, rapide et gratuit.</p>
             </section>
 
-            <!-- ========== USER STATS ========== -->
+            <!-- ========== STATS ========== -->
             <section class="user-stats" id="user-stats">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -917,8 +820,8 @@
                 </div>
             </section>
 
-            <!-- ========== REFERRAL SECTION ========== -->
-            <section class="referral-section" id="referral-section" style="display: none;">
+            <!-- ========== REFERRAL ========== -->
+            <section class="referral-section" id="referral-section">
                 <h2>🤝 Programme de Parrainage (25%)</h2>
                 <p style="color: #ccc; margin-bottom: 20px;">Parrainez des amis et gagnez 25% de leurs gains à vie !</p>
                 
@@ -946,12 +849,10 @@
             <!-- ========== ACHIEVEMENTS ========== -->
             <section class="achievements-section" id="achievements-section">
                 <h2>🏅 Accomplissements</h2>
-                <div class="achievements-grid" id="achievements-grid">
-                    <!-- Généré par JavaScript -->
-                </div>
+                <div class="achievements-grid" id="achievements-grid"></div>
             </section>
 
-            <!-- ========== ACTIONS GRID ========== -->
+            <!-- ========== ACTIONS ========== -->
             <section>
                 <div class="actions-grid">
                     <div class="action-card" onclick="checkAuthAndRedirect('surf.html')">
@@ -1025,9 +926,7 @@
             <!-- ========== LEADERBOARD ========== -->
             <section class="leaderboard-section" id="leaderboard-section">
                 <h2>🏆 Top 10 du Mois</h2>
-                <div class="leaderboard" id="leaderboard">
-                    <!-- Généré par JavaScript -->
-                </div>
+                <div class="leaderboard" id="leaderboard"></div>
             </section>
 
         </div>
@@ -1065,20 +964,23 @@
     <footer>
         <p>&copy; 2026 YCash Empire - La plateforme de micro-tâches la plus rémunératrice</p>
         <p style="font-size: 0.8rem; margin-top: 10px;">
-            <a href="#" style="color: var(--primary); text-decoration: none;">Conditions d'utilisation</a> • 
+            <a href="#" style="color: var(--primary); text-decoration: none;">Conditions</a> • 
             <a href="#" style="color: var(--primary); text-decoration: none;">Confidentialité</a> • 
             <a href="#" style="color: var(--primary); text-decoration: none;">Contact</a>
         </p>
     </footer>
 
-    <!-- ========== SCRIPT ========== -->
+    <!-- ========== FIREBASE ========== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { 
             getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs, onSnapshot, updateDoc, increment, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ========== FIREBASE CONFIG ==========
+        // ========== CONFIG ==========
         const firebaseConfig = {
             apiKey: "AIzaSyAwPBl7Cq2v_fyza9d3o_SwvYbDAk4hzcA",
             authDomain: "ycash-enpire-v2.firebaseapp.com",
@@ -1090,6 +992,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
         let currentUser = null;
@@ -1100,9 +1003,34 @@
             currentUser = user;
 
             if (user) {
+                // ✅ Créer user document si n'existe pas
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                
+                if (!userSnap.exists()) {
+                    const referralCode = 'REF' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        email: user.email,
+                        balance: 0,
+                        totalEarned: 0,
+                        level: 1,
+                        referralCode: referralCode,
+                        referralCount: 0,
+                        referralEarnings: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp()
+                    });
+                } else {
+                    // Mettre à jour lastLogin
+                    await updateDoc(userRef, {
+                        lastLogin: serverTimestamp()
+                    });
+                }
+
                 showUserDashboard(user);
                 loadUserData(user.uid);
-                
+
                 if (user.uid === ADMIN_UID) {
                     document.getElementById('admin-card').style.display = 'block';
                 }
@@ -1118,7 +1046,6 @@
             document.getElementById('referral-section').style.display = 'block';
             document.getElementById('achievements-section').style.display = 'block';
             document.getElementById('leaderboard-section').style.display = 'block';
-
             document.getElementById('user-card').style.display = 'flex';
             document.getElementById('btn-logout').style.display = 'block';
             document.getElementById('user-email-header').innerText = user.email;
@@ -1131,7 +1058,6 @@
             document.getElementById('referral-section').style.display = 'none';
             document.getElementById('achievements-section').style.display = 'none';
             document.getElementById('leaderboard-section').style.display = 'none';
-
             document.getElementById('user-card').style.display = 'none';
             document.getElementById('btn-logout').style.display = 'none';
         }
@@ -1139,32 +1065,27 @@
         // ========== LOAD USER DATA ==========
         async function loadUserData(uid) {
             try {
-                const response = await fetch('./data/users.json');
-                const data = await response.json();
-                const user = data.users.find(u => u.id === uid);
+                const userRef = doc(db, "users", uid);
+                
+                // Real-time sync
+                onSnapshot(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const user = snapshot.data();
+                        document.getElementById('stat-balance').innerText = (user.balance || 0).toFixed(2) + '$';
+                        document.getElementById('stat-total-earned').innerText = (user.totalEarned || 0).toFixed(2) + '$';
+                        document.getElementById('stat-level').innerText = user.level || 1;
+                        document.getElementById('referral-code').innerText = user.referralCode;
+                        document.getElementById('ref-count').innerText = user.referralCount || 0;
+                        document.getElementById('ref-earnings').innerText = (user.referralEarnings || 0).toFixed(2) + '$';
 
-                if (user) {
-                    document.getElementById('stat-balance').innerText = user.balance.toFixed(2) + '$';
-                    document.getElementById('stat-total-earned').innerText = user.totalEarned.toFixed(2) + '$';
-                    document.getElementById('stat-level').innerText = user.level;
-
-                    const monthlyGain = 0;
-                    document.getElementById('stat-monthly').innerText = monthlyGain.toFixed(2) + '$';
-
-                    document.getElementById('referral-code').innerText = user.referralCode;
-
-                    const refData = data.referrals?.find(r => r.referrerID === uid);
-                    if (refData) {
-                        document.getElementById('ref-count').innerText = refData.referred || 0;
-                        document.getElementById('ref-earnings').innerText = refData.totalEarningsBonded.toFixed(2) + '$';
-                        document.getElementById('ref-total-gains').innerText = (refData.totalEarningsBonded / 0.25).toFixed(2) + '$';
+                        generateAchievements(user);
                     }
+                });
 
-                    generateAchievements(user);
-                    loadLeaderboard(data.users);
-                }
+                // Load leaderboard
+                loadLeaderboard();
             } catch (error) {
-                console.error('Erreur chargement données:', error);
+                console.error('Erreur:', error);
             }
         }
 
@@ -1192,20 +1113,29 @@
         }
 
         // ========== LEADERBOARD ==========
-        function loadLeaderboard(users) {
-            const sorted = [...users].sort((a, b) => b.totalEarned - a.totalEarned).slice(0, 10);
-            const lb = document.getElementById('leaderboard');
+        async function loadLeaderboard() {
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, orderBy("totalEarned", "desc"), limit(10));
+                const snapshot = await getDocs(q);
 
-            lb.innerHTML = sorted.map((user, i) => `
-                <div class="leaderboard-row">
-                    <div class="leaderboard-rank">#${i + 1}</div>
-                    <div class="leaderboard-user">
-                        <div class="leaderboard-name">${user.email.split('@')[0]}</div>
-                        <div class="leaderboard-email">Niveau ${user.level}</div>
-                    </div>
-                    <div class="leaderboard-earnings">${user.totalEarned.toFixed(2)}$</div>
-                </div>
-            `).join('');
+                const lb = document.getElementById('leaderboard');
+                lb.innerHTML = snapshot.docs.map((doc, i) => {
+                    const user = doc.data();
+                    return `
+                        <div class="leaderboard-row">
+                            <div class="leaderboard-rank">#${i + 1}</div>
+                            <div class="leaderboard-user">
+                                <div class="leaderboard-name">${user.email.split('@')[0]}</div>
+                                <div class="leaderboard-email">Niveau ${user.level || 1}</div>
+                            </div>
+                            <div class="leaderboard-earnings">${(user.totalEarned || 0).toFixed(2)}$</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Erreur leaderboard:', error);
+            }
         }
 
         // ========== GOOGLE LOGIN ==========
@@ -1215,8 +1145,7 @@
                 btn.disabled = true;
                 btn.innerHTML = '<div class="spinner"></div> Connexion...';
 
-                const result = await signInWithPopup(auth, provider);
-                
+                await signInWithPopup(auth, provider);
                 showNotification('✅ Bienvenue sur YCash Empire!', 'success');
 
             } catch (err) {
