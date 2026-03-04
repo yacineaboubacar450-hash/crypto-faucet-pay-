@@ -1,0 +1,135 @@
+{
+
+  "users": [
+
+    {
+
+      "id": "google_uid_demo_1",
+
+      "email": "demo@gmail.com",
+
+      "balance": 45.75,
+
+      "totalEarned": 125.50,
+
+      "level": 5,
+
+      "referralCode": "DEMO1ABC",
+
+      "referralCount": 3,
+
+      "referralEarnings": 15.25,
+
+      "createdAt": "2026-02-01",
+
+      "lastLogin": "2026-03-04",
+
+      "achievements": [1, 2, 3, 5],
+
+      "tasksCompleted": 12,
+
+      "surfsWatched": 45,
+
+      "verificationStatus": "verified"
+
+    },
+
+    {
+
+      "id": "google_uid_demo_2",
+
+      "email": "user2@gmail.com",
+
+      "balance": 82.30,
+
+      "totalEarned": 285.75,
+
+      "level": 8,
+
+      "referralCode": "USER2XYZ",
+
+      "referralCount": 8,
+
+      "referralEarnings": 52.10,
+
+      "createdAt": "2026-01-15",
+
+      "lastLogin": "2026-03-04",
+
+      "achievements": [1, 2, 3, 4, 5, 6, 7],
+
+      "tasksCompleted": 35,
+
+      "surfsWatched": 150,
+
+      "verificationStatus": "verified"
+
+    },
+
+    {
+
+      "id": "google_uid_demo_3",
+
+      "email": "topuser@gmail.com",
+
+      "balance": 156.45,
+
+      "totalEarned": 542.80,
+
+      "level": 10,
+
+      "referralCode": "TOPUSER99",
+
+      "referralCount": 15,
+
+      "referralEarnings": 135.70,
+
+      "createdAt": "2026-01-01",
+
+      "lastLogin": "2026-03-04",
+
+      "achievements": [1, 2, 3, 4, 5, 6, 7, 8],
+
+      "tasksCompleted": 78,
+
+      "surfsWatched": 312,
+
+      "verificationStatus": "verified"
+
+    },
+
+    {
+
+      "id": "google_uid_demo_4",
+
+      "email": "newuser@gmail.com",
+
+      "balance": 5.50,
+
+      "totalEarned": 15.75,
+
+      "level": 1,
+
+      "referralCode": "NEW4USER",
+
+      "referralCount": 0,
+
+      "referralEarnings": 0,
+
+      "createdAt": "2026-03-03",
+
+      "lastLogin": "2026-03-04",
+
+      "achievements": [1],
+
+      "tasksCompleted": 3,
+
+      "surfsWatched": 8,
+
+      "verificationStatus": "pending"
+
+    }
+
+  ]
+
+}

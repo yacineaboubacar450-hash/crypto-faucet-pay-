@@ -1,0 +1,387 @@
+{
+
+  "tasks": [
+
+    {
+
+      "id": "task_001",
+
+      "title": "S'abonner à notre Telegram",
+
+      "description": "Rejoignez notre canal Telegram officiel @YCashEmpire. Prenez une capture d'écran de votre abonnement et soumettez-la.",
+
+      "reward": 0.50,
+
+      "totalSlots": 500,
+
+      "slotsFilled": 128,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationLink": "https://t.me/ycashempire",
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-01",
+
+      "category": "Social",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "2 min",
+
+      "submissions": [
+
+        {
+
+          "userID": "google_uid_demo_1",
+
+          "submittedAt": "2026-03-04T10:30:00Z",
+
+          "status": "approved",
+
+          "proof": "screenshot_url_1"
+
+        }
+
+      ]
+
+    },
+
+    {
+
+      "id": "task_002",
+
+      "title": "Suivre notre Instagram",
+
+      "description": "Suivez @YCashEmpire sur Instagram, likez la dernière publication et commentez 'YCash'. Prenez une capture d'écran.",
+
+      "reward": 0.75,
+
+      "totalSlots": 400,
+
+      "slotsFilled": 95,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationLink": "https://instagram.com/ycashempire",
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-03",
+
+      "category": "Social",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "3 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_003",
+
+      "title": "S'abonner à YouTube",
+
+      "description": "Abonnez-vous à notre chaîne YouTube YCash Empire et activez les notifications. Prenez une capture d'écran.",
+
+      "reward": 0.55,
+
+      "totalSlots": 350,
+
+      "slotsFilled": 142,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationLink": "https://youtube.com/c/ycashempire",
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-05",
+
+      "category": "Social",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "2 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_004",
+
+      "title": "Télécharger l'application",
+
+      "description": "Téléchargez notre application depuis le Play Store ou App Store. Prenez une capture d'écran montrant l'app installée sur votre téléphone.",
+
+      "reward": 1.50,
+
+      "totalSlots": 200,
+
+      "slotsFilled": 87,
+
+      "status": "active",
+
+      "autoValidate": true,
+
+      "validationType": "automatic",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-07",
+
+      "category": "App",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "5 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_005",
+
+      "title": "Inviter 3 amis",
+
+      "description": "Invitez 3 amis à rejoindre YCash Empire en utilisant votre lien de parrainage. Envoyez les screenshots des profils de vos 3 amis nouvellement inscrits.",
+
+      "reward": 3.00,
+
+      "totalSlots": 150,
+
+      "slotsFilled": 32,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-09",
+
+      "category": "Referral",
+
+      "difficulty": "Moyen",
+
+      "estimatedTime": "30 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_006",
+
+      "title": "Compléter votre profil",
+
+      "description": "Complétez tous les champs de votre profil (photo, bio, localisation, date de naissance). Prenez une capture d'écran de votre profil 100% complet.",
+
+      "reward": 0.40,
+
+      "totalSlots": 600,
+
+      "slotsFilled": 234,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-11",
+
+      "category": "Profile",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "5 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_007",
+
+      "title": "Vérifier votre email",
+
+      "description": "Confirmez votre adresse email en cliquant sur le lien de vérification. Cette tâche est auto-validée une fois confirmée.",
+
+      "reward": 0.30,
+
+      "totalSlots": 1000,
+
+      "slotsFilled": 456,
+
+      "status": "active",
+
+      "autoValidate": true,
+
+      "validationType": "automatic",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-01",
+
+      "category": "Verification",
+
+      "difficulty": "Très facile",
+
+      "estimatedTime": "1 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_008",
+
+      "title": "Remplir un sondage client",
+
+      "description": "Participez à notre sondage client (5 minutes). Les questions portent sur votre expérience avec YCash Empire. Prenez une capture d'écran de la page de confirmation.",
+
+      "reward": 1.25,
+
+      "totalSlots": 250,
+
+      "slotsFilled": 103,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-13",
+
+      "category": "Survey",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "5 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_009",
+
+      "title": "Partager sur Facebook",
+
+      "description": "Partagez le lien YCash Empire sur votre mur Facebook. Prenez une capture d'écran du partage.",
+
+      "reward": 0.60,
+
+      "totalSlots": 300,
+
+      "slotsFilled": 89,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-15",
+
+      "category": "Social",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "3 min",
+
+      "submissions": []
+
+    },
+
+    {
+
+      "id": "task_010",
+
+      "title": "Rejoindre Discord",
+
+      "description": "Rejoignez notre serveur Discord exclusif YCash Empire et présentez-vous dans le canal #introductions.",
+
+      "reward": 0.80,
+
+      "totalSlots": 400,
+
+      "slotsFilled": 156,
+
+      "status": "active",
+
+      "autoValidate": false,
+
+      "validationType": "manual",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "marketing@ycash.com",
+
+      "createdAt": "2026-02-17",
+
+      "category": "Social",
+
+      "difficulty": "Facile",
+
+      "estimatedTime": "5 min",
+
+      "submissions": []
+
+    }
+
+  ]
+
+}

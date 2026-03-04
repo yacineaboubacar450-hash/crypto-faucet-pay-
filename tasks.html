@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Missions - YCash Empire | Gagnez en complétant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========== VARIABLES ========== */
+        :root {
+            --primary: #00f2fe;
+            --primary-dark: #00d4ff;
+            --accent: #ff00cc;
+            --success: #00ff88;
+            --danger: #ff5757;
+            --warning: #ffc107;
+            --dark: #0a0e27;
+            --darker: #0f1729;
+            --card-bg: rgba(20, 30, 60, 0.6);
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a2847 50%, #0d1629 100%);
+            background-attachment: fixed;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        /* ========== HEADER ========== */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .user-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 10px 18px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .user-card:hover {
+            border-color: var(--primary);
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .user-email {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .back-link {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+
+        .back-link:hover {
+            background: var(--glass);
+        }
+
+        /* ========== MAIN ========== */
+        main {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.8s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: #ccc;
+            font-size: 1rem;
+        }
+
+        /* ========== MESSAGES ========== */
+        #message-container {
+            margin-bottom: 25px;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            animation: slideDown 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid;
+        }
+
+        .message.success {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .message.error {
+            background: rgba(255, 87, 87, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .message.info {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ========== FILTERS ========== */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #ccc;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--primary);
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--primary);
+        }
+
+        /* ========== TASKS GRID ========== */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .task-card {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.05), rgba(255, 0, 204, 0.05));
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .task-card:hover::before {
+            left: 100%;
+        }
+
+        .task-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 50px rgba(0, 242, 254, 0.2);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .task-emoji {
+            font-size: 2.5rem;
+        }
+
+        .task-badge {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .task-badge.easy {
+            background: rgba(0, 255, 136, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .task-badge.medium {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .task-badge.hard {
+            background: rgba(255, 87, 87, 0.1);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .task-description {
+            color: #ccc;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .task-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--glass-border);
+            margin-bottom: 15px;
+        }
+
+        .task-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .task-stat-value {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: white;
+            margin-top: 3px;
+        }
+
+        .task-reward {
+            font-size: 1.4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .task-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-do-task {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--dark);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .btn-do-task:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+        }
+
+        .task-status {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 800;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* ========== MODAL ========== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(30, 50, 100, 0.8), rgba(40, 70, 150, 0.6));
+            border: 2px solid var(--primary);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 242, 254, 0.3);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 900;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+
+        .modal-description {
+            color: #ccc;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .modal-link {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 12px 15px;
+            border-radius: 10px;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 20px;
+            transition: 0.3s;
+            word-break: break-all;
+            font-size: 0.85rem;
+        }
+
+        .modal-link:hover {
+            border-color: var(--primary);
+            background: rgba(0, 242, 254, 0.05);
+        }
+
+        .modal-file-upload {
+            background: var(--glass);
+            border: 2px dashed var(--primary);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-file-upload:hover {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .modal-file-upload.dragover {
+            background: rgba(0, 242, 254, 0.1);
+            border-color: var(--primary-dark);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .file-selected {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-submit-task {
+            background: linear-gradient(135deg, var(--success), #00dd66);
+            color: var(--dark);
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit-task:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-submit-task:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-modal-cancel {
+            background: none;
+            border: 1px solid #555;
+            color: #999;
+            padding: 14px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-modal-cancel:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ========== EMPTY STATE ========== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(255, 87, 87, 0.05), rgba(255, 87, 87, 0.02));
+            border: 2px solid var(--danger);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            color: var(--danger);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        /* ========== QUICK LINKS ========== */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+
+        .quick-link {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .quick-link:hover {
+            border-color: var(--primary);
+            background: rgba(0, 242, 254, 0.05);
+            transform: translateY(-3px);
+        }
+
+        /* ========== FOOTER ========== */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 1px solid var(--glass-border);
+            margin-top: 60px;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            header {
+                padding: 12px 0;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            main {
+                margin-top: 100px;
+                padding: 20px 15px;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .tasks-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 25px;
+            }
+
+            .filters {
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .filter-btn {
+                white-space: nowrap;
+            }
+        }
+
+        /* ========== LOADING ========== */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--glass-border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header>
+        <div class="header-container">
+            <div class="logo">📝 MISSIONS</div>
+            <div class="header-actions">
+                <div class="user-card" id="user-card" style="display: none;">
+                    <span class="status-dot"></span>
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 700;">En ligne</div>
+                        <div class="user-email" id="user-email-header">user@gmail.com</div>
+                    </div>
+                </div>
+                <a href="index.html" class="back-link">← Accueil</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== MAIN ========== -->
+    <main>
+        <div class="container">
+
+            <!-- ========== HERO ========== -->
+            <section class="hero">
+                <h1>💼 Complétez des Missions</h1>
+                <p>Gagnez de l'argent en complétant des tâches simples et rapides</p>
+            </section>
+
+            <!-- ========== MESSAGES ========== -->
+            <div id="message-container"></div>
+
+            <!-- ========== FILTERS ========== -->
+            <div class="filters" id="filters-container">
+                <button class="filter-btn active" onclick="filterTasks('all')">Tous</button>
+                <button class="filter-btn" onclick="filterTasks('Social')">📱 Social</button>
+                <button class="filter-btn" onclick="filterTasks('Survey')">📋 Sondages</button>
+                <button class="filter-btn" onclick="filterTasks('Referral')">🤝 Parrainage</button>
+                <button class="filter-btn" onclick="filterTasks('Verification')">✅ Vérification</button>
+            </div>
+
+            <!-- ========== LOADING STATE ========== -->
+            <div id="loading-state" class="loading-state">
+                <div class="spinner"></div>
+                <p style="margin-top: 20px;">Chargement des missions...</p>
+            </div>
+
+            <!-- ========== TASKS GRID ========== -->
+            <div class="tasks-grid" id="tasks-grid" style="display: none;"></div>
+
+            <!-- ========== EMPTY STATE ========== -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <h2>Aucune mission disponible</h2>
+                <p>Reviens plus tard pour découvrir de nouvelles missions rémunérées.</p>
+            </div>
+
+            <!-- ========== QUICK LINKS ========== -->
+            <div class="quick-links" id="quick-links" style="display: none;">
+                <a href="surf.html" class="quick-link">🏄 Surf Ads</a>
+                <a href="withdraw.html" class="quick-link">💸 Retraits</a>
+                <a href="advertiser.html" class="quick-link">📢 Annonceur</a>
+                <a href="index.html" class="quick-link">🏠 Accueil</a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ========== TASK MODAL ========== -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">Mission</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <p class="modal-description" id="modal-description">Description...</p>
+
+            <div id="modal-link-container" style="display: none;">
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 10px;">🔗 Lien de la mission:</p>
+                <a href="#" id="modal-link" class="modal-link" target="_blank">Ouvrir le lien</a>
+            </div>
+
+            <div id="modal-auto-validate" style="display: none;">
+                <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid var(--success); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <p style="color: var(--success); font-size: 0.9rem; font-weight: bold;">✅ Cette mission est auto-validée!</p>
+                    <p style="color: #aaa; font-size: 0.8rem; margin-top: 5px;">Complétez l'action et le gain sera crédité automatiquement.</p>
+                </div>
+            </div>
+
+            <div id="modal-manual-validate" style="display: none;">
+                <p style="color: #aaa; font-size: 0.85rem; margin-bottom: 15px;">📸 Envoyez une preuve de complétion (screenshot):</p>
+                
+                <div class="modal-file-upload" id="file-upload-zone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <input type="file" id="proof-file" class="file-input" accept="image/*" onchange="handleFileSelect(event)">
+                    <div style="cursor: pointer;" onclick="document.getElementById('proof-file').click()">
+                        <p style="color: var(--primary); font-weight: bold;">📁 Cliquez pour sélectionner</p>
+                        <p style="color: #aaa; font-size: 0.8rem; margin-top: 5px;">Ou glissez-déposez une image</p>
+                    </div>
+                </div>
+
+                <div id="file-info-display" class="file-info"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-submit-task" id="btn-submit-task">🚀 VALIDER</button>
+                <button class="btn-modal-cancel" onclick="closeModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer>
+        <p>&copy; 2026 YCash Empire - Gagnez en complétant des missions</p>
+    </footer>
+
+    <!-- ========== SCRIPT ========== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // ========== FIREBASE CONFIG ==========
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwPBl7Cq2v_fyza9d3o_SwvYbDAk4hzcA",
+            authDomain: "ycash-enpire-v2.firebaseapp.com",
+            projectId: "ycash-enpire-v2",
+            storageBucket: "ycash-enpire-v2.firebasestorage.app",
+            messagingSenderId: "697841513435",
+            appId: "1:697841513435:web:b5a808cf8572e96c7f6dfe"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+        let allTasks = [];
+        let currentFilter = 'all';
+        let selectedTask = null;
+
+        // ========== AUTH CHECK ==========
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                showMessage("Vous devez être connecté", "error");
+                setTimeout(() => window.location.href = "index.html", 2000);
+                return;
+            }
+
+            currentUser = user;
+            document.getElementById('user-card').style.display = 'flex';
+            document.getElementById('user-email-header').innerText = user.email;
+
+            await loadTasks();
+        });
+
+        // ========== LOAD TASKS ==========
+        async function loadTasks() {
+            try {
+                document.getElementById('loading-state').style.display = 'block';
+                document.getElementById('tasks-grid').style.display = 'none';
+
+                const response = await fetch('./data/tasks.json');
+                if (!response.ok) throw new Error('Fichier tasks.json non trouvé');
+
+                const data = await response.json();
+                allTasks = data.tasks.filter(t => t.status === 'active');
+
+                document.getElementById('loading-state').style.display = 'none';
+
+                if (allTasks.length === 0) {
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+
+                displayTasks(allTasks);
+                document.getElementById('quick-links').style.display = 'grid';
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur: ' + error.message, 'error');
+            }
+        }
+
+        // ========== DISPLAY TASKS ==========
+        function displayTasks(tasksToShow) {
+            const grid = document.getElementById('tasks-grid');
+            grid.innerHTML = tasksToShow.map(task => `
+                <div class="task-card" onclick="openTaskModal('${task.id}')">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-emoji">💼</div>
+                            <div class="task-title">${task.title}</div>
+                        </div>
+                        <div class="task-badge ${task.difficulty.toLowerCase()}">${task.difficulty}</div>
+                    </div>
+
+                    <p class="task-description">${task.description}</p>
+
+                    <div class="task-stats">
+                        <div class="task-stat">
+                            <span>⏱️</span>
+                            <span class="task-stat-value">${task.estimatedTime}</span>
+                        </div>
+                        <div class="task-stat">
+                            <span>👥</span>
+                            <span class="task-stat-value">${task.totalSlots - task.slotsFilled}/${task.totalSlots}</span>
+                        </div>
+                        <div class="task-stat">
+                            <span>🏷️</span>
+                            <span class="task-stat-value">${task.category}</span>
+                        </div>
+                    </div>
+
+                    <div class="task-footer">
+                        <div class="task-reward">+${task.reward.toFixed(2)}$</div>
+                        <button class="btn-do-task">FAIRE →</button>
+                    </div>
+                </div>
+            `).join('');
+
+            grid.style.display = 'grid';
+        }
+
+        // ========== FILTER TASKS ==========
+        window.filterTasks = (category) => {
+            currentFilter = category;
+
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (category === 'all') {
+                displayTasks(allTasks);
+            } else {
+                displayTasks(allTasks.filter(t => t.category === category));
+            }
+        };
+
+        // ========== OPEN TASK MODAL ==========
+        window.openTaskModal = (taskId) => {
+            selectedTask = allTasks.find(t => t.id === taskId);
+            if (!selectedTask) return;
+
+            document.getElementById('modal-title').innerText = selectedTask.title;
+            document.getElementById('modal-description').innerText = selectedTask.description;
+
+            // Link handling
+            const linkContainer = document.getElementById('modal-link-container');
+            if (selectedTask.validationLink) {
+                linkContainer.style.display = 'block';
+                document.getElementById('modal-link').href = selectedTask.validationLink;
+                document.getElementById('modal-link').innerText = selectedTask.validationLink;
+            } else {
+                linkContainer.style.display = 'none';
+            }
+
+            // Validation type
+            const autoValidate = document.getElementById('modal-auto-validate');
+            const manualValidate = document.getElementById('modal-manual-validate');
+
+            if (selectedTask.autoValidate) {
+                autoValidate.style.display = 'block';
+                manualValidate.style.display = 'none';
+            } else {
+                autoValidate.style.display = 'none';
+                manualValidate.style.display = 'block';
+                document.getElementById('proof-file').value = '';
+                document.getElementById('file-info-display').innerHTML = '';
+            }
+
+            document.getElementById('task-modal').classList.add('active');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('task-modal').classList.remove('active');
+            selectedTask = null;
+        };
+
+        // ========== FILE UPLOAD ==========
+        let selectedFile = null;
+
+        window.handleDragOver = (e) => {
+            e.preventDefault();
+            document.getElementById('file-upload-zone').classList.add('dragover');
+        };
+
+        window.handleDragLeave = (e) => {
+            e.preventDefault();
+            document.getElementById('file-upload-zone').classList.remove('dragover');
+        };
+
+        window.handleDrop = (e) => {
+            e.preventDefault();
+            document.getElementById('file-upload-zone').classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelect({ target: { files } });
+            }
+        };
+
+        window.handleFileSelect = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showMessage('Seules les images sont acceptées', 'error');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('L\'image doit faire moins de 5MB', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+            document.getElementById('file-info-display').innerHTML = `
+                <div class="file-selected">
+                    ✅ ${file.name} (${sizeMB} MB)
+                </div>
+            `;
+        };
+
+        // ========== SUBMIT TASK ==========
+        document.getElementById('btn-submit-task').addEventListener('click', async () => {
+            if (!selectedTask || !currentUser) return;
+
+            try {
+                const btn = document.getElementById('btn-submit-task');
+                btn.disabled = true;
+                btn.innerText = '⏳ Soumission...';
+
+                if (selectedTask.autoValidate) {
+                    // Auto validation
+                    await creditReward();
+                    showMessage(`✅ Mission complétée! +${selectedTask.reward.toFixed(2)}$ crédités`, 'success');
+                } else {
+                    // Manual validation with proof
+                    if (!selectedFile) {
+                        showMessage('Veuillez sélectionner une image', 'error');
+                        btn.disabled = false;
+                        btn.innerText = '🚀 VALIDER';
+                        return;
+                    }
+
+                    // Simulate file upload (in real app, upload to cloud)
+                    await creditReward();
+                    showMessage(`✅ Preuve envoyée! Sera vérifiée sous 24h. +${selectedTask.reward.toFixed(2)}$`, 'success');
+                }
+
+                setTimeout(() => {
+                    closeModal();
+                    loadTasks();
+                }, 2000);
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur: ' + error.message, 'error');
+                const btn = document.getElementById('btn-submit-task');
+                btn.disabled = false;
+                btn.innerText = '🚀 VALIDER';
+            }
+        });
+
+        // ========== CREDIT REWARD ==========
+        async function creditReward() {
+            try {
+                const usersResponse = await fetch('./data/users.json');
+                const usersData = await usersResponse.json();
+                let user = usersData.users.find(u => u.id === currentUser.uid);
+
+                if (!user) {
+                    user = {
+                        id: currentUser.uid,
+                        email: currentUser.email,
+                        balance: selectedTask.reward,
+                        totalEarned: selectedTask.reward,
+                        level: 1,
+                        referralCode: 'REF' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+                        referralCount: 0,
+                        referralEarnings: 0,
+                        createdAt: new Date().toISOString().split('T')[0],
+                        lastLogin: new Date().toISOString(),
+                        achievements: [1],
+                        tasksCompleted: 1,
+                        surfsWatched: 0,
+                        verificationStatus: "pending"
+                    };
+                    usersData.users.push(user);
+                } else {
+                    user.balance = (user.balance || 0) + selectedTask.reward;
+                    user.totalEarned = (user.totalEarned || 0) + selectedTask.reward;
+                    user.tasksCompleted = (user.tasksCompleted || 0) + 1;
+                    user.lastLogin = new Date().toISOString();
+                }
+
+                // Update tasks.json
+                const tasksResponse = await fetch('./data/tasks.json');
+                const tasksData = await tasksResponse.json();
+                const taskIndex = tasksData.tasks.findIndex(t => t.id === selectedTask.id);
+                if (taskIndex >= 0) {
+                    tasksData.tasks[taskIndex].slotsFilled++;
+                    if (tasksData.tasks[taskIndex].slotsFilled >= tasksData.tasks[taskIndex].totalSlots) {
+                        tasksData.tasks[taskIndex].status = 'completed';
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur crédit reward:', error);
+            }
+        }
+
+        // ========== NOTIFICATIONS ==========
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+
+            div.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+            container.innerHTML = '';
+            container.appendChild(div);
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    if (div.parentNode) div.remove();
+                }, 4000);
+            }
+        }
+    </script>
+
+</body>
+</html>

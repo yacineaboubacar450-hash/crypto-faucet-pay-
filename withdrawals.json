@@ -1,0 +1,95 @@
+{
+
+  "withdrawals": [
+
+    {
+
+      "id": "wd_001",
+
+      "userID": "google_uid_demo_1",
+
+      "userEmail": "demo@gmail.com",
+
+      "amount": 10.00,
+
+      "method": "PayPal",
+
+      "status": "completed",
+
+      "requestedAt": "2026-03-01T14:30:00Z",
+
+      "completedAt": "2026-03-02T09:15:00Z",
+
+      "fee": 0.50
+
+    },
+
+    {
+
+      "id": "wd_002",
+
+      "userID": "google_uid_demo_2",
+
+      "userEmail": "user2@gmail.com",
+
+      "amount": 50.00,
+
+      "method": "Wise",
+
+      "status": "completed",
+
+      "requestedAt": "2026-02-28T11:00:00Z",
+
+      "completedAt": "2026-03-01T16:45:00Z",
+
+      "fee": 0.75
+
+    },
+
+    {
+
+      "id": "wd_003",
+
+      "userID": "google_uid_demo_3",
+
+      "userEmail": "topuser@gmail.com",
+
+      "amount": 100.00,
+
+      "method": "Bitcoin",
+
+      "status": "completed",
+
+      "requestedAt": "2026-02-25T13:20:00Z",
+
+      "completedAt": "2026-02-26T08:30:00Z",
+
+      "fee": 2.00
+
+    },
+
+    {
+
+      "id": "wd_004",
+
+      "userID": "google_uid_demo_2",
+
+      "userEmail": "user2@gmail.com",
+
+      "amount": 25.00,
+
+      "method": "PayPal",
+
+      "status": "pending",
+
+      "requestedAt": "2026-03-04T15:45:00Z",
+
+      "completedAt": null,
+
+      "fee": 0.50
+
+    }
+
+  ]
+
+}

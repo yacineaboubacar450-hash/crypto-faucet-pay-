@@ -1,0 +1,143 @@
+{
+
+  "referrals": [
+
+    {
+
+      "id": "ref_001",
+
+      "referrerID": "google_uid_demo_1",
+
+      "referrerEmail": "demo@gmail.com",
+
+      "referredUserID": "google_uid_demo_4",
+
+      "referredEmail": "newuser@gmail.com",
+
+      "totalEarningsBonded": 3.94,
+
+      "dateReferred": "2026-03-01",
+
+      "status": "active",
+
+      "transactionHistory": [
+
+        {
+
+          "date": "2026-03-04",
+
+          "userGain": 0.50,
+
+          "referrerBonus": 0.125,
+
+          "source": "task",
+
+          "taskTitle": "S'abonner à Telegram"
+
+        },
+
+        {
+
+          "date": "2026-03-03",
+
+          "userGain": 15.25,
+
+          "referrerBonus": 3.8125,
+
+          "source": "surf",
+
+          "surfTitle": "Netflix Premium"
+
+        }
+
+      ]
+
+    },
+
+    {
+
+      "id": "ref_002",
+
+      "referrerID": "google_uid_demo_2",
+
+      "referrerEmail": "user2@gmail.com",
+
+      "referredUserID": "google_uid_demo_3",
+
+      "referredEmail": "topuser@gmail.com",
+
+      "totalEarningsBonded": 135.70,
+
+      "dateReferred": "2026-02-01",
+
+      "status": "active",
+
+      "transactionHistory": [
+
+        {
+
+          "date": "2026-03-04",
+
+          "userGain": 25.50,
+
+          "referrerBonus": 6.375,
+
+          "source": "task"
+
+        },
+
+        {
+
+          "date": "2026-03-02",
+
+          "userGain": 85.75,
+
+          "referrerBonus": 21.4375,
+
+          "source": "multi"
+
+        }
+
+      ]
+
+    },
+
+    {
+
+      "id": "ref_003",
+
+      "referrerID": "google_uid_demo_2",
+
+      "referrerEmail": "user2@gmail.com",
+
+      "referredUserID": "google_uid_demo_1",
+
+      "referredEmail": "demo@gmail.com",
+
+      "totalEarningsBonded": 31.38,
+
+      "dateReferred": "2026-02-15",
+
+      "status": "active",
+
+      "transactionHistory": [
+
+        {
+
+          "date": "2026-03-01",
+
+          "userGain": 125.50,
+
+          "referrerBonus": 31.375,
+
+          "source": "multi"
+
+        }
+
+      ]
+
+    }
+
+  ]
+
+}

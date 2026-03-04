@@ -1,0 +1,151 @@
+{
+
+  "achievements": [
+
+    {
+
+      "id": 1,
+
+      "name": "Premier pas",
+
+      "description": "Effectuez votre première action (Surf ou Tâche)",
+
+      "icon": "🎯",
+
+      "condition": "totalEarned >= 0.01",
+
+      "reward": 0,
+
+      "rarity": "Common"
+
+    },
+
+    {
+
+      "id": 2,
+
+      "name": "10$ Gagné",
+
+      "description": "Accumurez 10$ de gains",
+
+      "icon": "💰",
+
+      "condition": "totalEarned >= 10",
+
+      "reward": 0,
+
+      "rarity": "Common"
+
+    },
+
+    {
+
+      "id": 3,
+
+      "name": "50$ Gagné",
+
+      "description": "Accumurez 50$ de gains",
+
+      "icon": "📈",
+
+      "condition": "totalEarned >= 50",
+
+      "reward": 1.00,
+
+      "rarity": "Uncommon"
+
+    },
+
+    {
+
+      "id": 4,
+
+      "name": "100$ Gagné",
+
+      "description": "Accumurez 100$ de gains",
+
+      "icon": "🏆",
+
+      "condition": "totalEarned >= 100",
+
+      "reward": 5.00,
+
+      "rarity": "Uncommon"
+
+    },
+
+    {
+
+      "id": 5,
+
+      "name": "Connecteur",
+
+      "description": "Référez 1 ami à YCash Empire",
+
+      "icon": "🤝",
+
+      "condition": "referralCount >= 1",
+
+      "reward": 0.50,
+
+      "rarity": "Common"
+
+    },
+
+    {
+
+      "id": 6,
+
+      "name": "Réseauteur",
+
+      "description": "Référez 10 amis à YCash Empire",
+
+      "icon": "👥",
+
+      "condition": "referralCount >= 10",
+
+      "reward": 10.00,
+
+      "rarity": "Rare"
+
+    },
+
+    {
+
+      "id": 7,
+
+      "name": "Collecteur",
+
+      "description": "Atteindre le niveau 5",
+
+      "icon": "⭐",
+
+      "condition": "level >= 5",
+
+      "reward": 5.00,
+
+      "rarity": "Rare"
+
+    },
+
+    {
+
+      "id": 8,
+
+      "name": "Légende",
+
+      "description": "Atteindre le niveau 10",
+
+      "icon": "👑",
+
+      "condition": "level >= 10",
+
+      "reward": 25.00,
+
+      "rarity": "Epic"
+
+    }
+
+  ]
+
+}

@@ -1,0 +1,279 @@
+{
+
+  "surfs": [
+
+    {
+
+      "id": "surf_001",
+
+      "title": "Netflix Premium - Abonnement Annuel",
+
+      "url": "https://www.netflix.com",
+
+      "duration": 15,
+
+      "reward": 0.0005,
+
+      "totalClicks": 500,
+
+      "clicksRemaining": 437,
+
+      "clicksCompleted": 63,
+
+      "status": "active",
+
+      "createdBy": "advertiser_001",
+
+      "createdByEmail": "netflix@company.com",
+
+      "createdAt": "2026-02-01",
+
+      "description": "Découvrez les meilleurs films et séries avec Netflix",
+
+      "thumbnail": "🎬",
+
+      "category": "Entertainment"
+
+    },
+
+    {
+
+      "id": "surf_002",
+
+      "title": "Crypto Trading - Binance",
+
+      "url": "https://www.binance.com",
+
+      "duration": 30,
+
+      "reward": 0.0010,
+
+      "totalClicks": 300,
+
+      "clicksRemaining": 245,
+
+      "clicksCompleted": 55,
+
+      "status": "active",
+
+      "createdBy": "advertiser_002",
+
+      "createdByEmail": "binance@exchange.com",
+
+      "createdAt": "2026-02-15",
+
+      "description": "Plateforme de trading crypto la plus sûre",
+
+      "thumbnail": "₿",
+
+      "category": "Finance"
+
+    },
+
+    {
+
+      "id": "surf_003",
+
+      "title": "Forex Trading - Exness",
+
+      "url": "https://www.exness.com",
+
+      "duration": 60,
+
+      "reward": 0.0020,
+
+      "totalClicks": 200,
+
+      "clicksRemaining": 178,
+
+      "clicksCompleted": 22,
+
+      "status": "active",
+
+      "createdBy": "advertiser_003",
+
+      "createdByEmail": "exness@trading.com",
+
+      "createdAt": "2026-02-20",
+
+      "description": "Gagnez avec le trading Forex - Dépôt minimum 1$",
+
+      "thumbnail": "📈",
+
+      "category": "Finance"
+
+    },
+
+    {
+
+      "id": "surf_004",
+
+      "title": "Fiverr - Vendez vos services",
+
+      "url": "https://www.fiverr.com",
+
+      "duration": 15,
+
+      "reward": 0.0005,
+
+      "totalClicks": 400,
+
+      "clicksRemaining": 356,
+
+      "clicksCompleted": 44,
+
+      "status": "active",
+
+      "createdBy": "advertiser_004",
+
+      "createdByEmail": "fiverr@marketplace.com",
+
+      "createdAt": "2026-02-10",
+
+      "description": "Plateforme freelance avec millions de clients",
+
+      "thumbnail": "🎨",
+
+      "category": "Freelance"
+
+    },
+
+    {
+
+      "id": "surf_005",
+
+      "title": "Upwork - Freelance Jobs",
+
+      "url": "https://www.upwork.com",
+
+      "duration": 30,
+
+      "reward": 0.0010,
+
+      "totalClicks": 250,
+
+      "clicksRemaining": 198,
+
+      "clicksCompleted": 52,
+
+      "status": "active",
+
+      "createdBy": "advertiser_005",
+
+      "createdByEmail": "upwork@platform.com",
+
+      "createdAt": "2026-02-08",
+
+      "description": "Les meilleurs projets freelance au monde",
+
+      "thumbnail": "💼",
+
+      "category": "Freelance"
+
+    },
+
+    {
+
+      "id": "surf_006",
+
+      "title": "Amazon Associates",
+
+      "url": "https://affiliate-program.amazon.com",
+
+      "duration": 15,
+
+      "reward": 0.0005,
+
+      "totalClicks": 350,
+
+      "clicksRemaining": 289,
+
+      "clicksCompleted": 61,
+
+      "status": "active",
+
+      "createdBy": "advertiser_006",
+
+      "createdByEmail": "amazon@affiliate.com",
+
+      "createdAt": "2026-02-05",
+
+      "description": "Programme d'affiliation Amazon le plus lucratif",
+
+      "thumbnail": "🛍️",
+
+      "category": "Affiliate"
+
+    },
+
+    {
+
+      "id": "surf_007",
+
+      "title": "Shopify - Créez votre boutique",
+
+      "url": "https://www.shopify.com",
+
+      "duration": 60,
+
+      "reward": 0.0020,
+
+      "totalClicks": 180,
+
+      "clicksRemaining": 165,
+
+      "clicksCompleted": 15,
+
+      "status": "active",
+
+      "createdBy": "advertiser_007",
+
+      "createdByEmail": "shopify@ecommerce.com",
+
+      "createdAt": "2026-03-01",
+
+      "description": "Solution e-commerce la plus populaire",
+
+      "thumbnail": "🏪",
+
+      "category": "E-commerce"
+
+    },
+
+    {
+
+      "id": "surf_008",
+
+      "title": "SurveyMonkey - Sondages rémunérés",
+
+      "url": "https://www.surveymonkey.com",
+
+      "duration": 30,
+
+      "reward": 0.0010,
+
+      "totalClicks": 220,
+
+      "clicksRemaining": 156,
+
+      "clicksCompleted": 64,
+
+      "status": "active",
+
+      "createdBy": "advertiser_008",
+
+      "createdByEmail": "surveymonkey@research.com",
+
+      "createdAt": "2026-02-25",
+
+      "description": "Gagnez en répondant à des sondages",
+
+      "thumbnail": "📋",
+
+      "category": "Survey"
+
+    }
+
+  ]
+
+}
