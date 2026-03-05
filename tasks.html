@@ -122,7 +122,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -184,31 +184,13 @@
             color: var(--danger);
         }
 
-        .filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+        .message.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
         }
 
-        .filter-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: #ccc;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: bold;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            border-color: var(--primary);
-            background: rgba(0, 242, 254, 0.1);
-            color: var(--primary);
-        }
-
+        /* Grille des missions */
         .tasks-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -221,10 +203,11 @@
             border: 2px solid var(--glass-border);
             border-radius: 20px;
             padding: 25px;
-            cursor: pointer;
             transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .task-card::before {
@@ -246,6 +229,12 @@
             border-color: var(--primary);
             transform: translateY(-8px);
             box-shadow: 0 15px 50px rgba(0, 242, 254, 0.2);
+        }
+
+        .task-card.completed {
+            opacity: 0.6;
+            filter: grayscale(0.5);
+            pointer-events: none;
         }
 
         .task-header {
@@ -311,6 +300,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 10px;
         }
 
         .btn-do-task {
@@ -328,9 +318,14 @@
             font-size: 0.8rem;
         }
 
-        .btn-do-task:hover {
+        .btn-do-task:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-do-task:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .empty-state {
@@ -790,7 +785,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
-            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc, onSnapshot, arrayUnion, getDoc
+            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc, onSnapshot, arrayUnion, getDoc, writeBatch, orderBy
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -810,6 +805,15 @@
         let allTasks = [];
         let currentFilter = 'all';
         let selectedTask = null;
+        let processingTaskId = null; // pour éviter les doubles soumissions
+
+        // Coefficient multiplicateur selon le niveau
+        function getLevelMultiplier(level) {
+            if (level >= 10) return 1.20;
+            if (level >= 5) return 1.10;
+            if (level >= 2) return 1.05;
+            return 1.0;
+        }
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -823,7 +827,7 @@
             document.getElementById('user-email-header').innerText = user.email;
 
             await loadTasks();
-            listenForAlerts();   // 🆕 Écouter les alertes
+            listenForAlerts();
         });
 
         async function loadTasks() {
@@ -832,19 +836,35 @@
                 const q = query(tasksRef, where("status", "==", "active"));
                 const snapshot = await getDocs(q);
 
-                allTasks = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
+                // Pour chaque tâche, on vérifie si l'utilisateur a déjà soumis
+                const tasksWithStatus = [];
+                for (const doc of snapshot.docs) {
+                    const task = { id: doc.id, ...doc.data() };
+                    const submissionRef = doc(db, "tasks", doc.id, "submissions", currentUser.uid);
+                    const subSnap = await getDoc(submissionRef);
+                    task.userSubmission = subSnap.exists() ? subSnap.data() : null;
+                    tasksWithStatus.push(task);
+                }
+
+                // Filtrer celles qui ont encore des places et non complétées par l'utilisateur (ou en attente)
+                allTasks = tasksWithStatus.filter(t => {
+                    if (t.slotsFilled >= t.totalSlots) return false; // plus de places
+                    if (t.userSubmission) {
+                        // Si déjà soumis, on ne l'affiche pas (ou on peut l'afficher avec statut)
+                        return false;
+                    }
+                    return true;
+                });
 
                 document.getElementById('loading-state').style.display = 'none';
 
                 if (allTasks.length === 0) {
                     document.getElementById('empty-state').style.display = 'block';
+                    document.getElementById('tasks-grid').style.display = 'none';
                     return;
                 }
 
-                // Build filters
+                // Build filters (catégories)
                 const categories = [...new Set(allTasks.map(t => t.category))];
                 const filtersHtml = `
                     <button class="filter-btn active" onclick="filterTasks('all')">Tous</button>
@@ -900,7 +920,6 @@
 
         window.filterTasks = (category) => {
             currentFilter = category;
-
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
@@ -937,6 +956,7 @@
                 autoValidate.style.display = 'none';
                 manualValidate.style.display = 'block';
                 document.getElementById('proof-file').value = '';
+                document.getElementById('file-info-display').innerHTML = '';
             }
 
             document.getElementById('task-modal').classList.add('active');
@@ -980,43 +1000,101 @@
 
         document.getElementById('btn-submit-task').addEventListener('click', async () => {
             if (!selectedTask || !currentUser) return;
+            if (processingTaskId === selectedTask.id) return; // déjà en cours
+
+            processingTaskId = selectedTask.id;
 
             try {
                 const btn = document.getElementById('btn-submit-task');
                 btn.disabled = true;
                 btn.innerText = '⏳ Traitement...';
 
-                // ✅ UPDATE FIREBASE
-                const userRef = doc(db, "users", currentUser.uid);
-                await updateDoc(userRef, {
-                    balance: increment(selectedTask.reward),
-                    totalEarned: increment(selectedTask.reward),
-                    lastLogin: serverTimestamp()
-                });
-
-                // Update task
+                // Vérifier que la mission a encore des places et que l'utilisateur n'a pas déjà soumis
                 const taskRef = doc(db, "tasks", selectedTask.id);
-                await updateDoc(taskRef, {
-                    slotsFilled: increment(1)
-                });
+                const taskSnap = await getDoc(taskRef);
+                if (!taskSnap.exists()) {
+                    showMessage('Mission introuvable', 'error');
+                    return;
+                }
+                const taskData = taskSnap.data();
+                if (taskData.slotsFilled >= taskData.totalSlots) {
+                    showMessage('Cette mission n\'a plus de places', 'error');
+                    return;
+                }
 
-                // Add submission
-                await setDoc(doc(db, "tasks", selectedTask.id, "submissions", currentUser.uid), {
-                    userId: currentUser.uid,
-                    status: (selectedTask.autovalidat || selectedTask.autoValidate) ? 'approved' : 'pending',
-                    submittedAt: serverTimestamp()
-                });
+                const submissionRef = doc(db, "tasks", selectedTask.id, "submissions", currentUser.uid);
+                const subSnap = await getDoc(submissionRef);
+                if (subSnap.exists()) {
+                    showMessage('Vous avez déjà soumis pour cette mission', 'error');
+                    return;
+                }
 
-                showMessage(`✅ Mission complétée! +${selectedTask.reward.toFixed(2)}$`, 'success');
+                // Récupérer l'utilisateur pour le niveau et le parrain
+                const userRef = doc(db, "users", currentUser.uid);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.data();
+                const level = userData.level || 1;
+                const multiplier = getLevelMultiplier(level);
+                const finalReward = selectedTask.reward * multiplier;
 
-                setTimeout(() => {
-                    closeModal();
-                    location.reload();
-                }, 2000);
+                // Pour les missions auto-validées, on crédite immédiatement
+                if (selectedTask.autovalidat || selectedTask.autoValidate) {
+                    const batch = writeBatch(db);
+
+                    // Créditer l'utilisateur
+                    batch.update(userRef, {
+                        balance: increment(finalReward),
+                        totalEarned: increment(finalReward),
+                        lastLogin: serverTimestamp()
+                    });
+
+                    // Mettre à jour la mission (slotsFilled)
+                    batch.update(taskRef, {
+                        slotsFilled: increment(1)
+                    });
+
+                    // Enregistrer la soumission (approuvée)
+                    batch.set(submissionRef, {
+                        userId: currentUser.uid,
+                        status: 'approved',
+                        submittedAt: serverTimestamp(),
+                        reward: finalReward
+                    });
+
+                    // Commission parrain
+                    if (userData.referredBy) {
+                        const commission = finalReward * 0.10;
+                        const referrerRef = doc(db, "users", userData.referredBy);
+                        batch.update(referrerRef, {
+                            balance: increment(commission),
+                            referralEarnings: increment(commission)
+                        });
+                    }
+
+                    await batch.commit();
+
+                    showMessage(`✅ Mission complétée! +${finalReward.toFixed(2)}$ (Niveau ${level} : x${multiplier.toFixed(2)})`, 'success');
+                } else {
+                    // Mission manuelle : on enregistre la soumission en attente
+                    await setDoc(submissionRef, {
+                        userId: currentUser.uid,
+                        status: 'pending',
+                        submittedAt: serverTimestamp(),
+                        reward: finalReward // on stocke le montant pour validation admin
+                    });
+
+                    showMessage(`📤 Mission soumise, en attente de validation`, 'success');
+                }
+
+                // Fermer le modal et recharger la liste
+                closeModal();
+                await loadTasks();
 
             } catch (error) {
                 console.error('Erreur:', error);
                 showMessage('Erreur: ' + error.message, 'error');
+            } finally {
+                processingTaskId = null;
                 document.getElementById('btn-submit-task').disabled = false;
                 document.getElementById('btn-submit-task').innerText = '🚀 VALIDER';
             }
@@ -1026,18 +1104,12 @@
             const container = document.getElementById('message-container');
             const div = document.createElement('div');
             div.className = `message ${type}`;
-
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️'
-            };
-
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
             div.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
             container.innerHTML = '';
             container.appendChild(div);
 
-            if (type === 'success') {
+            if (type === 'success' || type === 'warning') {
                 setTimeout(() => {
                     if (div.parentNode) div.remove();
                 }, 4000);
@@ -1160,9 +1232,6 @@
             alertContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 10000);
         }
-
-        // Initialiser les écouteurs Firebase pour les timestamps
-        import { orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     </script>
 
 </body>
