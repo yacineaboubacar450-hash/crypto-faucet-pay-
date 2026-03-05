@@ -716,9 +716,8 @@
         let currentUser = null;
         let currentAd = null;
         let timerActive = false;
-        let visitTime = null;
         let isProcessing = false;
-        let availableSurfs = [];
+        let availableSurfs = [];      // Liste des pubs disponibles (avec ordre fixe)
         let currentIndex = 0;
         let timerInterval = null;
 
@@ -740,7 +739,6 @@
                     document.getElementById('stat-balance').innerText = (userData.balance || 0).toFixed(2) + '$';
                     document.getElementById('stat-viewed').innerText = userData.surfViews || 0;
                     
-                    // Gains du jour
                     const today = new Date().toDateString();
                     if (userData.lastSurfDate === today) {
                         document.getElementById('stat-today').innerText = (userData.dailySurfEarnings || 0).toFixed(2) + '$';
@@ -751,7 +749,7 @@
             });
 
             await loadAvailableSurfs();
-            listenForAlerts();   // Écouter les alertes
+            listenForAlerts();
         });
 
         // ========== CHARGER LES PUBS DISPONIBLES ==========
@@ -767,13 +765,13 @@
                 const q = query(surfsRef, where("status", "==", "active"));
                 const snapshot = await getDocs(q);
 
-                // Récupérer toutes les surfs actives avec clics restants
+                // Toutes les surfs actives avec clics restants
                 const allActiveSurfs = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 })).filter(s => s.clicksRemaining > 0);
 
-                // Vérifier celles que l'utilisateur n'a PAS déjà validées ou dont la dernière vue date de plus de 24h
+                // Filtrer celles qui sont disponibles (jamais vues ou vue > 24h)
                 availableSurfs = [];
                 const now = new Date();
                 
@@ -782,24 +780,23 @@
                     const viewSnap = await getDoc(viewRef);
                     
                     if (!viewSnap.exists()) {
-                        // Jamais vue = disponible
                         availableSurfs.push(surf);
                     } else {
                         const viewData = viewSnap.data();
-                        const lastView = viewData.viewedAt.toDate(); // Timestamp Firestore
+                        const lastView = viewData.viewedAt.toDate();
                         const hoursSince = (now - lastView) / (1000 * 60 * 60);
                         if (hoursSince >= 24) {
-                            // Plus de 24h, disponible à nouveau
                             availableSurfs.push(surf);
                         }
                     }
                 }
 
-                // Mettre à jour le compteur
+                // Trier par date de création (ordre chronologique) pour un ordre fixe
+                availableSurfs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+
                 document.getElementById('stat-queue').innerText = availableSurfs.length;
 
                 if (availableSurfs.length === 0) {
-                    // Plus de publicités disponibles pour l'instant (soit toutes vues récemment)
                     document.getElementById("ad-title").innerText = "⏳ Plus de publicités pour l'instant";
                     document.getElementById("ad-url").innerText = "Revenez dans quelques heures, elles réapparaîtront !";
                     document.getElementById("reward-text").innerText = "0.0000";
@@ -812,15 +809,10 @@
                     return;
                 }
 
-                // Afficher la file d'attente
                 document.getElementById("queue-info").style.display = 'block';
                 document.getElementById("queue-text").innerHTML = `📊 <strong>${availableSurfs.length}</strong> publicité${availableSurfs.length > 1 ? 's' : ''} disponible${availableSurfs.length > 1 ? 's' : ''} • Une par une (reviendront après 24h)`;
 
-                // Mélanger aléatoirement
-                availableSurfs = shuffleArray(availableSurfs);
                 currentIndex = 0;
-                
-                // Afficher la première
                 displayCurrentSurf();
 
             } catch (error) {
@@ -829,19 +821,10 @@
             }
         }
 
-        // ========== MÉLANGER LE TABLEAU ==========
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
         // ========== AFFICHER LA PUB COURANTE ==========
         function displayCurrentSurf() {
             if (currentIndex >= availableSurfs.length) {
-                // Plus de pubs, recharger
+                // Normalement ne devrait pas arriver car on recharge avant
                 loadAvailableSurfs();
                 return;
             }
@@ -853,13 +836,10 @@
             document.getElementById("duration-text").innerText = currentAd.duration;
             document.getElementById("reward-text").innerText = currentAd.reward.toFixed(4);
             
-            // Réinitialiser l'interface
-            resetInterface();
+            resetInterface(); // remet à zéro l'interface (timer éteint, boutons réinitialisés)
             
-            // Activer le bouton visiter
             document.getElementById("btn-visit-site").disabled = false;
             
-            // Mettre à jour le compteur de file
             const remaining = availableSurfs.length - currentIndex;
             document.getElementById('stat-queue').innerText = remaining;
             document.getElementById("queue-text").innerHTML = `📊 <strong>${remaining}</strong> publicité${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''} (reviendront après 24h)`;
@@ -869,9 +849,7 @@
 
         // ========== RÉINITIALISER L'INTERFACE ==========
         function resetInterface() {
-            // Arrêter tous les timers
             if (timerInterval) clearInterval(timerInterval);
-            
             timerActive = false;
             isProcessing = false;
             
@@ -890,24 +868,13 @@
                 showMessage("❌ Aucune publicité", "error");
                 return;
             }
-
             if (timerActive) {
                 showMessage("⏳ Vous avez déjà commencé à regarder cette pub", "warning");
                 return;
             }
-
-            // Ouvrir dans un nouvel onglet
             window.open(currentAd.url, '_blank');
-            
-            // Démarrer le timer
             startTimer(currentAd.duration);
-            
-            // Désactiver le bouton visiter
             document.getElementById("btn-visit-site").disabled = true;
-            
-            // Enregistrer l'heure
-            visitTime = Date.now();
-            
             showMessage(`⏳ Timer de ${currentAd.duration}s démarré !`, "warning");
         };
 
@@ -942,7 +909,6 @@
                     btnValider.classList.add('show');
                     progressFill.style.width = '100%';
                     timerActive = false;
-                    
                     showMessage("✅ Temps écoulé ! Vous pouvez valider", "success");
                 }
             }, 1000);
@@ -954,14 +920,10 @@
                 showMessage("❌ Erreur: Données manquantes", "error");
                 return;
             }
-
-            // Vérifier que le timer est fini
             if (timerActive) {
                 showMessage("⏳ Veuillez attendre la fin du timer", "warning");
                 return;
             }
-
-            // Empêcher les doubles clics
             if (isProcessing) return;
             isProcessing = true;
 
@@ -970,7 +932,7 @@
                 btn.disabled = true;
                 btn.innerText = "⏳ TRAITEMENT...";
 
-                // Vérifier une dernière fois que cette pub n'a pas déjà été validée récemment (moins de 24h)
+                // Vérification finale
                 const viewRef = doc(db, "surfs", currentAd.id, "views", currentUser.uid);
                 const viewSnap = await getDoc(viewRef);
                 
@@ -984,21 +946,17 @@
                     }
                 }
 
-                // Préparer le batch pour atomicité
                 const batch = writeBatch(db);
 
-                // 1. Mettre à jour l'utilisateur
+                // Mise à jour utilisateur
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
                 const userData = userSnap.data();
-                
                 const today = new Date().toDateString();
                 let dailyEarnings = currentAd.reward;
-                
                 if (userData.lastSurfDate === today) {
                     dailyEarnings = (userData.dailySurfEarnings || 0) + currentAd.reward;
                 }
-
                 batch.update(userRef, {
                     balance: increment(currentAd.reward),
                     totalEarned: increment(currentAd.reward),
@@ -1008,39 +966,35 @@
                     lastLogin: serverTimestamp()
                 });
 
-                // 2. Mettre à jour la surf ad
+                // Mise à jour de la surf
                 const surfRef = doc(db, "surfs", currentAd.id);
                 batch.update(surfRef, {
                     clicksRemaining: increment(-1),
                     clicksCompleted: increment(1)
                 });
 
-                // 3. Enregistrer la vue (écrase l'ancienne si existante)
+                // Enregistrement de la vue
                 batch.set(viewRef, {
                     userId: currentUser.uid,
                     viewedAt: serverTimestamp(),
                     earned: currentAd.reward
                 });
 
-                // Exécuter le batch
                 await batch.commit();
 
                 showMessage(`✅ +${currentAd.reward.toFixed(4)}$ gagnés !`, "success");
 
-                // Afficher l'overlay de chargement
-                document.getElementById("loading-overlay").classList.add('active');
-
                 // Passer à la pub suivante
                 currentIndex++;
-                
+                document.getElementById("loading-overlay").classList.add('active');
+
                 if (currentIndex < availableSurfs.length) {
-                    // Afficher la prochaine pub après 2 secondes
                     setTimeout(() => {
                         displayCurrentSurf();
                         document.getElementById("loading-overlay").classList.remove('active');
                     }, 2000);
                 } else {
-                    // Plus de pubs dans cette session, recharger la liste complète (pour inclure celles qui reviendraient ?)
+                    // Plus de pubs dans cette liste, on recharge depuis Firestore (les nouvelles disponibles)
                     setTimeout(async () => {
                         await loadAvailableSurfs();
                         document.getElementById("loading-overlay").classList.remove('active');
@@ -1061,21 +1015,12 @@
             const container = document.getElementById('message-container');
             const div = document.createElement('div');
             div.className = `message ${type}`;
-            
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️'
-            };
-            
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
             div.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
             container.innerHTML = '';
             container.appendChild(div);
-
             if (type === 'success' || type === 'warning') {
-                setTimeout(() => {
-                    if (div.parentNode) div.remove();
-                }, 4000);
+                setTimeout(() => div.remove(), 4000);
             }
         }
 
@@ -1091,7 +1036,6 @@
             chatPanel.classList.toggle('active');
             if (chatPanel.classList.contains('active') && currentUser) loadChatMessages();
         });
-
         chatClose.addEventListener('click', () => chatPanel.classList.remove('active'));
 
         const chatRef = doc(db, "chats", "global");
@@ -1126,13 +1070,10 @@
         chatSend.addEventListener('click', async () => {
             const message = chatInput.value.trim();
             if (!message || !currentUser) return;
-
             try {
                 const chatSnap = await getDoc(chatRef);
                 let messages = [];
-                if (chatSnap.exists()) {
-                    messages = chatSnap.data().messages || [];
-                }
+                if (chatSnap.exists()) messages = chatSnap.data().messages || [];
                 messages.push({
                     userId: currentUser.uid,
                     userEmail: currentUser.email,
@@ -1167,10 +1108,8 @@
 
         function listenForAlerts() {
             if (!currentUser) return;
-            
             const alertsRef = collection(db, "alerts");
             const q = query(alertsRef, where("target", "in", ["all", currentUser.uid]), orderBy("timestamp", "desc"));
-            
             onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
