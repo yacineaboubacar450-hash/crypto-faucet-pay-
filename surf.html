@@ -6,7 +6,7 @@
     <title>Surf Ads - YCash Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* TOUS VOS STYLES ORIGINAUX CONSERVÉS ICI */
+        /* Styles identiques à l'original, conservés */
         :root {
             --primary: #00f2fe; --primary-dark: #00d4ff; --accent: #ff00cc;
             --success: #00ff88; --danger: #ff5757; --warning: #ffc107;
@@ -102,6 +102,7 @@
         let surfs = [];
         let activeSurfId = null;
         let timerInterval = null;
+        let timerEndTime = null;
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = "index.html"; return; }
@@ -120,6 +121,7 @@
             });
 
             loadSurfs();
+            listenForAlerts();
         });
 
         async function loadSurfs() {
@@ -128,11 +130,14 @@
             
             const promises = snapshot.docs.map(async (sDoc) => {
                 const surfData = sDoc.data();
+                // Ne garder que celles avec des clics restants
+                if (surfData.clicksRemaining <= 0) return null;
+
                 const viewSnap = await getDoc(doc(db, "surfs", sDoc.id, "views", currentUser.uid));
                 const lastView = viewSnap.exists() ? viewSnap.data().viewedAt?.toDate().toDateString() : null;
                 
-                // On ne garde que celles qui n'ont pas été vues AUJOURD'HUI
-                if (lastView !== todayStr && surfData.clicksRemaining > 0) {
+                // Disponible si pas de vue aujourd'hui
+                if (lastView !== todayStr) {
                     return { id: sDoc.id, ...surfData };
                 }
                 return null;
@@ -148,7 +153,7 @@
 
             if (surfs.length === 0) {
                 grid.innerHTML = `<div style="text-align:center; width:100%; padding:40px; border:2px dashed var(--glass-border); border-radius:20px;">
-                    <h3>Plus de pubs !</h3><p>Revenez à minuit pile (00h00).</p></div>`;
+                    <h3>Plus de pubs pour aujourd'hui !</h3><p>Revenez demain à minuit (00h00).</p></div>`;
                 return;
             }
 
@@ -170,20 +175,18 @@
         window.visitSurf = (id) => {
             if (activeSurfId) return;
             const surf = surfs.find(s => s.id === id);
+            if (!surf) return;
             activeSurfId = id;
+            timerEndTime = Date.now() + surf.duration * 1000;
             window.open(surf.url, '_blank');
 
             const container = document.getElementById(`container-${id}`);
             container.innerHTML = `
                 <div class="timer" id="timer-${id}">${surf.duration}s</div>
-                <div class="progress-bar"><div class="progress-fill" id="fill-${id}"></div></div>
+                <div class="progress-bar"><div class="progress-fill" id="fill-${id}" style="width:100%; transition: width ${surf.duration}s linear;"></div></div>
             `;
 
             let timeLeft = surf.duration;
-            const fill = document.getElementById(`fill-${id}`);
-            fill.style.width = "100%";
-            fill.style.transition = `width ${surf.duration}s linear`;
-
             timerInterval = setInterval(() => {
                 timeLeft--;
                 document.getElementById(`timer-${id}`).innerText = timeLeft + 's';
@@ -194,95 +197,206 @@
             }, 1000);
         };
 
-/* --- REMPLACE TA FONCTION validateSurf PAR CELLE-CI --- */
-window.validateSurf = async (surfId) => {
-    if (activeSurfId !== surfId) return;
+        window.validateSurf = async (surfId) => {
+            if (activeSurfId !== surfId) return;
 
-    const surf = surfs.find(s => s.id === surfId);
-    if (!surf) return;
+            const surf = surfs.find(s => s.id === surfId);
+            if (!surf) return;
 
-    // 1. Suppression Visuelle Immédiate (Effet Pro)
-    const card = document.getElementById(`surf-${surfId}`);
-    if (card) {
-        card.style.opacity = "0";
-        card.style.transform = "scale(0.8) translateY(-20px)";
-        card.style.transition = "0.4s all ease";
-    }
+            // Effet visuel
+            const card = document.getElementById(`card-${surfId}`);
+            if (card) {
+                card.style.opacity = "0.5";
+                card.style.transform = "scale(0.95)";
+                card.style.transition = "0.3s";
+            }
 
-    try {
-        await runTransaction(db, async (transaction) => {
-            const userRef = doc(db, "users", currentUser.uid);
-            const userSnap = await transaction.get(userRef);
-            const userData = userSnap.data();
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnap = await transaction.get(userRef);
+                    const userData = userSnap.data();
 
-            const surfRef = doc(db, "surfs", surfId);
-            const surfSnap = await transaction.get(surfRef);
-            const sData = surfSnap.data();
+                    const surfRef = doc(db, "surfs", surfId);
+                    const surfSnap = await transaction.get(surfRef);
+                    const sData = surfSnap.data();
 
-            if (sData.clicksRemaining <= 0) throw "Publicité épuisée";
+                    if (sData.clicksRemaining <= 0) throw new Error("Publicité épuisée");
 
-            const reward = sData.reward || 0;
-            const today = new Date().toDateString();
+                    const reward = sData.reward || 0;
+                    const today = new Date().toDateString();
 
-            // MISE À JOUR SOLDE
-            transaction.update(userRef, {
-                balance: increment(reward),
-                surfViews: increment(1),
-                lastSurfDate: today,
-                dailySurfEarnings: (userData.lastSurfDate === today) ? increment(reward) : reward
-            });
+                    // Mise à jour utilisateur
+                    transaction.update(userRef, {
+                        balance: increment(reward),
+                        surfViews: increment(1),
+                        lastSurfDate: today,
+                        dailySurfEarnings: (userData.lastSurfDate === today) ? increment(reward) : reward
+                    });
 
-            // MISE À JOUR PUB (Correction minuscule clickscompleted selon ton image)
-            transaction.update(surfRef, {
-                clicksRemaining: increment(-1),
-                clickscompleted: increment(1)
-            });
+                    // Mise à jour de la surf (clicksCompleted avec majuscule)
+                    transaction.update(surfRef, {
+                        clicksRemaining: increment(-1),
+                        clicksCompleted: increment(1)
+                    });
 
-            // CRÉATION DE LA VUE (Sous-collection automatique)
-            const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
-            transaction.set(viewRef, {
-                viewedAt: serverTimestamp(),
-                userId: currentUser.uid
-            });
-        });
+                    // Enregistrement de la vue
+                    const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
+                    transaction.set(viewRef, {
+                        viewedAt: serverTimestamp(),
+                        userId: currentUser.uid
+                    });
+                });
 
-        // Nettoyage final
-        setTimeout(() => {
-            surfs = surfs.filter(s => s.id !== surfId);
-            activeSurfId = null;
-            renderSurfs();
-        }, 400);
+                showMessage(`✅ +${surf.reward.toFixed(4)}$ gagnés !`, 'success');
 
-    } catch (error) {
-        console.error("Erreur:", error);
-        // Si erreur, on fait réapparaître la carte
-        if (card) {
-            card.style.opacity = "1";
-            card.style.transform = "scale(1) translateY(0)";
+                // Nettoyage
+                clearInterval(timerInterval);
+                activeSurfId = null;
+                timerInterval = null;
+
+                // Recharger la liste complète pour mettre à jour les stats
+                setTimeout(() => loadSurfs(), 500);
+
+            } catch (error) {
+                console.error("Erreur:", error);
+                showMessage("Erreur : " + error.message, "error");
+                if (card) {
+                    card.style.opacity = "1";
+                    card.style.transform = "scale(1)";
+                }
+            }
+        };
+
+        function showMessage(message, type = 'success') {
+            const container = document.getElementById('message-container');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            const icons = { success: '✅', error: '❌', warning: '⚠️' };
+            div.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
+            container.innerHTML = '';
+            container.appendChild(div);
+            if (type === 'success') {
+                setTimeout(() => div.remove(), 4000);
+            }
         }
-        alert("Permission refusée ou erreur Firestore. Vérifiez vos règles de sécurité !");
-    }
-};
 
-
-        // Logique simplifiée du Chat (conservée pour le fonctionnement)
+        // ========== CHAT ==========
         const chatToggle = document.getElementById('chat-toggle');
         const chatPanel = document.getElementById('chat-panel');
-        chatToggle.onclick = () => chatPanel.classList.toggle('active');
-        
-        document.getElementById('chat-send').onclick = async () => {
-            const input = document.getElementById('chat-input');
-            if(!input.value.trim()) return;
-            const chatRef = doc(db, "chats", "global");
-            await setDoc(chatRef, { 
-                messages: arrayUnion({
+        const chatClose = document.getElementById('chat-close');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.toggle('active');
+            if (chatPanel.classList.contains('active') && currentUser) loadChatMessages();
+        });
+
+        chatClose.addEventListener('click', () => chatPanel.classList.remove('active'));
+
+        const chatRef = doc(db, "chats", "global");
+
+        function loadChatMessages() {
+            if (!currentUser) return;
+            onSnapshot(chatRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    const messages = data.messages || [];
+                    displayChatMessages(messages);
+                }
+            });
+        }
+
+        function displayChatMessages(messages) {
+            messages.sort((a, b) => a.timestamp - b.timestamp);
+            chatMessages.innerHTML = messages.map(msg => {
+                const isOwn = msg.userId === currentUser?.uid;
+                const time = msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : '';
+                return `
+                    <div class="chat-message ${isOwn ? 'own' : ''}">
+                        <div class="sender">${isOwn ? 'Moi' : escapeHtml(msg.userEmail)}</div>
+                        <div class="text">${escapeHtml(msg.message)}</div>
+                        <div class="time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatSend.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (!message || !currentUser) return;
+
+            try {
+                const chatSnap = await getDoc(chatRef);
+                let messages = [];
+                if (chatSnap.exists()) {
+                    messages = chatSnap.data().messages || [];
+                }
+                messages.push({
+                    userId: currentUser.uid,
                     userEmail: currentUser.email,
-                    message: input.value,
-                    timestamp: new Date()
-                }) 
-            }, { merge: true });
-            input.value = "";
-        };
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                if (messages.length > 100) messages = messages.slice(-100);
+                await setDoc(chatRef, { messages }, { merge: true });
+                chatInput.value = '';
+            } catch (error) {
+                console.error("Erreur envoi message:", error);
+                showMessage("Erreur envoi message", "error");
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') chatSend.click();
+        });
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                if(m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // ========== ALERTES ==========
+        const alertContainer = document.getElementById('alert-container');
+
+        function listenForAlerts() {
+            if (!currentUser) return;
+            
+            const alertsRef = collection(db, "alerts");
+            const q = query(alertsRef, where("target", "in", ["all", currentUser.uid]), orderBy("timestamp", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const alert = { id: change.doc.id, ...change.doc.data() };
+                        if (alert.target !== "all" && alert.readBy && alert.readBy.includes(currentUser.uid)) return;
+                        showAlertToast(alert.message, alert.target === "all" ? 'info' : 'warning');
+                        if (alert.target !== "all") {
+                            updateDoc(doc(db, "alerts", alert.id), {
+                                readBy: arrayUnion(currentUser.uid)
+                            }).catch(console.error);
+                        }
+                    }
+                });
+            });
+        }
+
+        function showAlertToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert-toast ${type}`;
+            toast.innerText = message;
+            toast.onclick = () => toast.remove();
+            alertContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 10000);
+        }
     </script>
 </body>
 </html>

@@ -6,6 +6,7 @@
     <title>Missions - YCash Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* Styles identiques à l'original, conservés */
         :root {
             --primary: #00f2fe;
             --primary-dark: #00d4ff;
@@ -790,7 +791,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
-            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc, onSnapshot, arrayUnion, getDoc
+            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc, onSnapshot, arrayUnion, getDoc, orderBy
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -823,7 +824,7 @@
             document.getElementById('user-email-header').innerText = user.email;
 
             await loadTasks();
-            listenForAlerts();   // 🆕 Écouter les alertes
+            listenForAlerts();
         });
 
         async function loadTasks() {
@@ -835,17 +836,18 @@
                 allTasks = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
-                }));
+                })).filter(t => t.totalSlots > (t.slotsFilled || 0)); // Ne garder que celles avec des places
 
                 document.getElementById('loading-state').style.display = 'none';
 
                 if (allTasks.length === 0) {
                     document.getElementById('empty-state').style.display = 'block';
+                    document.getElementById('tasks-grid').style.display = 'none';
                     return;
                 }
 
-                // Build filters
-                const categories = [...new Set(allTasks.map(t => t.category))];
+                // Construire les filtres à partir des catégories existantes (si présentes)
+                const categories = [...new Set(allTasks.map(t => t.category).filter(c => c))];
                 const filtersHtml = `
                     <button class="filter-btn active" onclick="filterTasks('all')">Tous</button>
                     ${categories.map(cat => `
@@ -864,36 +866,53 @@
 
         function displayTasks(tasksToShow) {
             const grid = document.getElementById('tasks-grid');
-            grid.innerHTML = tasksToShow.map(task => `
+            if (tasksToShow.length === 0) {
+                grid.innerHTML = '';
+                grid.style.display = 'none';
+                document.getElementById('empty-state').style.display = 'block';
+                return;
+            }
+            document.getElementById('empty-state').style.display = 'none';
+            grid.innerHTML = tasksToShow.map(task => {
+                // Valeurs par défaut pour les champs optionnels
+                const category = task.category || 'Général';
+                const difficulty = task.difficulty || 'Facile';
+                const estimatedTime = task.estimatedtime || task.estimatedTime || '5 min';
+                const slotsFilled = task.slotsFilled || 0;
+                const totalSlots = task.totalSlots || 0;
+                const reward = task.reward || 0;
+                const description = task.description || 'Aucune description fournie.';
+                
+                return `
                 <div class="task-card" onclick="openTaskModal('${task.id}')">
                     <div class="task-header">
                         <div class="task-title">${task.title}</div>
-                        <div class="task-badge">${task.difficulty}</div>
+                        <div class="task-badge">${difficulty}</div>
                     </div>
 
-                    <p class="task-description">${task.description}</p>
+                    <p class="task-description">${description}</p>
 
                     <div class="task-stats">
                         <div class="task-stat">
                             <span>⏱️</span>
-                            <span class="task-stat-value">${task.estimatedtime || task.estimatedTime || '5 min'}</span>
+                            <span class="task-stat-value">${estimatedTime}</span>
                         </div>
                         <div class="task-stat">
                             <span>👥</span>
-                            <span class="task-stat-value">${task.totalSlots - task.slotsFilled}/${task.totalSlots}</span>
+                            <span class="task-stat-value">${totalSlots - slotsFilled}/${totalSlots}</span>
                         </div>
                         <div class="task-stat">
                             <span>🏷️</span>
-                            <span class="task-stat-value">${task.category}</span>
+                            <span class="task-stat-value">${category}</span>
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="task-reward">+${task.reward.toFixed(2)}$</div>
+                        <div class="task-reward">+${reward.toFixed(2)}$</div>
                         <button class="btn-do-task" style="width: auto; padding: 10px 20px;">FAIRE →</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             grid.style.display = 'grid';
         }
@@ -916,7 +935,7 @@
             if (!selectedTask) return;
 
             document.getElementById('modal-title').innerText = selectedTask.title;
-            document.getElementById('modal-description').innerText = selectedTask.description;
+            document.getElementById('modal-description').innerText = selectedTask.description || 'Aucune description';
 
             const linkContainer = document.getElementById('modal-link-container');
             if (selectedTask.validationlink || selectedTask.validationLink) {
@@ -937,6 +956,7 @@
                 autoValidate.style.display = 'none';
                 manualValidate.style.display = 'block';
                 document.getElementById('proof-file').value = '';
+                document.getElementById('file-info-display').innerHTML = '';
             }
 
             document.getElementById('task-modal').classList.add('active');
@@ -981,12 +1001,20 @@
         document.getElementById('btn-submit-task').addEventListener('click', async () => {
             if (!selectedTask || !currentUser) return;
 
+            // Vérifier si l'utilisateur a déjà soumis cette mission
+            const submissionRef = doc(db, "tasks", selectedTask.id, "submissions", currentUser.uid);
+            const submissionSnap = await getDoc(submissionRef);
+            if (submissionSnap.exists()) {
+                showMessage("Vous avez déjà complété cette mission", "warning");
+                return;
+            }
+
             try {
                 const btn = document.getElementById('btn-submit-task');
                 btn.disabled = true;
                 btn.innerText = '⏳ Traitement...';
 
-                // ✅ UPDATE FIREBASE
+                // Mise à jour de l'utilisateur
                 const userRef = doc(db, "users", currentUser.uid);
                 await updateDoc(userRef, {
                     balance: increment(selectedTask.reward),
@@ -994,14 +1022,14 @@
                     lastLogin: serverTimestamp()
                 });
 
-                // Update task
+                // Mise à jour de la tâche
                 const taskRef = doc(db, "tasks", selectedTask.id);
                 await updateDoc(taskRef, {
                     slotsFilled: increment(1)
                 });
 
-                // Add submission
-                await setDoc(doc(db, "tasks", selectedTask.id, "submissions", currentUser.uid), {
+                // Ajout de la soumission
+                await setDoc(submissionRef, {
                     userId: currentUser.uid,
                     status: (selectedTask.autovalidat || selectedTask.autoValidate) ? 'approved' : 'pending',
                     submittedAt: serverTimestamp()
@@ -1011,7 +1039,8 @@
 
                 setTimeout(() => {
                     closeModal();
-                    location.reload();
+                    // Recharger les tâches pour mettre à jour les places disponibles
+                    loadTasks();
                 }, 2000);
 
             } catch (error) {
@@ -1160,9 +1189,6 @@
             alertContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 10000);
         }
-
-        // Initialiser les écouteurs Firebase pour les timestamps
-        import { orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     </script>
 
 </body>
