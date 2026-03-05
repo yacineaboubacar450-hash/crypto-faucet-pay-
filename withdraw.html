@@ -701,7 +701,7 @@
                     <div class="info-box">
                         <h4>💡 Comment ça marche ?</h4>
                         <p>✅ Sélectionnez votre méthode de paiement (crypto uniquement pour l'instant)</p>
-                        <p>✅ Entrez le montant à retirer (minimum 5$)</p>
+                        <p>✅ Entrez le montant à retirer (minimum 0.10$)</p>
                         <p>✅ Entrez votre adresse de portefeuille</p>
                         <p>✅ Confirmez et attendez le traitement (généralement sous 24h)</p>
                         <p>📧 Pour d'autres méthodes (PayPal, virement, etc.), contactez le support : <a href="mailto:ycashempirre@gmail.com" style="color: var(--primary);">ycashempirre@gmail.com</a></p>
@@ -710,22 +710,28 @@
                     <div class="form-group">
                         <label class="form-label">📌 Méthode de paiement</label>
                         <div class="methods-grid">
-                            <div class="method-card active" onclick="selectMethod('bitcoin')">
-                                <div class="method-icon">₿</div>
-                                <div class="method-name">Bitcoin</div>
-                                <div class="method-fee">Frais: 1.00$</div>
-                            </div>
-
-                            <div class="method-card" onclick="selectMethod('litecoin')">
+                            <div class="method-card active" onclick="selectMethod('litecoin')">
                                 <div class="method-icon">Ł</div>
                                 <div class="method-name">Litecoin</div>
-                                <div class="method-fee">Frais: 0.10$</div>
+                                <div class="method-fee">Frais: 0.01$</div>
                             </div>
 
                             <div class="method-card" onclick="selectMethod('usdt')">
                                 <div class="method-icon">💲</div>
                                 <div class="method-name">USDT (TRC20)</div>
-                                <div class="method-fee">Frais: 0.50$</div>
+                                <div class="method-fee">Frais: 0.05$</div>
+                            </div>
+
+                            <div class="method-card" onclick="selectMethod('dogecoin')">
+                                <div class="method-icon">Ð</div>
+                                <div class="method-name">Dogecoin</div>
+                                <div class="method-fee">Frais: 0.01$</div>
+                            </div>
+
+                            <div class="method-card" onclick="selectMethod('tron')">
+                                <div class="method-icon">🔷</div>
+                                <div class="method-name">TRON (TRX)</div>
+                                <div class="method-fee">Frais: 0.01$</div>
                             </div>
 
                             <!-- Carte "Autre méthode" qui renvoie vers le support -->
@@ -735,28 +741,28 @@
                                 <div class="method-fee">Contactez-nous</div>
                             </div>
                         </div>
-                        <input type="hidden" id="selected-method" value="bitcoin">
+                        <input type="hidden" id="selected-method" value="litecoin">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">💰 Montant à retirer ($)</label>
-                        <input type="number" id="withdraw-amount" class="form-input" placeholder="Minimum: 0.1/ Litecoin selment $" min="5" step="0.01">
-                        <div class="form-hint">Minimum: 0.1$ | Maximum: <span id="max-amount">0.00$</span></div>
+                        <input type="number" id="withdraw-amount" class="form-input" placeholder="Minimum: 0.10$" min="0.1" step="0.01">
+                        <div class="form-hint">Minimum: 0.10$ | Maximum: <span id="max-amount">0.00$</span></div>
                     </div>
 
                     <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid var(--warning); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
                         <p style="color: var(--warning); font-weight: bold; margin-bottom: 8px;">⚠️ Frais et détails du retrait</p>
                         <div style="display: grid; gap: 5px; color: #ccc; font-size: 0.9rem;">
                             <p>Montant demandé: <span style="float: right; color: white; font-weight: bold;" id="fee-amount">0.00$</span></p>
-                            <p>Frais: <span style="float: right; color: var(--warning); font-weight: bold;" id="fee-cost">1.00$</span></p>
-                            <p style="border-top: 1px solid var(--warning); padding-top: 8px; margin-top: 8px;">Vous recevrez: <span style="float: right; color: var(--success); font-weight: bold;" id="fee-final">-1.00$</span></p>
+                            <p>Frais: <span style="float: right; color: var(--warning); font-weight: bold;" id="fee-cost">0.01$</span></p>
+                            <p style="border-top: 1px solid var(--warning); padding-top: 8px; margin-top: 8px;">Vous recevrez: <span style="float: right; color: var(--success); font-weight: bold;" id="fee-final">-0.01$</span></p>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" id="payment-label">Adresse Bitcoin</label>
-                        <input type="text" id="payment-info" class="form-input" placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
-                        <div class="form-hint" id="payment-hint">Entrez votre adresse Bitcoin (commence par 1, 3 ou bc1)</div>
+                        <label class="form-label" id="payment-label">Adresse Litecoin</label>
+                        <input type="text" id="payment-info" class="form-input" placeholder="LTC...">
+                        <div class="form-hint" id="payment-hint">Entrez votre adresse Litecoin</div>
                     </div>
 
                     <div class="info-box">
@@ -780,7 +786,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     <div class="info-box">
                         <h4>🤔 Quel montant minimum ?</h4>
-                        <p>Le montant minimum est de 5.00$. Vous devez avoir au moins ce montant dans votre solde.</p>
+                        <p>Le montant minimum est de 0.10$ pour toutes les crypto-monnaies. Vous devez avoir au moins ce montant dans votre solde.</p>
                     </div>
 
                     <div class="info-box">
@@ -790,7 +796,7 @@
 
                     <div class="info-box">
                         <h4>💳 Quelles sont les méthodes disponibles ?</h4>
-                        <p>Pour l'instant, nous supportons Bitcoin, Litecoin et USDT (TRC20). Pour d'autres méthodes, contactez-nous.</p>
+                        <p>Pour l'instant, nous supportons Litecoin, USDT (TRC20), Dogecoin et TRON. Pour d'autres méthodes, contactez-nous.</p>
                     </div>
 
                     <div class="info-box">
@@ -857,11 +863,12 @@
         let currentUser = null;
         let currentBalance = 0;
 
-        // Nouvelles méthodes : Bitcoin, Litecoin, USDT
+        // Méthodes de retrait : Litecoin, USDT, Dogecoin, TRON (frais très bas)
         const methods = {
-            bitcoin: { name: 'Bitcoin', fee: 1.00, label: 'Adresse Bitcoin', placeholder: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', hint: 'Entrez votre adresse Bitcoin (commence par 1, 3 ou bc1)' },
-            litecoin: { name: 'Litecoin', fee: 0.10, label: 'Adresse Litecoin', placeholder: 'LTC...', hint: 'Entrez votre adresse Litecoin' },
-            usdt: { name: 'USDT (TRC20)', fee: 0.50, label: 'Adresse USDT (TRC20)', placeholder: 'T...', hint: 'Entrez votre adresse USDT (réseau TRC20)' }
+            litecoin: { name: 'Litecoin', fee: 0.01, minAmount: 0.10, label: 'Adresse Litecoin', placeholder: 'LTC...', hint: 'Entrez votre adresse Litecoin' },
+            usdt: { name: 'USDT (TRC20)', fee: 0.05, minAmount: 0.10, label: 'Adresse USDT (TRC20)', placeholder: 'T...', hint: 'Entrez votre adresse USDT (réseau TRC20)' },
+            dogecoin: { name: 'Dogecoin', fee: 0.01, minAmount: 0.10, label: 'Adresse Dogecoin', placeholder: 'D...', hint: 'Entrez votre adresse Dogecoin' },
+            tron: { name: 'TRON (TRX)', fee: 0.01, minAmount: 0.10, label: 'Adresse TRON', placeholder: 'T...', hint: 'Entrez votre adresse TRON' }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -889,7 +896,7 @@
                         currentBalance = user.balance || 0;
                         document.getElementById('balance-available').innerText = currentBalance.toFixed(2) + '$';
                         document.getElementById('balance-total').innerText = (user.totalEarned || 0).toFixed(2) + '$';
-                        document.getElementById('max-amount').innerText = Math.max(0, currentBalance - 5).toFixed(2) + '$';
+                        document.getElementById('max-amount').innerText = Math.max(0, currentBalance - 0.10).toFixed(2) + '$';
                     }
                 });
 
@@ -1002,8 +1009,8 @@
             const paymentInfo = document.getElementById('payment-info').value;
             const confirmed = document.getElementById('confirm-terms').checked;
 
-            if (!amount || amount < 5) {
-                showMessage('Montant minimum: 0.1 $', 'error');
+            if (!amount || amount < 0.1) {
+                showMessage('Montant minimum: 0.10$', 'error');
                 return;
             }
 
