@@ -194,79 +194,73 @@
             }, 1000);
         };
 
-        // Remplacez la fonction validateSurf dans votre code par celle-ci :
+/* --- REMPLACE TA FONCTION validateSurf PAR CELLE-CI --- */
+window.validateSurf = async (surfId) => {
+    if (activeSurfId !== surfId) return;
 
-window.validateSurf = async (id) => {
-    const surf = surfs.find(s => s.id === id);
-    const btn = document.querySelector('.btn-validate');
-    if(!btn) return;
-    
-    btn.disabled = true;
-    btn.innerText = "Traitement sécurisé...";
+    const surf = surfs.find(s => s.id === surfId);
+    if (!surf) return;
+
+    // 1. Suppression Visuelle Immédiate (Effet Pro)
+    const card = document.getElementById(`surf-${surfId}`);
+    if (card) {
+        card.style.opacity = "0";
+        card.style.transform = "scale(0.8) translateY(-20px)";
+        card.style.transition = "0.4s all ease";
+    }
 
     try {
         await runTransaction(db, async (transaction) => {
             const userRef = doc(db, "users", currentUser.uid);
             const userSnap = await transaction.get(userRef);
-            if (!userSnap.exists()) throw "Utilisateur introuvable";
-            
             const userData = userSnap.data();
-            const surfRef = doc(db, "surfs", id);
+
+            const surfRef = doc(db, "surfs", surfId);
             const surfSnap = await transaction.get(surfRef);
-            
-            if (!surfSnap.exists()) throw "Publicité introuvable";
             const sData = surfSnap.data();
 
-            // VERIFICATION DES CLICS (Correspondance exacte avec votre image)
-            if (sData.clicksRemaining <= 0) throw "Plus de clics disponibles";
+            if (sData.clicksRemaining <= 0) throw "Publicité épuisée";
 
             const reward = sData.reward || 0;
             const today = new Date().toDateString();
 
-            // 1. MISE À JOUR UTILISATEUR (Gain augmente ici)
+            // MISE À JOUR SOLDE
             transaction.update(userRef, {
                 balance: increment(reward),
                 surfViews: increment(1),
-                totalEarned: increment(reward),
                 lastSurfDate: today,
-                // Augmentation du gain journalier
                 dailySurfEarnings: (userData.lastSurfDate === today) ? increment(reward) : reward
             });
 
-            // 2. MISE À JOUR PUBLICITÉ (Incrémentation clickscompleted comme sur votre image)
+            // MISE À JOUR PUB (Correction minuscule clickscompleted selon ton image)
             transaction.update(surfRef, {
                 clicksRemaining: increment(-1),
-                clickscompleted: increment(1), // Correction minuscule ici
-                lastViewAt: serverTimestamp()
+                clickscompleted: increment(1)
             });
 
-            // 3. CRÉATION DE LA VUE (Pour faire disparaître la pub)
-            // On crée un document avec l'ID de l'utilisateur dans 'surfs/ID_PUB/views/ID_USER'
-            const viewRef = doc(db, "surfs", id, "views", currentUser.uid);
+            // CRÉATION DE LA VUE (Sous-collection automatique)
+            const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
             transaction.set(viewRef, {
                 viewedAt: serverTimestamp(),
                 userId: currentUser.uid
             });
         });
 
-        // 4. DISPARITION IMMÉDIATE DE L'INTERFACE
-        const card = document.getElementById(`card-${id}`);
-        if(card) {
-            card.style.transform = "scale(0)";
-            setTimeout(() => {
-                surfs = surfs.filter(s => s.id !== id);
-                renderSurfs();
-                activeSurfId = null;
-            }, 300);
+        // Nettoyage final
+        setTimeout(() => {
+            surfs = surfs.filter(s => s.id !== surfId);
+            activeSurfId = null;
+            renderSurfs();
+        }, 400);
+
+    } catch (error) {
+        console.error("Erreur:", error);
+        // Si erreur, on fait réapparaître la carte
+        if (card) {
+            card.style.opacity = "1";
+            card.style.transform = "scale(1) translateY(0)";
         }
-
-        showMessage("Gain validé ! +" + surf.reward.toFixed(4) + "$", "success");
-
-    } catch (e) {
-        console.error("Erreur de validation:", e);
-        alert("Erreur : " + e);
-        btn.disabled = false;
-        btn.innerText = "Réessayer";
+        alert("Permission refusée ou erreur Firestore. Vérifiez vos règles de sécurité !");
     }
 };
 
