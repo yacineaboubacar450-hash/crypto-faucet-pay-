@@ -511,11 +511,11 @@
             </div>
             <div class="stat-item">
                 <div class="stat-label">Solde total</div>
-                <div class="stat-value" id="stat-balance">0.00$</div>
+                <div class="stat-value" id="stat-balance">0.0000$</div> <!-- Affiché avec 4 décimales -->
             </div>
             <div class="stat-item">
                 <div class="stat-label">Gagné aujourd'hui</div>
-                <div class="stat-value" id="stat-today">0.00$</div>
+                <div class="stat-value" id="stat-today">0.0000$</div> <!-- Affiché avec 4 décimales -->
             </div>
         </div>
 
@@ -572,6 +572,14 @@
         let timerInterval = null;
         let timerEndTime = null;      // Timestamp de fin du timer (pour gérer rafraîchissement)
 
+        // Coefficient multiplicateur selon le niveau (identique aux missions)
+        function getLevelMultiplier(level) {
+            if (level >= 10) return 1.20;
+            if (level >= 5) return 1.10;
+            if (level >= 2) return 1.05;
+            return 1.0;
+        }
+
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 showMessage("Vous devez être connecté", "error");
@@ -587,14 +595,15 @@
             onSnapshot(userRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const userData = snapshot.data();
-                    document.getElementById('stat-balance').innerText = (userData.balance || 0).toFixed(2) + '$';
+                    // Affichage avec 4 décimales pour voir les petits gains
+                    document.getElementById('stat-balance').innerText = (userData.balance || 0).toFixed(4) + '$';
                     document.getElementById('stat-viewed').innerText = userData.surfViews || 0;
                     
                     const today = new Date().toDateString();
                     if (userData.lastSurfDate === today) {
-                        document.getElementById('stat-today').innerText = (userData.dailySurfEarnings || 0).toFixed(2) + '$';
+                        document.getElementById('stat-today').innerText = (userData.dailySurfEarnings || 0).toFixed(4) + '$';
                     } else {
-                        document.getElementById('stat-today').innerText = '0.00$';
+                        document.getElementById('stat-today').innerText = '0.0000$';
                     }
                 }
             });
@@ -809,26 +818,41 @@
             if (btn) btn.disabled = true;
 
             try {
-                const batch = writeBatch(db);
-
-                // Mettre à jour l'utilisateur
+                // Récupérer l'utilisateur pour le niveau et le parrain
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
                 const userData = userSnap.data();
+                const level = userData.level || 1;
+                const multiplier = getLevelMultiplier(level);
+                const finalReward = surf.reward * multiplier;
+
+                const batch = writeBatch(db);
+
+                // Mettre à jour l'utilisateur
                 const today = new Date().toDateString();
-                let dailyEarnings = surf.reward;
+                let dailyEarnings = finalReward;
                 if (userData.lastSurfDate === today) {
-                    dailyEarnings = (userData.dailySurfEarnings || 0) + surf.reward;
+                    dailyEarnings = (userData.dailySurfEarnings || 0) + finalReward;
                 }
 
                 batch.update(userRef, {
-                    balance: increment(surf.reward),
-                    totalEarned: increment(surf.reward),
+                    balance: increment(finalReward),
+                    totalEarned: increment(finalReward),
                     surfViews: increment(1),
                     lastSurfDate: today,
                     dailySurfEarnings: dailyEarnings,
                     lastLogin: serverTimestamp()
                 });
+
+                // Commission parrain (10%)
+                if (userData.referredBy) {
+                    const commission = finalReward * 0.10;
+                    const referrerRef = doc(db, "users", userData.referredBy);
+                    batch.update(referrerRef, {
+                        balance: increment(commission),
+                        referralEarnings: increment(commission)
+                    });
+                }
 
                 // Mettre à jour la surf
                 const surfRef = doc(db, "surfs", surfId);
@@ -842,12 +866,12 @@
                 batch.set(viewRef, {
                     userId: currentUser.uid,
                     viewedAt: serverTimestamp(),
-                    earned: surf.reward
+                    earned: finalReward
                 });
 
                 await batch.commit();
 
-                showMessage(`✅ +${surf.reward.toFixed(4)}$ gagnés !`, "success");
+                showMessage(`✅ +${finalReward.toFixed(4)}$ gagnés ! (Niveau ${level} : x${multiplier.toFixed(2)})`, 'success');
 
                 // Réinitialiser l'état actif
                 activeSurfId = null;
@@ -856,7 +880,7 @@
                     timerInterval = null;
                 }
 
-                // Recharger les données
+                // Recharger les données pour mettre à jour la liste (la surf devient complétée)
                 await loadSurfs();
 
             } catch (error) {

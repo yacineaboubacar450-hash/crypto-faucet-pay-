@@ -349,57 +349,6 @@
             margin-top: 5px;
         }
 
-        /* ========== TOP REFERRERS ========== */
-        .top-referrers-section {
-            margin-bottom: 50px;
-            display: none;
-        }
-
-        .top-referrers-section h2 {
-            font-size: 2rem;
-            margin-bottom: 30px;
-            color: var(--primary);
-        }
-
-        .top-referrers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .top-referrer-card {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
-            border: 2px solid gold;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .top-referrer-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
-        }
-
-        .top-referrer-rank {
-            font-size: 2rem;
-            font-weight: 900;
-            color: gold;
-            margin-bottom: 10px;
-        }
-
-        .top-referrer-email {
-            font-size: 1rem;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 5px;
-        }
-
-        .top-referrer-count {
-            font-size: 1.2rem;
-            color: var(--success);
-        }
-
         /* ========== ACHIEVEMENTS ========== */
         .achievements-section {
             margin-bottom: 50px;
@@ -1028,8 +977,8 @@
 
             <!-- ========== REFERRAL ========== -->
             <section class="referral-section" id="referral-section">
-                <h2>🤝 Programme de Parrainage (10%)</h2>
-                <p style="color: #ccc; margin-bottom: 20px;">Parrainez des amis et gagnez 10% de leurs gains à vie !</p>
+                <h2>🤝 Programme de Parrainage (25%)</h2>
+                <p style="color: #ccc; margin-bottom: 20px;">Parrainez des amis et gagnez 25% de leurs gains à vie !</p>
                 
                 <div class="referral-code" id="referral-code" onclick="copyReferralCode()">
                     CODE_LOADING...
@@ -1049,14 +998,6 @@
                         <div class="referral-stat-value" id="ref-total-gains">0.00$</div>
                         <div class="referral-stat-label">Gains de mes amis</div>
                     </div>
-                </div>
-            </section>
-
-            <!-- ========== TOP REFERRERS (CONCOURS) ========== -->
-            <section class="top-referrers-section" id="top-referrers-section">
-                <h2>🏆 Top 10 des Parrains (All-time)</h2>
-                <div class="top-referrers-grid" id="top-referrers-grid">
-                    <!-- Injecté par JS -->
                 </div>
             </section>
 
@@ -1137,9 +1078,9 @@
                 </div>
             </section>
 
-            <!-- ========== LEADERBOARD (Gains) ========== -->
+            <!-- ========== LEADERBOARD ========== -->
             <section class="leaderboard-section" id="leaderboard-section">
-                <h2>🏆 Top 10 des Gains (All-time)</h2>
+                <h2>🏆 Top 10 du Mois</h2>
                 <div class="leaderboard" id="leaderboard"></div>
             </section>
 
@@ -1229,59 +1170,26 @@
         let currentUser = null;
         const ADMIN_UID = "CAKKyaeewpdItHpuHo0GaOI9BEr1"; // ← Ton UID admin
 
-        // ========== FONCTIONS POUR LE PARRAINAGE ==========
-        function getReferralCodeFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('ref');
-        }
-
-        async function findReferrerByCode(code) {
-            if (!code) return null;
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("referralCode", "==", code));
-            const snapshot = await getDocs(q);
-            return snapshot.empty ? null : snapshot.docs[0];
-        }
-
         // ========== AUTH STATE ==========
         onAuthStateChanged(auth, async (user) => {
             currentUser = user;
 
             if (user) {
-                // ✅ Créer ou mettre à jour le document utilisateur
+                // ✅ Créer user document si n'existe pas
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
                 
                 if (!userSnap.exists()) {
-                    // Nouvel utilisateur : générer code, détecter parrain, bonus bienvenue
                     const referralCode = 'REF' + Math.random().toString(36).substr(2, 9).toUpperCase();
-                    
-                    // Détection du parrain
-                    const refCodeFromURL = getReferralCodeFromURL();
-                    let referrerId = null;
-                    if (refCodeFromURL) {
-                        const referrerDoc = await findReferrerByCode(refCodeFromURL);
-                        if (referrerDoc) {
-                            referrerId = referrerDoc.id;
-                            // Incrémenter le compteur de filleuls du parrain
-                            await updateDoc(doc(db, "users", referrerId), {
-                                referralCount: increment(1)
-                            });
-                        }
-                    }
-
-                    // Création du document avec bonus de bienvenue 0.05$
                     await setDoc(userRef, {
                         uid: user.uid,
                         email: user.email,
-                        balance: 0.05,
-                        totalEarned: 0.05,
+                        balance: 0,
+                        totalEarned: 0,
                         level: 1,
-                        role: 'user', // rôle par défaut
                         referralCode: referralCode,
                         referralCount: 0,
                         referralEarnings: 0,
-                        referredBy: referrerId || null,
                         createdAt: serverTimestamp(),
                         lastLogin: serverTimestamp()
                     });
@@ -1294,11 +1202,9 @@
 
                 showUserDashboard(user);
                 loadUserData(user.uid);
-                listenForAlerts();
+                listenForAlerts();   // 🆕 Écouter les alertes
 
-                // Afficher le bouton admin si l'utilisateur a le rôle admin (ou UID spécial)
-                const userData = (await getDoc(userRef)).data();
-                if (user.uid === ADMIN_UID || userData?.role === 'admin') {
+                if (user.uid === ADMIN_UID) {
                     document.getElementById('admin-card').style.display = 'block';
                 }
             } else {
@@ -1311,7 +1217,6 @@
             document.getElementById('auth-overlay').style.display = 'none';
             document.getElementById('user-stats').style.display = 'block';
             document.getElementById('referral-section').style.display = 'block';
-            document.getElementById('top-referrers-section').style.display = 'block';
             document.getElementById('achievements-section').style.display = 'block';
             document.getElementById('leaderboard-section').style.display = 'block';
             document.getElementById('user-card').style.display = 'flex';
@@ -1324,7 +1229,6 @@
             document.getElementById('auth-overlay').style.display = 'flex';
             document.getElementById('user-stats').style.display = 'none';
             document.getElementById('referral-section').style.display = 'none';
-            document.getElementById('top-referrers-section').style.display = 'none';
             document.getElementById('achievements-section').style.display = 'none';
             document.getElementById('leaderboard-section').style.display = 'none';
             document.getElementById('user-card').style.display = 'none';
@@ -1336,6 +1240,7 @@
             try {
                 const userRef = doc(db, "users", uid);
                 
+                // Real-time sync
                 onSnapshot(userRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const user = snapshot.data();
@@ -1350,39 +1255,10 @@
                     }
                 });
 
-                // Load leaderboards
+                // Load leaderboard
                 loadLeaderboard();
-                loadTopReferrers();
             } catch (error) {
                 console.error('Erreur:', error);
-            }
-        }
-
-        // ========== TOP REFERRERS ==========
-        async function loadTopReferrers() {
-            try {
-                const usersRef = collection(db, "users");
-                const q = query(usersRef, orderBy("referralCount", "desc"), limit(10));
-                const snapshot = await getDocs(q);
-
-                const grid = document.getElementById('top-referrers-grid');
-                if (snapshot.empty) {
-                    grid.innerHTML = '<p>Aucun parrain pour le moment.</p>';
-                    return;
-                }
-
-                grid.innerHTML = snapshot.docs.map((doc, i) => {
-                    const user = doc.data();
-                    return `
-                        <div class="top-referrer-card">
-                            <div class="top-referrer-rank">#${i + 1}</div>
-                            <div class="top-referrer-email">${user.email.split('@')[0]}</div>
-                            <div class="top-referrer-count">${user.referralCount || 0} filleuls</div>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Erreur top referrers:', error);
             }
         }
 
@@ -1409,7 +1285,7 @@
             `).join('');
         }
 
-        // ========== LEADERBOARD (GAINS) ==========
+        // ========== LEADERBOARD ==========
         async function loadLeaderboard() {
             try {
                 const usersRef = collection(db, "users");
@@ -1481,9 +1357,8 @@
 
         window.copyReferralCode = () => {
             const code = document.getElementById('referral-code').innerText;
-            const link = window.location.origin + '/?ref=' + code;
-            navigator.clipboard.writeText(link);
-            showNotification('✅ Lien de parrainage copié!', 'success');
+            navigator.clipboard.writeText(code);
+            showNotification('✅ Code copié!', 'success');
         };
 
         function showNotification(message, type) {
@@ -1594,6 +1469,7 @@
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added") {
                         const alert = { id: change.doc.id, ...change.doc.data() };
+                        // Éviter les doublons si déjà lue (ciblée)
                         if (alert.target !== "all" && alert.readBy && alert.readBy.includes(currentUser.uid)) return;
                         showAlertToast(alert.message, alert.target === "all" ? 'info' : 'warning');
                         if (alert.target !== "all") {
