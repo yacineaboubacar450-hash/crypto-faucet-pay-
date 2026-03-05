@@ -6,6 +6,7 @@
     <title>Surf Ads - YCash Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
+        /* styles inchangés (identiques à l'original) */
         :root {
             --primary: #00f2fe;
             --primary-dark: #00d4ff;
@@ -511,11 +512,11 @@
             </div>
             <div class="stat-item">
                 <div class="stat-label">Solde total</div>
-                <div class="stat-value" id="stat-balance">0.0000$</div> <!-- Affiché avec 4 décimales -->
+                <div class="stat-value" id="stat-balance">0.0000$</div>
             </div>
             <div class="stat-item">
                 <div class="stat-label">Gagné aujourd'hui</div>
-                <div class="stat-value" id="stat-today">0.0000$</div> <!-- Affiché avec 4 décimales -->
+                <div class="stat-value" id="stat-today">0.0000$</div>
             </div>
         </div>
 
@@ -550,7 +551,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
-            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, onSnapshot, setDoc, getDoc, writeBatch, arrayUnion, orderBy
+            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, onSnapshot, setDoc, getDoc, writeBatch, arrayUnion, orderBy, runTransaction
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -595,7 +596,6 @@
             onSnapshot(userRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const userData = snapshot.data();
-                    // Affichage avec 4 décimales pour voir les petits gains
                     document.getElementById('stat-balance').innerText = (userData.balance || 0).toFixed(4) + '$';
                     document.getElementById('stat-viewed').innerText = userData.surfViews || 0;
                     
@@ -651,14 +651,13 @@
         // ========== AFFICHER LES CARTES ==========
         function renderSurfs() {
             const grid = document.getElementById('surf-grid');
-            const now = new Date();
+            const todayStr = new Date().toDateString(); // pour la comparaison de date
 
-            // Compter les disponibles (jamais vues ou vue > 24h)
+            // Compter les disponibles : pas de vue ou vue d'un jour différent
             const available = surfs.filter(s => {
                 if (!s.viewData) return true;
-                const lastView = s.viewData.viewedAt.toDate();
-                const hoursSince = (now - lastView) / (1000 * 60 * 60);
-                return hoursSince >= 24;
+                const lastViewDate = s.viewData.viewedAt?.toDate();
+                return !lastViewDate || lastViewDate.toDateString() !== todayStr;
             });
 
             document.getElementById('stat-available').innerText = available.length;
@@ -676,9 +675,11 @@
 
             let html = '';
             surfs.forEach(surf => {
-                const isAvailable = !surf.viewData || ((now - surf.viewData.viewedAt.toDate()) / (1000 * 60 * 60) >= 24);
+                // Disponible si pas de vue OU vue d'un jour différent
+                const lastViewDate = surf.viewData?.viewedAt?.toDate();
+                const isAvailable = !lastViewDate || lastViewDate.toDateString() !== todayStr;
                 const isActive = (activeSurfId === surf.id);
-                const isCompleted = !isAvailable && !isActive; // déjà vue récemment et pas en cours
+                const isCompleted = !isAvailable && !isActive; // déjà vue aujourd'hui et pas en cours
 
                 // Calcul du temps restant si en cours
                 let remainingSeconds = 0;
@@ -703,7 +704,7 @@
                             </button>
                         ` : `
                             <button class="btn-visit" disabled style="background: #555;">
-                                ⏳ REVIENT DANS 24H
+                                ⏳ REVIENT DEMAIN
                             </button>
                         `}
                         ${isActive ? `
@@ -737,15 +738,13 @@
             const surf = surfs.find(s => s.id === surfId);
             if (!surf) return;
 
-            // Vérifier une dernière fois que c'est disponible
-            if (surf.viewData) {
-                const lastView = surf.viewData.viewedAt.toDate();
-                const hoursSince = (new Date() - lastView) / (1000 * 60 * 60);
-                if (hoursSince < 24) {
-                    showMessage("Cette publicité a été vue il y a moins de 24h", "error");
-                    await loadSurfs(); // recharger
-                    return;
-                }
+            // Vérifier une dernière fois que c'est disponible (date du jour)
+            const todayStr = new Date().toDateString();
+            const lastViewDate = surf.viewData?.viewedAt?.toDate();
+            if (lastViewDate && lastViewDate.toDateString() === todayStr) {
+                showMessage("Cette publicité a déjà été vue aujourd'hui", "error");
+                await loadSurfs(); // recharger pour être sûr
+                return;
             }
 
             // Ouvrir l'URL
@@ -800,7 +799,7 @@
             }, 1000);
         }
 
-        // ========== VALIDER LE SURF ==========
+        // ========== VALIDER LE SURF (AVEC TRANSACTION) ==========
         window.validateSurf = async (surfId) => {
             if (activeSurfId !== surfId) return;
 
@@ -818,60 +817,79 @@
             if (btn) btn.disabled = true;
 
             try {
-                // Récupérer l'utilisateur pour le niveau et le parrain
-                const userRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.data();
-                const level = userData.level || 1;
-                const multiplier = getLevelMultiplier(level);
-                const finalReward = surf.reward * multiplier;
+                // Utiliser une transaction pour garantir l'atomicité
+                await runTransaction(db, async (transaction) => {
+                    // Lire l'utilisateur
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnap = await transaction.get(userRef);
+                    if (!userSnap.exists()) throw new Error("Utilisateur introuvable");
+                    const userData = userSnap.data();
 
-                const batch = writeBatch(db);
+                    // Lire la surf
+                    const surfRef = doc(db, "surfs", surfId);
+                    const surfSnap = await transaction.get(surfRef);
+                    if (!surfSnap.exists()) throw new Error("Publicité introuvable");
+                    const surfData = surfSnap.data();
 
-                // Mettre à jour l'utilisateur
-                const today = new Date().toDateString();
-                let dailyEarnings = finalReward;
-                if (userData.lastSurfDate === today) {
-                    dailyEarnings = (userData.dailySurfEarnings || 0) + finalReward;
-                }
+                    // Vérifier que des clics sont encore disponibles
+                    if (surfData.clicksRemaining <= 0) {
+                        throw new Error("Cette publicité n'a plus de clics disponibles");
+                    }
 
-                batch.update(userRef, {
-                    balance: increment(finalReward),
-                    totalEarned: increment(finalReward),
-                    surfViews: increment(1),
-                    lastSurfDate: today,
-                    dailySurfEarnings: dailyEarnings,
-                    lastLogin: serverTimestamp()
-                });
+                    // Calcul du gain avec multiplicateur
+                    const level = userData.level || 1;
+                    const multiplier = getLevelMultiplier(level);
+                    const finalReward = surf.reward * multiplier;
 
-                // Commission parrain (10%)
-                if (userData.referredBy) {
-                    const commission = finalReward * 0.10;
-                    const referrerRef = doc(db, "users", userData.referredBy);
-                    batch.update(referrerRef, {
-                        balance: increment(commission),
-                        referralEarnings: increment(commission)
+                    // Mise à jour de l'utilisateur
+                    const today = new Date().toDateString();
+                    const isNewDay = userData.lastSurfDate !== today;
+                    const newDailyEarnings = isNewDay ? finalReward : (userData.dailySurfEarnings || 0) + finalReward;
+
+                    transaction.update(userRef, {
+                        balance: increment(finalReward),
+                        totalEarned: increment(finalReward),
+                        surfViews: increment(1),
+                        lastSurfDate: today,
+                        dailySurfEarnings: newDailyEarnings
                     });
+
+                    // Commission parrain (10%)
+                    if (userData.referredBy) {
+                        const commission = finalReward * 0.10;
+                        const referrerRef = doc(db, "users", userData.referredBy);
+                        transaction.update(referrerRef, {
+                            balance: increment(commission),
+                            referralEarnings: increment(commission)
+                        });
+                    }
+
+                    // Décrémenter les clics de la surf
+                    transaction.update(surfRef, {
+                        clicksRemaining: increment(-1),
+                        clicksCompleted: increment(1)
+                    });
+
+                    // Enregistrer la vue (écrase l'ancienne)
+                    const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
+                    transaction.set(viewRef, {
+                        userId: currentUser.uid,
+                        viewedAt: serverTimestamp(),
+                        earned: finalReward
+                    });
+                });
+
+                // Succès : mettre à jour localement pour un affichage immédiat
+                showMessage(`✅ +${(surf.reward * getLevelMultiplier((await getDoc(doc(db, "users", currentUser.uid))).data().level || 1)).toFixed(4)}$ gagnés !`, 'success');
+
+                // Mettre à jour localement la viewData pour ce surf
+                const surfIndex = surfs.findIndex(s => s.id === surfId);
+                if (surfIndex !== -1) {
+                    surfs[surfIndex].viewData = {
+                        viewedAt: new Date(), // pas grave pour l'affichage, on compare les dates
+                        earned: surf.reward * getLevelMultiplier(1) // approximatif, mais le vrai sera dans Firestore
+                    };
                 }
-
-                // Mettre à jour la surf
-                const surfRef = doc(db, "surfs", surfId);
-                batch.update(surfRef, {
-                    clicksRemaining: increment(-1),
-                    clicksCompleted: increment(1)
-                });
-
-                // Enregistrer la vue (écrase l'ancienne)
-                const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
-                batch.set(viewRef, {
-                    userId: currentUser.uid,
-                    viewedAt: serverTimestamp(),
-                    earned: finalReward
-                });
-
-                await batch.commit();
-
-                showMessage(`✅ +${finalReward.toFixed(4)}$ gagnés ! (Niveau ${level} : x${multiplier.toFixed(2)})`, 'success');
 
                 // Réinitialiser l'état actif
                 activeSurfId = null;
@@ -880,8 +898,11 @@
                     timerInterval = null;
                 }
 
-                // Recharger les données pour mettre à jour la liste (la surf devient complétée)
-                await loadSurfs();
+                // Re-rendre la grille avec les données locales mises à jour
+                renderSurfs();
+
+                // Optionnel : recharger depuis Firestore pour être parfaitement synchro (mais pas obligatoire)
+                // loadSurfs();
 
             } catch (error) {
                 console.error("Erreur validation:", error);
