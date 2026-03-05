@@ -740,8 +740,8 @@
 
                     <div class="form-group">
                         <label class="form-label">💰 Montant à retirer ($)</label>
-                        <input type="number" id="withdraw-amount" class="form-input" placeholder="Minimum: 5.00$" min="5" step="0.01">
-                        <div class="form-hint">Minimum: 5.00$ | Maximum: <span id="max-amount">0.00$</span></div>
+                        <input type="number" id="withdraw-amount" class="form-input" placeholder="Minimum: 0.1/ Litecoin selment $" min="5" step="0.01">
+                        <div class="form-hint">Minimum: 0.1$ | Maximum: <span id="max-amount">0.00$</span></div>
                     </div>
 
                     <div style="background: rgba(255, 193, 7, 0.1); border: 1px solid var(--warning); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
@@ -1003,7 +1003,7 @@
             const confirmed = document.getElementById('confirm-terms').checked;
 
             if (!amount || amount < 5) {
-                showMessage('Montant minimum: 5.00$', 'error');
+                showMessage('Montant minimum: 0.1 $', 'error');
                 return;
             }
 
