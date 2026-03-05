@@ -90,7 +90,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 30px 20px;
         }
@@ -147,195 +147,125 @@
             color: var(--warning);
         }
 
-        .card {
+        /* Grille des publicités */
+        .surf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .surf-card {
             background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--glass-border);
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            padding: 20px;
             transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
-        .card:hover {
+        .surf-card:hover {
             border-color: var(--primary);
-            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.2);
         }
 
-        .surf-header {
-            text-align: center;
-            margin-bottom: 30px;
+        .surf-card.completed {
+            opacity: 0.5;
+            filter: grayscale(0.8);
+            pointer-events: none;
         }
 
-        .surf-header h2 {
+        .surf-card .title {
+            font-size: 1.2rem;
+            font-weight: 700;
             color: var(--primary);
-            font-size: 1.8rem;
             margin-bottom: 10px;
             word-break: break-word;
         }
 
-        .surf-url {
+        .surf-card .url {
             color: #aaa;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
             word-break: break-all;
         }
 
-        .timer-display {
+        .surf-card .stats {
             display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
 
-        .timer-circle {
-            width: 140px;
-            height: 140px;
-            border: 4px solid var(--primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--primary);
-            box-shadow: 0 0 25px var(--primary), inset 0 0 20px rgba(0, 242, 254, 0.1);
-            background: rgba(0, 0, 0, 0.3);
-            font-size: 2.5rem;
-            animation: pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 25px var(--primary), inset 0 0 20px rgba(0, 242, 254, 0.1);
-            }
-            50% {
-                box-shadow: 0 0 40px var(--primary), inset 0 0 30px rgba(0, 242, 254, 0.2);
-            }
-        }
-
-        .timer-circle.finished {
-            border-color: var(--success);
+        .surf-card .reward {
             color: var(--success);
-            box-shadow: 0 0 25px var(--success);
+            font-weight: bold;
         }
 
-        .timer-circle.waiting {
-            border-color: var(--warning);
+        .surf-card .duration {
             color: var(--warning);
-            box-shadow: 0 0 25px var(--warning);
         }
 
-        .surf-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .btn-primary {
+        .surf-card .btn-visit {
             background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: var(--dark);
             border: none;
-            padding: 16px 30px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             font-weight: 800;
             cursor: pointer;
             transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1rem;
-            width: 100%;
+            font-size: 0.9rem;
+            margin-top: auto;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .surf-card .btn-visit:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.3);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
         }
 
-        .btn-primary:disabled {
+        .surf-card .btn-visit:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, var(--success), #00dd66);
-            color: var(--dark);
-            border: none;
-            padding: 16px 30px;
-            border-radius: 12px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 1rem;
-            width: 100%;
-            display: none;
-        }
-
-        .btn-success.show {
-            display: block;
-            animation: slideUp 0.4s ease;
-        }
-
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
-        }
-
-        .btn-success:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .info-box {
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.1), rgba(255, 0, 204, 0.05));
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        .info-box p {
-            margin: 8px 0;
-            font-size: 0.95rem;
-            color: #ccc;
-        }
-
-        .reward-text {
-            color: var(--success);
-            font-weight: bold;
-            font-size: 1.3rem;
+        .surf-card .timer {
             margin-top: 10px;
-        }
-
-        .queue-info {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid var(--warning);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
             text-align: center;
-        }
-
-        .queue-info p {
-            color: var(--warning);
+            font-size: 1.2rem;
             font-weight: bold;
+            color: var(--warning);
         }
 
-        .progress-bar {
+        .surf-card .progress-bar {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 10px;
             overflow: hidden;
-            margin: 15px 0;
         }
 
-        .progress-fill {
+        .surf-card .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
             transition: width 1s linear;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: rgba(255,87,87,0.05);
+            border: 2px solid var(--danger);
+            border-radius: 20px;
+            grid-column: 1 / -1;
         }
 
         .stats-grid {
@@ -364,34 +294,6 @@
             color: var(--primary);
             font-size: 1.3rem;
             font-weight: bold;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .spinner-large {
-            width: 60px;
-            height: 60px;
-            border: 4px solid var(--glass-border);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
         }
 
         /* ========== CHAT WIDGET ========== */
@@ -571,17 +473,9 @@
             .container {
                 padding: 20px 15px;
             }
-
             .logo-container {
                 font-size: 1.6rem;
             }
-
-            .timer-circle {
-                width: 110px;
-                height: 110px;
-                font-size: 2rem;
-            }
-
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -590,11 +484,6 @@
     </style>
 </head>
 <body>
-
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="spinner-large"></div>
-        <p style="color: var(--primary); font-weight: bold;">CHARGEMENT DE LA PROCHAINE PUB...</p>
-    </div>
 
     <header>
         <div class="header-content">
@@ -607,49 +496,9 @@
     </header>
 
     <div class="container">
-        <div class="logo-container">🏄 GAGNEZ EN REGARDANT</div>
+        <div class="logo-container">🏄 CHOISISSEZ VOTRE PUB</div>
 
         <div id="message-container"></div>
-
-        <div id="queue-info" class="queue-info" style="display: none;">
-            <p id="queue-text">Chargement des publicités...</p>
-        </div>
-
-        <div id="surf-container" class="card">
-            <div class="surf-header">
-                <h2 id="ad-title">Chargement des publicités...</h2>
-                <p class="surf-url" id="ad-url"></p>
-            </div>
-
-            <div class="timer-display">
-                <div id="timer-display" class="timer-circle">⏳</div>
-            </div>
-
-            <div class="progress-bar" id="progress-bar" style="display: none;">
-                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
-            </div>
-
-            <div class="surf-actions">
-                <button class="btn-primary" id="btn-visit-site" onclick="visitSite()" disabled>
-                    🌐 VISITER LE SITE
-                </button>
-
-                <button class="btn-success" id="btn-valider" onclick="validateSurf()" disabled>
-                    ✅ VALIDER MON VISIONNAGE
-                </button>
-            </div>
-
-            <div class="info-box">
-                <p>Regardez cette publicité pendant</p>
-                <p style="font-size: 1.2rem; color: var(--primary); font-weight: bold;">
-                    <span id="duration-text">15</span> secondes
-                </p>
-                <p class="reward-text">+<span id="reward-text">0.0005</span>$</p>
-                <p style="color: #999; font-size: 0.85rem; margin-top: 10px;">
-                    ⚡ Une fois par publicité toutes les 24h (elles reviennent automatiquement)
-                </p>
-            </div>
-        </div>
 
         <div class="stats-grid">
             <div class="stat-item">
@@ -657,8 +506,8 @@
                 <div class="stat-value" id="stat-viewed">0</div>
             </div>
             <div class="stat-item">
-                <div class="stat-label">En attente</div>
-                <div class="stat-value" id="stat-queue">0</div>
+                <div class="stat-label">Disponibles</div>
+                <div class="stat-value" id="stat-available">0</div>
             </div>
             <div class="stat-item">
                 <div class="stat-label">Solde total</div>
@@ -668,6 +517,10 @@
                 <div class="stat-label">Gagné aujourd'hui</div>
                 <div class="stat-value" id="stat-today">0.00$</div>
             </div>
+        </div>
+
+        <div id="surf-grid" class="surf-grid">
+            <!-- Les cartes seront injectées ici -->
         </div>
 
         <div class="footer-nav">
@@ -714,12 +567,10 @@
         const db = getFirestore(app);
 
         let currentUser = null;
-        let currentAd = null;
-        let timerActive = false;
-        let isProcessing = false;
-        let availableSurfs = [];      // Liste des pubs disponibles (avec ordre fixe)
-        let currentIndex = 0;
+        let surfs = [];               // Toutes les surfs actives avec leur statut pour cet utilisateur
+        let activeSurfId = null;      // ID de la surf en cours de visionnage
         let timerInterval = null;
+        let timerEndTime = null;      // Timestamp de fin du timer (pour gérer rafraîchissement)
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -748,269 +599,274 @@
                 }
             });
 
-            await loadAvailableSurfs();
+            await loadSurfs();
             listenForAlerts();
         });
 
-        // ========== CHARGER LES PUBS DISPONIBLES ==========
-        async function loadAvailableSurfs() {
+        // ========== CHARGER LES SURFS ==========
+        async function loadSurfs() {
             try {
-                showMessage("Chargement des publicités...", "warning");
-                
-                document.getElementById("btn-visit-site").disabled = true;
-                document.getElementById("btn-valider").disabled = true;
-                document.getElementById("btn-valider").classList.remove('show');
-
                 const surfsRef = collection(db, "surfs");
                 const q = query(surfsRef, where("status", "==", "active"));
                 const snapshot = await getDocs(q);
 
-                // Toutes les surfs actives avec clics restants
                 const allActiveSurfs = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 })).filter(s => s.clicksRemaining > 0);
 
-                // Filtrer celles qui sont disponibles (jamais vues ou vue > 24h)
-                availableSurfs = [];
-                const now = new Date();
-                
-                for (const surf of allActiveSurfs) {
+                // Récupérer pour chaque surf la dernière vue de l'utilisateur
+                const surfPromises = allActiveSurfs.map(async (surf) => {
                     const viewRef = doc(db, "surfs", surf.id, "views", currentUser.uid);
                     const viewSnap = await getDoc(viewRef);
-                    
-                    if (!viewSnap.exists()) {
-                        availableSurfs.push(surf);
-                    } else {
-                        const viewData = viewSnap.data();
-                        const lastView = viewData.viewedAt.toDate();
-                        const hoursSince = (now - lastView) / (1000 * 60 * 60);
-                        if (hoursSince >= 24) {
-                            availableSurfs.push(surf);
-                        }
+                    let viewData = null;
+                    if (viewSnap.exists()) {
+                        viewData = viewSnap.data();
                     }
+                    return { ...surf, viewData };
+                });
+
+                surfs = await Promise.all(surfPromises);
+
+                // Trier par date de création (ordre chronologique)
+                surfs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+
+                renderSurfs();
+
+            } catch (error) {
+                console.error("Erreur chargement:", error);
+                showMessage("Erreur: " + error.message, "error");
+            }
+        }
+
+        // ========== AFFICHER LES CARTES ==========
+        function renderSurfs() {
+            const grid = document.getElementById('surf-grid');
+            const now = new Date();
+
+            // Compter les disponibles (jamais vues ou vue > 24h)
+            const available = surfs.filter(s => {
+                if (!s.viewData) return true;
+                const lastView = s.viewData.viewedAt.toDate();
+                const hoursSince = (now - lastView) / (1000 * 60 * 60);
+                return hoursSince >= 24;
+            });
+
+            document.getElementById('stat-available').innerText = available.length;
+
+            if (surfs.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 4rem;">📭</div>
+                        <h2>Aucune publicité disponible</h2>
+                        <p>Revenez plus tard, de nouvelles campagnes seront ajoutées.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            surfs.forEach(surf => {
+                const isAvailable = !surf.viewData || ((now - surf.viewData.viewedAt.toDate()) / (1000 * 60 * 60) >= 24);
+                const isActive = (activeSurfId === surf.id);
+                const isCompleted = !isAvailable && !isActive; // déjà vue récemment et pas en cours
+
+                // Calcul du temps restant si en cours
+                let remainingSeconds = 0;
+                if (isActive && timerEndTime) {
+                    remainingSeconds = Math.max(0, Math.floor((timerEndTime - Date.now()) / 1000));
                 }
 
-                // Trier par date de création (ordre chronologique) pour un ordre fixe
-                availableSurfs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                html += `
+                    <div class="surf-card ${isCompleted ? 'completed' : ''}" id="surf-${surf.id}">
+                        <div class="title">${surf.title}</div>
+                        <div class="url">${surf.url}</div>
+                        <div class="stats">
+                            <span class="reward">💰 ${surf.reward.toFixed(4)}$</span>
+                            <span class="duration">⏱️ ${surf.duration}s</span>
+                        </div>
+                        ${!isCompleted ? `
+                            <button class="btn-visit" 
+                                onclick="visitSurf('${surf.id}')" 
+                                ${isActive ? 'disabled' : ''}
+                                ${!isAvailable ? 'disabled' : ''}>
+                                ${isActive ? 'EN COURS...' : '🌐 VISITER'}
+                            </button>
+                        ` : `
+                            <button class="btn-visit" disabled style="background: #555;">
+                                ⏳ REVIENT DANS 24H
+                            </button>
+                        `}
+                        ${isActive ? `
+                            <div class="timer" id="timer-${surf.id}">${remainingSeconds}s</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-${surf.id}" style="width: ${((surf.duration - remainingSeconds) / surf.duration) * 100}%;"></div>
+                            </div>
+                            <button class="btn-success" id="validate-${surf.id}" style="display: ${remainingSeconds <= 0 ? 'block' : 'none'}; margin-top: 10px; background: var(--success); color: var(--dark); border: none; padding: 10px; border-radius: 10px; font-weight: bold; cursor: pointer;" onclick="validateSurf('${surf.id}')">
+                                ✅ VALIDER
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
 
-                document.getElementById('stat-queue').innerText = availableSurfs.length;
+            grid.innerHTML = html;
 
-                if (availableSurfs.length === 0) {
-                    document.getElementById("ad-title").innerText = "⏳ Plus de publicités pour l'instant";
-                    document.getElementById("ad-url").innerText = "Revenez dans quelques heures, elles réapparaîtront !";
-                    document.getElementById("reward-text").innerText = "0.0000";
-                    document.getElementById("duration-text").innerText = "0";
-                    document.getElementById("queue-info").style.display = 'block';
-                    document.getElementById("queue-text").innerText = "⏳ Toutes les publicités ont été vues récemment. Revenez plus tard (elles reviennent après 24h).";
-                    document.getElementById("btn-visit-site").disabled = true;
-                    document.getElementById("btn-valider").classList.remove('show');
-                    showMessage("⏳ Plus de publicités disponibles pour le moment", "warning");
+            // Si une pub est active, on relance l'affichage du timer
+            if (activeSurfId) {
+                startTimerDisplay(activeSurfId);
+            }
+        }
+
+        // ========== VISITER UNE SURF ==========
+        window.visitSurf = async (surfId) => {
+            if (activeSurfId) {
+                showMessage("Vous avez déjà une publicité en cours", "warning");
+                return;
+            }
+
+            const surf = surfs.find(s => s.id === surfId);
+            if (!surf) return;
+
+            // Vérifier une dernière fois que c'est disponible
+            if (surf.viewData) {
+                const lastView = surf.viewData.viewedAt.toDate();
+                const hoursSince = (new Date() - lastView) / (1000 * 60 * 60);
+                if (hoursSince < 24) {
+                    showMessage("Cette publicité a été vue il y a moins de 24h", "error");
+                    await loadSurfs(); // recharger
+                    return;
+                }
+            }
+
+            // Ouvrir l'URL
+            window.open(surf.url, '_blank');
+
+            // Activer le timer
+            activeSurfId = surfId;
+            timerEndTime = Date.now() + surf.duration * 1000;
+            renderSurfs(); // réaffiche avec le timer
+
+            // Démarrer le compte à rebours
+            startTimerDisplay(surfId);
+        };
+
+        // ========== GESTION DU TIMER ==========
+        function startTimerDisplay(surfId) {
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                const surf = surfs.find(s => s.id === surfId);
+                if (!surf || activeSurfId !== surfId) {
+                    clearInterval(timerInterval);
                     return;
                 }
 
-                document.getElementById("queue-info").style.display = 'block';
-                document.getElementById("queue-text").innerHTML = `📊 <strong>${availableSurfs.length}</strong> publicité${availableSurfs.length > 1 ? 's' : ''} disponible${availableSurfs.length > 1 ? 's' : ''} • Une par une (reviendront après 24h)`;
+                const now = Date.now();
+                const remaining = Math.max(0, Math.floor((timerEndTime - now) / 1000));
 
-                currentIndex = 0;
-                displayCurrentSurf();
+                // Mise à jour du texte du timer
+                const timerElem = document.getElementById(`timer-${surfId}`);
+                if (timerElem) timerElem.innerText = remaining + 's';
 
-            } catch (error) {
-                console.error("Erreur:", error);
-                showMessage("❌ Erreur: " + error.message, "error");
-            }
-        }
+                // Mise à jour de la barre de progression
+                const progress = ((surf.duration - remaining) / surf.duration) * 100;
+                const progressElem = document.getElementById(`progress-${surfId}`);
+                if (progressElem) progressElem.style.width = progress + '%';
 
-        // ========== AFFICHER LA PUB COURANTE ==========
-        function displayCurrentSurf() {
-            if (currentIndex >= availableSurfs.length) {
-                // Normalement ne devrait pas arriver car on recharge avant
-                loadAvailableSurfs();
-                return;
-            }
+                // Afficher le bouton valider quand temps écoulé
+                const validateBtn = document.getElementById(`validate-${surfId}`);
+                if (validateBtn) {
+                    if (remaining <= 0) {
+                        validateBtn.style.display = 'block';
+                    } else {
+                        validateBtn.style.display = 'none';
+                    }
+                }
 
-            currentAd = availableSurfs[currentIndex];
-            
-            document.getElementById("ad-title").innerText = currentAd.title;
-            document.getElementById("ad-url").innerText = "🔗 " + currentAd.url;
-            document.getElementById("duration-text").innerText = currentAd.duration;
-            document.getElementById("reward-text").innerText = currentAd.reward.toFixed(4);
-            
-            resetInterface(); // remet à zéro l'interface (timer éteint, boutons réinitialisés)
-            
-            document.getElementById("btn-visit-site").disabled = false;
-            
-            const remaining = availableSurfs.length - currentIndex;
-            document.getElementById('stat-queue').innerText = remaining;
-            document.getElementById("queue-text").innerHTML = `📊 <strong>${remaining}</strong> publicité${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''} (reviendront après 24h)`;
-            
-            showMessage(`✅ Publicité ${currentIndex + 1}/${availableSurfs.length} disponible`, "success");
-        }
-
-        // ========== RÉINITIALISER L'INTERFACE ==========
-        function resetInterface() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerActive = false;
-            isProcessing = false;
-            
-            document.getElementById("timer-display").innerText = '⏳';
-            document.getElementById("timer-display").classList.remove('finished', 'waiting');
-            document.getElementById("progress-bar").style.display = 'none';
-            document.getElementById("btn-valider").classList.remove('show');
-            document.getElementById("btn-valider").disabled = false;
-            document.getElementById("btn-visit-site").disabled = false;
-            document.getElementById("loading-overlay").classList.remove('active');
-        }
-
-        // ========== VISITER LE SITE ==========
-        window.visitSite = () => {
-            if (!currentAd) {
-                showMessage("❌ Aucune publicité", "error");
-                return;
-            }
-            if (timerActive) {
-                showMessage("⏳ Vous avez déjà commencé à regarder cette pub", "warning");
-                return;
-            }
-            window.open(currentAd.url, '_blank');
-            startTimer(currentAd.duration);
-            document.getElementById("btn-visit-site").disabled = true;
-            showMessage(`⏳ Timer de ${currentAd.duration}s démarré !`, "warning");
-        };
-
-        // ========== DÉMARRER LE TIMER ==========
-        function startTimer(duration) {
-            if (timerActive) return;
-            timerActive = true;
-
-            let time = duration;
-            const timerDisplay = document.getElementById("timer-display");
-            const btnValider = document.getElementById("btn-valider");
-            const progressBar = document.getElementById("progress-bar");
-            const progressFill = document.getElementById("progress-fill");
-
-            timerDisplay.innerText = time + "s";
-            timerDisplay.classList.remove('finished', 'waiting');
-            btnValider.classList.remove('show');
-            progressBar.style.display = 'block';
-            progressFill.style.width = '0%';
-
-            timerInterval = setInterval(() => {
-                time--;
-                timerDisplay.innerText = time + "s";
-                
-                const percent = ((duration - time) / duration) * 100;
-                progressFill.style.width = percent + '%';
-
-                if (time <= 0) {
+                if (remaining <= 0) {
                     clearInterval(timerInterval);
-                    timerDisplay.classList.add('finished');
-                    timerDisplay.innerText = "✅";
-                    btnValider.classList.add('show');
-                    progressFill.style.width = '100%';
-                    timerActive = false;
-                    showMessage("✅ Temps écoulé ! Vous pouvez valider", "success");
+                    timerInterval = null;
                 }
             }, 1000);
         }
 
         // ========== VALIDER LE SURF ==========
-        window.validateSurf = async () => {
-            if (!currentUser || !currentAd) {
-                showMessage("❌ Erreur: Données manquantes", "error");
+        window.validateSurf = async (surfId) => {
+            if (activeSurfId !== surfId) return;
+
+            const surf = surfs.find(s => s.id === surfId);
+            if (!surf) return;
+
+            // Vérifier que le timer est bien fini
+            if (Date.now() < timerEndTime) {
+                showMessage("Le temps n'est pas encore écoulé", "warning");
                 return;
             }
-            if (timerActive) {
-                showMessage("⏳ Veuillez attendre la fin du timer", "warning");
-                return;
-            }
-            if (isProcessing) return;
-            isProcessing = true;
+
+            // Empêcher double clic
+            const btn = document.getElementById(`validate-${surfId}`);
+            if (btn) btn.disabled = true;
 
             try {
-                const btn = document.getElementById("btn-valider");
-                btn.disabled = true;
-                btn.innerText = "⏳ TRAITEMENT...";
-
-                // Vérification finale
-                const viewRef = doc(db, "surfs", currentAd.id, "views", currentUser.uid);
-                const viewSnap = await getDoc(viewRef);
-                
-                if (viewSnap.exists()) {
-                    const lastView = viewSnap.data().viewedAt.toDate();
-                    const hoursSince = (new Date() - lastView) / (1000 * 60 * 60);
-                    if (hoursSince < 24) {
-                        showMessage("⛔ Vous avez déjà validé cette publicité il y a moins de 24h", "error");
-                        setTimeout(() => location.reload(), 2000);
-                        return;
-                    }
-                }
-
                 const batch = writeBatch(db);
 
-                // Mise à jour utilisateur
+                // Mettre à jour l'utilisateur
                 const userRef = doc(db, "users", currentUser.uid);
                 const userSnap = await getDoc(userRef);
                 const userData = userSnap.data();
                 const today = new Date().toDateString();
-                let dailyEarnings = currentAd.reward;
+                let dailyEarnings = surf.reward;
                 if (userData.lastSurfDate === today) {
-                    dailyEarnings = (userData.dailySurfEarnings || 0) + currentAd.reward;
+                    dailyEarnings = (userData.dailySurfEarnings || 0) + surf.reward;
                 }
+
                 batch.update(userRef, {
-                    balance: increment(currentAd.reward),
-                    totalEarned: increment(currentAd.reward),
+                    balance: increment(surf.reward),
+                    totalEarned: increment(surf.reward),
                     surfViews: increment(1),
                     lastSurfDate: today,
                     dailySurfEarnings: dailyEarnings,
                     lastLogin: serverTimestamp()
                 });
 
-                // Mise à jour de la surf
-                const surfRef = doc(db, "surfs", currentAd.id);
+                // Mettre à jour la surf
+                const surfRef = doc(db, "surfs", surfId);
                 batch.update(surfRef, {
                     clicksRemaining: increment(-1),
                     clicksCompleted: increment(1)
                 });
 
-                // Enregistrement de la vue
+                // Enregistrer la vue (écrase l'ancienne)
+                const viewRef = doc(db, "surfs", surfId, "views", currentUser.uid);
                 batch.set(viewRef, {
                     userId: currentUser.uid,
                     viewedAt: serverTimestamp(),
-                    earned: currentAd.reward
+                    earned: surf.reward
                 });
 
                 await batch.commit();
 
-                showMessage(`✅ +${currentAd.reward.toFixed(4)}$ gagnés !`, "success");
+                showMessage(`✅ +${surf.reward.toFixed(4)}$ gagnés !`, "success");
 
-                // Passer à la pub suivante
-                currentIndex++;
-                document.getElementById("loading-overlay").classList.add('active');
-
-                if (currentIndex < availableSurfs.length) {
-                    setTimeout(() => {
-                        displayCurrentSurf();
-                        document.getElementById("loading-overlay").classList.remove('active');
-                    }, 2000);
-                } else {
-                    // Plus de pubs dans cette liste, on recharge depuis Firestore (les nouvelles disponibles)
-                    setTimeout(async () => {
-                        await loadAvailableSurfs();
-                        document.getElementById("loading-overlay").classList.remove('active');
-                    }, 2000);
+                // Réinitialiser l'état actif
+                activeSurfId = null;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
                 }
 
+                // Recharger les données
+                await loadSurfs();
+
             } catch (error) {
-                console.error("Erreur:", error);
-                showMessage("❌ Erreur: " + error.message, "error");
-                isProcessing = false;
-                document.getElementById("btn-valider").disabled = false;
-                document.getElementById("btn-valider").innerText = "✅ VALIDER MON VISIONNAGE";
-                document.getElementById("loading-overlay").classList.remove('active');
+                console.error("Erreur validation:", error);
+                showMessage("Erreur: " + error.message, "error");
+                if (btn) btn.disabled = false;
             }
         };
 
+        // ========== MESSAGE ==========
         function showMessage(message, type = 'success') {
             const container = document.getElementById('message-container');
             const div = document.createElement('div');
