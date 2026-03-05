@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Missions - YCash Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --primary: #00f2fe;
@@ -109,6 +108,7 @@
             padding: 8px 15px;
             border-radius: 8px;
             transition: 0.3s;
+            text-decoration: none;
         }
 
         .back-link:hover {
@@ -493,6 +493,161 @@
             color: var(--primary);
         }
 
+        /* ========== CHAT WIDGET ========== */
+        .chat-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,242,254,0.4);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+        .chat-panel {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: var(--darker);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 9998;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-panel.active {
+            display: flex;
+        }
+        .chat-header {
+            background: var(--primary);
+            color: var(--dark);
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-close {
+            background: none;
+            border: none;
+            color: var(--dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px;
+            max-width: 80%;
+            align-self: flex-start;
+        }
+        .chat-message.own {
+            background: rgba(0,242,254,0.2);
+            align-self: flex-end;
+        }
+        .chat-message .sender {
+            font-size: 0.7rem;
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+        .chat-message .text {
+            font-size: 0.9rem;
+            word-wrap: break-word;
+        }
+        .chat-message .time {
+            font-size: 0.6rem;
+            color: #aaa;
+            text-align: right;
+            margin-top: 3px;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .chat-input {
+            flex: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: var(--primary);
+        }
+        .chat-send {
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            color: var(--dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-send:hover {
+            transform: scale(1.1);
+        }
+
+        /* ========== ALERT NOTIFICATION ========== */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .alert-toast {
+            background: rgba(255,87,87,0.9);
+            border: 2px solid var(--danger);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: white;
+            max-width: 350px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255,87,87,0.3);
+            cursor: pointer;
+        }
+        .alert-toast.info {
+            background: rgba(0,242,254,0.9);
+            border-color: var(--primary);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
         footer {
             text-align: center;
             padding: 40px 20px;
@@ -519,6 +674,7 @@
             main { margin-top: 100px; padding: 20px 15px; }
             .hero h1 { font-size: 1.8rem; }
             .tasks-grid { grid-template-columns: 1fr; }
+            .chat-panel { width: 300px; right: 10px; }
         }
     </style>
 </head>
@@ -609,6 +765,23 @@
         </div>
     </div>
 
+    <!-- ========== CHAT WIDGET ========== -->
+    <button class="chat-toggle" id="chat-toggle" title="Chat en direct">💬</button>
+    <div class="chat-panel" id="chat-panel">
+        <div class="chat-header">
+            <span>Chat en direct</span>
+            <button class="chat-close" id="chat-close">&times;</button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chat-input" placeholder="Votre message...">
+            <button class="chat-send" id="chat-send">➤</button>
+        </div>
+    </div>
+
+    <!-- ========== ALERT CONTAINER ========== -->
+    <div class="alert-container" id="alert-container"></div>
+
     <footer>
         <p>&copy; 2026 YCash Empire - Complétez des missions et gagnez</p>
     </footer>
@@ -617,7 +790,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
-            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc
+            getFirestore, doc, updateDoc, collection, query, where, getDocs, increment, serverTimestamp, setDoc, onSnapshot, arrayUnion, getDoc
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -650,6 +823,7 @@
             document.getElementById('user-email-header').innerText = user.email;
 
             await loadTasks();
+            listenForAlerts();   // 🆕 Écouter les alertes
         });
 
         async function loadTasks() {
@@ -702,7 +876,7 @@
                     <div class="task-stats">
                         <div class="task-stat">
                             <span>⏱️</span>
-                            <span class="task-stat-value">${task.estimatedTime}</span>
+                            <span class="task-stat-value">${task.estimatedtime || task.estimatedTime || '5 min'}</span>
                         </div>
                         <div class="task-stat">
                             <span>👥</span>
@@ -745,10 +919,10 @@
             document.getElementById('modal-description').innerText = selectedTask.description;
 
             const linkContainer = document.getElementById('modal-link-container');
-            if (selectedTask.validationLink) {
+            if (selectedTask.validationlink || selectedTask.validationLink) {
                 linkContainer.style.display = 'block';
-                document.getElementById('modal-link').href = selectedTask.validationLink;
-                document.getElementById('modal-link').innerText = selectedTask.validationLink;
+                document.getElementById('modal-link').href = selectedTask.validationlink || selectedTask.validationLink;
+                document.getElementById('modal-link').innerText = selectedTask.validationlink || selectedTask.validationLink;
             } else {
                 linkContainer.style.display = 'none';
             }
@@ -756,7 +930,7 @@
             const autoValidate = document.getElementById('modal-auto-validate');
             const manualValidate = document.getElementById('modal-manual-validate');
 
-            if (selectedTask.autoValidate) {
+            if (selectedTask.autovalidat || selectedTask.autoValidate) {
                 autoValidate.style.display = 'block';
                 manualValidate.style.display = 'none';
             } else {
@@ -829,7 +1003,7 @@
                 // Add submission
                 await setDoc(doc(db, "tasks", selectedTask.id, "submissions", currentUser.uid), {
                     userId: currentUser.uid,
-                    status: selectedTask.autoValidate ? 'approved' : 'pending',
+                    status: (selectedTask.autovalidat || selectedTask.autoValidate) ? 'approved' : 'pending',
                     submittedAt: serverTimestamp()
                 });
 
@@ -855,7 +1029,8 @@
 
             const icons = {
                 success: '✅',
-                error: '❌'
+                error: '❌',
+                warning: '⚠️'
             };
 
             div.innerHTML = `<span>${icons[type]}</span><span>${message}</span>`;
@@ -868,6 +1043,126 @@
                 }, 4000);
             }
         }
+
+        // ========== CHAT ==========
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatPanel = document.getElementById('chat-panel');
+        const chatClose = document.getElementById('chat-close');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+
+        chatToggle.addEventListener('click', () => {
+            chatPanel.classList.toggle('active');
+            if (chatPanel.classList.contains('active') && currentUser) loadChatMessages();
+        });
+
+        chatClose.addEventListener('click', () => chatPanel.classList.remove('active'));
+
+        const chatRef = doc(db, "chats", "global");
+
+        function loadChatMessages() {
+            if (!currentUser) return;
+            onSnapshot(chatRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    const messages = data.messages || [];
+                    displayChatMessages(messages);
+                }
+            });
+        }
+
+        function displayChatMessages(messages) {
+            messages.sort((a, b) => a.timestamp - b.timestamp);
+            chatMessages.innerHTML = messages.map(msg => {
+                const isOwn = msg.userId === currentUser?.uid;
+                const time = msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : '';
+                return `
+                    <div class="chat-message ${isOwn ? 'own' : ''}">
+                        <div class="sender">${isOwn ? 'Moi' : escapeHtml(msg.userEmail)}</div>
+                        <div class="text">${escapeHtml(msg.message)}</div>
+                        <div class="time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        chatSend.addEventListener('click', async () => {
+            const message = chatInput.value.trim();
+            if (!message || !currentUser) return;
+
+            try {
+                const chatSnap = await getDoc(chatRef);
+                let messages = [];
+                if (chatSnap.exists()) {
+                    messages = chatSnap.data().messages || [];
+                }
+                messages.push({
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                if (messages.length > 100) messages = messages.slice(-100);
+                await setDoc(chatRef, { messages }, { merge: true });
+                chatInput.value = '';
+            } catch (error) {
+                console.error("Erreur envoi message:", error);
+                showMessage("Erreur envoi message", "error");
+            }
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') chatSend.click();
+        });
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if(m === '&') return '&amp;';
+                if(m === '<') return '&lt;';
+                if(m === '>') return '&gt;';
+                if(m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // ========== ALERTES ==========
+        const alertContainer = document.getElementById('alert-container');
+
+        function listenForAlerts() {
+            if (!currentUser) return;
+            
+            const alertsRef = collection(db, "alerts");
+            const q = query(alertsRef, where("target", "in", ["all", currentUser.uid]), orderBy("timestamp", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const alert = { id: change.doc.id, ...change.doc.data() };
+                        if (alert.target !== "all" && alert.readBy && alert.readBy.includes(currentUser.uid)) return;
+                        showAlertToast(alert.message, alert.target === "all" ? 'info' : 'warning');
+                        if (alert.target !== "all") {
+                            updateDoc(doc(db, "alerts", alert.id), {
+                                readBy: arrayUnion(currentUser.uid)
+                            }).catch(console.error);
+                        }
+                    }
+                });
+            });
+        }
+
+        function showAlertToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `alert-toast ${type}`;
+            toast.innerText = message;
+            toast.onclick = () => toast.remove();
+            alertContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 10000);
+        }
+
+        // Initialiser les écouteurs Firebase pour les timestamps
+        import { orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     </script>
 
 </body>
