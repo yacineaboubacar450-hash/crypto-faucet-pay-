@@ -194,53 +194,82 @@
             }, 1000);
         };
 
-        window.validateSurf = async (id) => {
-            const surf = surfs.find(s => s.id === id);
-            const btn = document.querySelector('.btn-validate');
-            btn.disabled = true;
-            btn.innerText = "Traitement...";
+        // Remplacez la fonction validateSurf dans votre code par celle-ci :
 
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const userRef = doc(db, "users", currentUser.uid);
-                    const userSnap = await transaction.get(userRef);
-                    const userData = userSnap.data();
-                    
-                    const surfRef = doc(db, "surfs", id);
-                    const surfSnap = await transaction.get(surfRef);
-                    if (surfSnap.data().clicksRemaining <= 0) throw "Plus de clics !";
+window.validateSurf = async (id) => {
+    const surf = surfs.find(s => s.id === id);
+    const btn = document.querySelector('.btn-validate');
+    if(!btn) return;
+    
+    btn.disabled = true;
+    btn.innerText = "Traitement sécurisé...";
 
-                    const today = new Date().toDateString();
-                    const isNewDay = userData.lastSurfDate !== today;
-                    const finalReward = surf.reward; // Vous pouvez ajouter le multiplicateur ici
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userRef = doc(db, "users", currentUser.uid);
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) throw "Utilisateur introuvable";
+            
+            const userData = userSnap.data();
+            const surfRef = doc(db, "surfs", id);
+            const surfSnap = await transaction.get(surfRef);
+            
+            if (!surfSnap.exists()) throw "Publicité introuvable";
+            const sData = surfSnap.data();
 
-                    transaction.update(userRef, {
-                        balance: increment(finalReward),
-                        surfViews: increment(1),
-                        lastSurfDate: today,
-                        dailySurfEarnings: isNewDay ? finalReward : increment(finalReward)
-                    });
+            // VERIFICATION DES CLICS (Correspondance exacte avec votre image)
+            if (sData.clicksRemaining <= 0) throw "Plus de clics disponibles";
 
-                    transaction.update(surfRef, {
-                        clicksRemaining: increment(-1),
-                        clicksCompleted: increment(1)
-                    });
+            const reward = sData.reward || 0;
+            const today = new Date().toDateString();
 
-                    transaction.set(doc(db, "surfs", id, "views", currentUser.uid), {
-                        viewedAt: serverTimestamp()
-                    });
-                });
+            // 1. MISE À JOUR UTILISATEUR (Gain augmente ici)
+            transaction.update(userRef, {
+                balance: increment(reward),
+                surfViews: increment(1),
+                totalEarned: increment(reward),
+                lastSurfDate: today,
+                // Augmentation du gain journalier
+                dailySurfEarnings: (userData.lastSurfDate === today) ? increment(reward) : reward
+            });
 
-                // SUPPRESSION IMMÉDIATE DE LA CARTE
+            // 2. MISE À JOUR PUBLICITÉ (Incrémentation clickscompleted comme sur votre image)
+            transaction.update(surfRef, {
+                clicksRemaining: increment(-1),
+                clickscompleted: increment(1), // Correction minuscule ici
+                lastViewAt: serverTimestamp()
+            });
+
+            // 3. CRÉATION DE LA VUE (Pour faire disparaître la pub)
+            // On crée un document avec l'ID de l'utilisateur dans 'surfs/ID_PUB/views/ID_USER'
+            const viewRef = doc(db, "surfs", id, "views", currentUser.uid);
+            transaction.set(viewRef, {
+                viewedAt: serverTimestamp(),
+                userId: currentUser.uid
+            });
+        });
+
+        // 4. DISPARITION IMMÉDIATE DE L'INTERFACE
+        const card = document.getElementById(`card-${id}`);
+        if(card) {
+            card.style.transform = "scale(0)";
+            setTimeout(() => {
                 surfs = surfs.filter(s => s.id !== id);
-                activeSurfId = null;
                 renderSurfs();
-                
-            } catch (e) {
-                alert("Erreur: " + e);
-                btn.disabled = false;
-            }
-        };
+                activeSurfId = null;
+            }, 300);
+        }
+
+        showMessage("Gain validé ! +" + surf.reward.toFixed(4) + "$", "success");
+
+    } catch (e) {
+        console.error("Erreur de validation:", e);
+        alert("Erreur : " + e);
+        btn.disabled = false;
+        btn.innerText = "Réessayer";
+    }
+};
+
 
         // Logique simplifiée du Chat (conservée pour le fonctionnement)
         const chatToggle = document.getElementById('chat-toggle');
