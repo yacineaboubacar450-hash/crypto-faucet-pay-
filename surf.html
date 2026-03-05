@@ -646,7 +646,7 @@
                 </p>
                 <p class="reward-text">+<span id="reward-text">0.0005</span>$</p>
                 <p style="color: #999; font-size: 0.85rem; margin-top: 10px;">
-                    ⚡ Une seule validation par publicité
+                    ⚡ Une fois par publicité toutes les 24h (elles reviennent automatiquement)
                 </p>
             </div>
         </div>
@@ -751,7 +751,7 @@
             });
 
             await loadAvailableSurfs();
-            listenForAlerts();   // 🆕 Écouter les alertes
+            listenForAlerts();   // Écouter les alertes
         });
 
         // ========== CHARGER LES PUBS DISPONIBLES ==========
@@ -773,8 +773,9 @@
                     ...doc.data()
                 })).filter(s => s.clicksRemaining > 0);
 
-                // Vérifier celles que l'utilisateur n'a PAS déjà validées
+                // Vérifier celles que l'utilisateur n'a PAS déjà validées ou dont la dernière vue date de plus de 24h
                 availableSurfs = [];
+                const now = new Date();
                 
                 for (const surf of allActiveSurfs) {
                     const viewRef = doc(db, "surfs", surf.id, "views", currentUser.uid);
@@ -783,6 +784,14 @@
                     if (!viewSnap.exists()) {
                         // Jamais vue = disponible
                         availableSurfs.push(surf);
+                    } else {
+                        const viewData = viewSnap.data();
+                        const lastView = viewData.viewedAt.toDate(); // Timestamp Firestore
+                        const hoursSince = (now - lastView) / (1000 * 60 * 60);
+                        if (hoursSince >= 24) {
+                            // Plus de 24h, disponible à nouveau
+                            availableSurfs.push(surf);
+                        }
                     }
                 }
 
@@ -790,22 +799,22 @@
                 document.getElementById('stat-queue').innerText = availableSurfs.length;
 
                 if (availableSurfs.length === 0) {
-                    // Plus de publicités disponibles
-                    document.getElementById("ad-title").innerText = "🎉 FÉLICITATIONS !";
-                    document.getElementById("ad-url").innerText = "Vous avez vu toutes les publicités disponibles";
+                    // Plus de publicités disponibles pour l'instant (soit toutes vues récemment)
+                    document.getElementById("ad-title").innerText = "⏳ Plus de publicités pour l'instant";
+                    document.getElementById("ad-url").innerText = "Revenez dans quelques heures, elles réapparaîtront !";
                     document.getElementById("reward-text").innerText = "0.0000";
                     document.getElementById("duration-text").innerText = "0";
                     document.getElementById("queue-info").style.display = 'block';
-                    document.getElementById("queue-text").innerText = "✅ Vous avez terminé toutes les publicités ! Revenez plus tard pour de nouvelles.";
+                    document.getElementById("queue-text").innerText = "⏳ Toutes les publicités ont été vues récemment. Revenez plus tard (elles reviennent après 24h).";
                     document.getElementById("btn-visit-site").disabled = true;
                     document.getElementById("btn-valider").classList.remove('show');
-                    showMessage("🎉 Toutes les publicités ont été vues !", "success");
+                    showMessage("⏳ Plus de publicités disponibles pour le moment", "warning");
                     return;
                 }
 
                 // Afficher la file d'attente
                 document.getElementById("queue-info").style.display = 'block';
-                document.getElementById("queue-text").innerHTML = `📊 <strong>${availableSurfs.length}</strong> publicité${availableSurfs.length > 1 ? 's' : ''} disponible${availableSurfs.length > 1 ? 's' : ''} • Une par une`;
+                document.getElementById("queue-text").innerHTML = `📊 <strong>${availableSurfs.length}</strong> publicité${availableSurfs.length > 1 ? 's' : ''} disponible${availableSurfs.length > 1 ? 's' : ''} • Une par une (reviendront après 24h)`;
 
                 // Mélanger aléatoirement
                 availableSurfs = shuffleArray(availableSurfs);
@@ -853,7 +862,7 @@
             // Mettre à jour le compteur de file
             const remaining = availableSurfs.length - currentIndex;
             document.getElementById('stat-queue').innerText = remaining;
-            document.getElementById("queue-text").innerHTML = `📊 <strong>${remaining}</strong> publicité${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}`;
+            document.getElementById("queue-text").innerHTML = `📊 <strong>${remaining}</strong> publicité${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''} (reviendront après 24h)`;
             
             showMessage(`✅ Publicité ${currentIndex + 1}/${availableSurfs.length} disponible`, "success");
         }
@@ -961,14 +970,18 @@
                 btn.disabled = true;
                 btn.innerText = "⏳ TRAITEMENT...";
 
-                // Vérifier une dernière fois que cette pub n'a pas déjà été validée
+                // Vérifier une dernière fois que cette pub n'a pas déjà été validée récemment (moins de 24h)
                 const viewRef = doc(db, "surfs", currentAd.id, "views", currentUser.uid);
                 const viewSnap = await getDoc(viewRef);
                 
                 if (viewSnap.exists()) {
-                    showMessage("⛔ Vous avez déjà validé cette publicité", "error");
-                    setTimeout(() => location.reload(), 2000);
-                    return;
+                    const lastView = viewSnap.data().viewedAt.toDate();
+                    const hoursSince = (new Date() - lastView) / (1000 * 60 * 60);
+                    if (hoursSince < 24) {
+                        showMessage("⛔ Vous avez déjà validé cette publicité il y a moins de 24h", "error");
+                        setTimeout(() => location.reload(), 2000);
+                        return;
+                    }
                 }
 
                 // Préparer le batch pour atomicité
@@ -1002,7 +1015,7 @@
                     clicksCompleted: increment(1)
                 });
 
-                // 3. Enregistrer la vue
+                // 3. Enregistrer la vue (écrase l'ancienne si existante)
                 batch.set(viewRef, {
                     userId: currentUser.uid,
                     viewedAt: serverTimestamp(),
@@ -1027,7 +1040,7 @@
                         document.getElementById("loading-overlay").classList.remove('active');
                     }, 2000);
                 } else {
-                    // Plus de pubs, recharger la liste
+                    // Plus de pubs dans cette session, recharger la liste complète (pour inclure celles qui reviendraient ?)
                     setTimeout(async () => {
                         await loadAvailableSurfs();
                         document.getElementById("loading-overlay").classList.remove('active');

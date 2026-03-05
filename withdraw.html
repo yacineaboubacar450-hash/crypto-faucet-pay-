@@ -84,6 +84,7 @@
             padding: 8px 15px;
             border-radius: 8px;
             transition: 0.3s;
+            text-decoration: none;
         }
 
         .back-link:hover {
@@ -656,7 +657,7 @@
 
             <section class="hero">
                 <h1>💰 Retirez vos Gains</h1>
-                <p>Convertissez votre solde en argent réel - Instant et sécurisé</p>
+                <p>Convertissez votre solde en crypto-monnaies ou contactez le support pour d'autres méthodes.</p>
             </section>
 
             <div id="message-container"></div>
@@ -699,52 +700,42 @@
 
                     <div class="info-box">
                         <h4>💡 Comment ça marche ?</h4>
-                        <p>✅ Sélectionnez votre méthode de paiement</p>
-                        <p>✅ Entrez le montant à retirer</p>
-                        <p>✅ Entrez vos informations de paiement</p>
-                        <p>✅ Confirmez et attendez le virement (24-48h)</p>
+                        <p>✅ Sélectionnez votre méthode de paiement (crypto uniquement pour l'instant)</p>
+                        <p>✅ Entrez le montant à retirer (minimum 5$)</p>
+                        <p>✅ Entrez votre adresse de portefeuille</p>
+                        <p>✅ Confirmez et attendez le traitement (généralement sous 24h)</p>
+                        <p>📧 Pour d'autres méthodes (PayPal, virement, etc.), contactez le support : <a href="mailto:ycashempirre@gmail.com" style="color: var(--primary);">ycashempirre@gmail.com</a></p>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">📌 Méthode de paiement</label>
                         <div class="methods-grid">
-                            <div class="method-card active" onclick="selectMethod('paypal')">
-                                <div class="method-icon">🅿️</div>
-                                <div class="method-name">PayPal</div>
+                            <div class="method-card active" onclick="selectMethod('bitcoin')">
+                                <div class="method-icon">₿</div>
+                                <div class="method-name">Bitcoin</div>
+                                <div class="method-fee">Frais: 1.00$</div>
+                            </div>
+
+                            <div class="method-card" onclick="selectMethod('litecoin')">
+                                <div class="method-icon">Ł</div>
+                                <div class="method-name">Litecoin</div>
+                                <div class="method-fee">Frais: 0.10$</div>
+                            </div>
+
+                            <div class="method-card" onclick="selectMethod('usdt')">
+                                <div class="method-icon">💲</div>
+                                <div class="method-name">USDT (TRC20)</div>
                                 <div class="method-fee">Frais: 0.50$</div>
                             </div>
 
-                            <div class="method-card" onclick="selectMethod('wise')">
-                                <div class="method-icon">💱</div>
-                                <div class="method-name">Wise</div>
-                                <div class="method-fee">Frais: 0.75$</div>
-                            </div>
-
-                            <div class="method-card" onclick="selectMethod('bitcoin')">
-                                <div class="method-icon">₿</div>
-                                <div class="method-name">Bitcoin</div>
-                                <div class="method-fee">Frais: 2.00$</div>
-                            </div>
-
-                            <div class="method-card" onclick="selectMethod('stripe')">
-                                <div class="method-icon">💳</div>
-                                <div class="method-name">Stripe</div>
-                                <div class="method-fee">Frais: 1.00$</div>
-                            </div>
-
-                            <div class="method-card" onclick="selectMethod('bank')">
-                                <div class="method-icon">🏦</div>
-                                <div class="method-name">Virement</div>
-                                <div class="method-fee">Frais: 1.50$</div>
-                            </div>
-
-                            <div class="method-card" onclick="selectMethod('skrill')">
-                                <div class="method-icon">🔐</div>
-                                <div class="method-name">Skrill</div>
-                                <div class="method-fee">Frais: 1.00$</div>
+                            <!-- Carte "Autre méthode" qui renvoie vers le support -->
+                            <div class="method-card" onclick="contactSupport()">
+                                <div class="method-icon">📧</div>
+                                <div class="method-name">Autre</div>
+                                <div class="method-fee">Contactez-nous</div>
                             </div>
                         </div>
-                        <input type="hidden" id="selected-method" value="paypal">
+                        <input type="hidden" id="selected-method" value="bitcoin">
                     </div>
 
                     <div class="form-group">
@@ -757,15 +748,15 @@
                         <p style="color: var(--warning); font-weight: bold; margin-bottom: 8px;">⚠️ Frais et détails du retrait</p>
                         <div style="display: grid; gap: 5px; color: #ccc; font-size: 0.9rem;">
                             <p>Montant demandé: <span style="float: right; color: white; font-weight: bold;" id="fee-amount">0.00$</span></p>
-                            <p>Frais: <span style="float: right; color: var(--warning); font-weight: bold;" id="fee-cost">0.50$</span></p>
-                            <p style="border-top: 1px solid var(--warning); padding-top: 8px; margin-top: 8px;">Vous recevrez: <span style="float: right; color: var(--success); font-weight: bold;" id="fee-final">-0.50$</span></p>
+                            <p>Frais: <span style="float: right; color: var(--warning); font-weight: bold;" id="fee-cost">1.00$</span></p>
+                            <p style="border-top: 1px solid var(--warning); padding-top: 8px; margin-top: 8px;">Vous recevrez: <span style="float: right; color: var(--success); font-weight: bold;" id="fee-final">-1.00$</span></p>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label" id="payment-label">Adresse PayPal</label>
-                        <input type="email" id="payment-info" class="form-input" placeholder="votre@email.com">
-                        <div class="form-hint" id="payment-hint">Entrez votre email PayPal</div>
+                        <label class="form-label" id="payment-label">Adresse Bitcoin</label>
+                        <input type="text" id="payment-info" class="form-input" placeholder="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
+                        <div class="form-hint" id="payment-hint">Entrez votre adresse Bitcoin (commence par 1, 3 ou bc1)</div>
                     </div>
 
                     <div class="info-box">
@@ -794,12 +785,12 @@
 
                     <div class="info-box">
                         <h4>⏱️ Combien de temps ?</h4>
-                        <p>Les retraits sont généralement traités en 24-48 heures. Bitcoin peut être plus rapide.</p>
+                        <p>Les retraits sont généralement traités en 24-48 heures. Les transactions crypto peuvent être plus rapides.</p>
                     </div>
 
                     <div class="info-box">
-                        <h4>💳 Méthode la plus rapide ?</h4>
-                        <p>Bitcoin est la plus rapide (quelques minutes). PayPal et Stripe prennent 24-48h.</p>
+                        <h4>💳 Quelles sont les méthodes disponibles ?</h4>
+                        <p>Pour l'instant, nous supportons Bitcoin, Litecoin et USDT (TRC20). Pour d'autres méthodes, contactez-nous.</p>
                     </div>
 
                     <div class="info-box">
@@ -813,8 +804,8 @@
                     </div>
 
                     <div class="info-box">
-                        <h4>❌ Mon retrait a échoué ?</h4>
-                        <p>Contactez le support. Les retraits échoués sont automatiquement remboursés.</p>
+                        <h4>❓ Besoin d'aide ?</h4>
+                        <p>Contactez le support : <a href="mailto:ycashempirre@gmail.com" style="color: var(--primary);">ycashempirre@gmail.com</a></p>
                     </div>
                 </div>
             </div>
@@ -866,13 +857,11 @@
         let currentUser = null;
         let currentBalance = 0;
 
+        // Nouvelles méthodes : Bitcoin, Litecoin, USDT
         const methods = {
-            paypal: { name: 'PayPal', fee: 0.50, label: 'Adresse PayPal', placeholder: 'votre@email.com', hint: 'Entrez votre email PayPal' },
-            wise: { name: 'Wise', fee: 0.75, label: 'Email Wise', placeholder: 'votre@email.com', hint: 'Entrez votre email Wise' },
-            bitcoin: { name: 'Bitcoin', fee: 2.00, label: 'Adresse Bitcoin', placeholder: '1A1z7agoat...', hint: 'Entrez votre adresse Bitcoin' },
-            stripe: { name: 'Stripe', fee: 1.00, label: 'Email Stripe', placeholder: 'votre@email.com', hint: 'Entrez votre email Stripe' },
-            bank: { name: 'Virement', fee: 1.50, label: 'IBAN', placeholder: 'FR1420041010050500013M02606', hint: 'Entrez votre IBAN' },
-            skrill: { name: 'Skrill', fee: 1.00, label: 'Email Skrill', placeholder: 'votre@email.com', hint: 'Entrez votre email Skrill' }
+            bitcoin: { name: 'Bitcoin', fee: 1.00, label: 'Adresse Bitcoin', placeholder: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', hint: 'Entrez votre adresse Bitcoin (commence par 1, 3 ou bc1)' },
+            litecoin: { name: 'Litecoin', fee: 0.10, label: 'Adresse Litecoin', placeholder: 'LTC...', hint: 'Entrez votre adresse Litecoin' },
+            usdt: { name: 'USDT (TRC20)', fee: 0.50, label: 'Adresse USDT (TRC20)', placeholder: 'T...', hint: 'Entrez votre adresse USDT (réseau TRC20)' }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -887,14 +876,13 @@
             document.getElementById('user-email-header').innerText = user.email;
 
             await loadWithdrawData();
-            listenForAlerts();   // 🆕 Écouter les alertes
+            listenForAlerts();
         });
 
         async function loadWithdrawData() {
             try {
                 const userRef = doc(db, "users", currentUser.uid);
                 
-                // Real-time sync
                 onSnapshot(userRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const user = snapshot.data();
@@ -905,7 +893,6 @@
                     }
                 });
 
-                // Load withdrawals
                 const withdrawalsRef = collection(db, "withdrawals");
                 const q = query(withdrawalsRef, where("userId", "==", currentUser.uid));
                 const snapshot = await getDocs(q);
@@ -965,6 +952,9 @@
         }
 
         window.selectMethod = (method) => {
+            // Si c'est la carte "Autre", on ne fait rien (déjà géré par contactSupport)
+            if (method === 'other') return;
+
             document.getElementById('selected-method').value = method;
             
             document.querySelectorAll('.method-card').forEach(card => {
@@ -981,12 +971,18 @@
             calculateFees();
         };
 
+        // Fonction pour contacter le support
+        window.contactSupport = () => {
+            window.location.href = "mailto:ycashempirre@gmail.com?subject=Demande de retrait autre méthode&body=Bonjour, je souhaiterais retirer mes gains via une autre méthode. Merci de me préciser les options disponibles.";
+        };
+
         document.getElementById('withdraw-amount').addEventListener('input', calculateFees);
 
         function calculateFees() {
             const amount = parseFloat(document.getElementById('withdraw-amount').value) || 0;
             const method = document.getElementById('selected-method').value;
-            const fee = methods[method].fee;
+            // Si la méthode n'est pas dans methods (cas d'erreur), on prend frais 0
+            const fee = methods[method] ? methods[method].fee : 0;
             const final = amount - fee;
 
             document.getElementById('fee-amount').innerText = amount.toFixed(2) + '$';
@@ -1026,6 +1022,12 @@
                 return;
             }
 
+            // Vérifier que la méthode est valide
+            if (!methods[method]) {
+                showMessage('Méthode non supportée', 'error');
+                return;
+            }
+
             try {
                 const btn = event.target;
                 btn.disabled = true;
@@ -1034,7 +1036,7 @@
                 const methodData = methods[method];
                 const fee = methodData.fee;
 
-                // ✅ ADD WITHDRAWAL TO FIRESTORE
+                // ADD WITHDRAWAL TO FIRESTORE
                 await setDoc(doc(db, "withdrawals", 'wd_' + Date.now()), {
                     userId: currentUser.uid,
                     userEmail: currentUser.email,
@@ -1045,7 +1047,7 @@
                     fee: fee
                 });
 
-                // ✅ UPDATE USER BALANCE
+                // UPDATE USER BALANCE
                 const userRef = doc(db, "users", currentUser.uid);
                 await updateDoc(userRef, {
                     balance: increment(-amount),
