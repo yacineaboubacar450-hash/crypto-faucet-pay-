@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<script src="https://pl28770798.effectivegatecpm.com/28/49/54/2849545e65e2cb2b058df396c6c609f0.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - YCash Empire</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        /* ========== STYLES (identiques à votre version) ========== */
         :root {
             --primary: #00f2fe;
             --primary-dark: #00d4ff;
@@ -524,7 +524,7 @@
             color: white;
         }
 
-        /* ========== CHAT WIDGET (admin aussi) ========== */
+        /* ========== CHAT WIDGET ========== */
         .chat-toggle {
             position: fixed;
             bottom: 30px;
@@ -764,7 +764,7 @@
 
             <section class="hero">
                 <h1>⚙️ Administration YCash</h1>
-                <p>Gérez les surf ads, missions, soumissions, utilisateurs et alertes</p>
+                <p>Gérez les surf ads, missions, soumissions, utilisateurs, alertes et retraits</p>
             </section>
 
             <div id="message-container"></div>
@@ -788,8 +788,13 @@
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">⏳</div>
-                        <div class="stat-label">En attente</div>
+                        <div class="stat-label">Soumissions en attente</div>
                         <div class="stat-value" id="stat-pending">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-label">Retraits en attente</div>
+                        <div class="stat-value" id="stat-pending-withdrawals">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">👥</div>
@@ -804,6 +809,7 @@
                     <button class="tab-btn" onclick="switchTab('surfs')">🏄 Surf Ads</button>
                     <button class="tab-btn" onclick="switchTab('tasks')">📝 Missions</button>
                     <button class="tab-btn" onclick="switchTab('submissions')">⏳ Soumissions</button>
+                    <button class="tab-btn" onclick="switchTab('withdrawals')">💸 Retraits</button>
                     <button class="tab-btn" onclick="switchTab('users')">👥 Utilisateurs</button>
                     <button class="tab-btn" onclick="switchTab('alerts')">🔔 Alertes</button>
                 </div>
@@ -826,7 +832,12 @@
                             <div style="background: rgba(255,193,7,0.1); padding: 20px; border-radius: 15px; text-align: center;">
                                 <div style="font-size: 2rem;">⏳</div>
                                 <div style="font-size: 1.5rem; font-weight: bold;" id="dashboard-pending">0</div>
-                                <div style="color: #aaa;">En attente</div>
+                                <div style="color: #aaa;">Soumissions en attente</div>
+                            </div>
+                            <div style="background: rgba(255,87,87,0.1); padding: 20px; border-radius: 15px; text-align: center;">
+                                <div style="font-size: 2rem;">💸</div>
+                                <div style="font-size: 1.5rem; font-weight: bold;" id="dashboard-pending-withdrawals">0</div>
+                                <div style="color: #aaa;">Retraits en attente</div>
                             </div>
                             <div style="background: rgba(0,255,136,0.1); padding: 20px; border-radius: 15px; text-align: center;">
                                 <div style="font-size: 2rem;">👥</div>
@@ -996,6 +1007,24 @@
                     <div id="submissions-container" class="items-grid"></div>
                 </div>
 
+                <!-- Withdrawals Tab -->
+                <div id="withdrawals" class="tab-content">
+                    <div class="search-box">
+                        <select id="withdrawal-filter" class="form-select" style="width: 200px;">
+                            <option value="pending">En attente</option>
+                            <option value="approved">Approuvés</option>
+                            <option value="rejected">Rejetés</option>
+                            <option value="all">Tous</option>
+                        </select>
+                        <button class="refresh-btn" onclick="loadWithdrawals()">⟳</button>
+                    </div>
+                    <div id="withdrawals-loading" class="loading-state">
+                        <div class="spinner"></div>
+                        <p>Chargement des demandes de retrait...</p>
+                    </div>
+                    <div id="withdrawals-container" class="items-grid"></div>
+                </div>
+
                 <!-- Users Tab -->
                 <div id="users" class="tab-content">
                     <div class="search-box">
@@ -1009,7 +1038,7 @@
                     <div id="users-container" class="items-grid"></div>
                 </div>
 
-                <!-- Alerts Tab (NEW) -->
+                <!-- Alerts Tab -->
                 <div id="alerts" class="tab-content">
                     <div class="section">
                         <h3>🔔 Envoyer une alerte</h3>
@@ -1067,7 +1096,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import {
-            getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where, getDocs, updateDoc, deleteDoc, increment, serverTimestamp, writeBatch, arrayUnion, orderBy
+            getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where, getDocs, updateDoc, deleteDoc, increment, serverTimestamp, writeBatch, arrayUnion, orderBy, limit
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1091,6 +1120,7 @@
         let allTasks = [];
         let allSubmissions = [];
         let allUsers = [];
+        let allWithdrawals = [];
 
         // ========== AUTH STATE ==========
         onAuthStateChanged(auth, async (user) => {
@@ -1113,7 +1143,7 @@
             document.getElementById('admin-content').style.display = 'block';
 
             await loadAllData();
-            listenForAlerts();   // 🆕 L'admin aussi reçoit les alertes
+            listenForAlerts();
         });
 
         // ========== LOAD ALL DATA ==========
@@ -1124,8 +1154,9 @@
                     loadTasks(),
                     loadAllSubmissions(),
                     loadUsers(),
+                    loadWithdrawals(),
                     loadStats(),
-                    loadAlertsHistory()   // 🆕 Historique des alertes
+                    loadAlertsHistory()
                 ]);
             } catch (error) {
                 console.error('Erreur chargement:', error);
@@ -1205,7 +1236,7 @@
             }
 
             try {
-                await setDoc(doc(db, "surfs", 'surf_' + Date.now()), {
+                await addDoc(collection(db, "surfs"), {
                     title,
                     url,
                     category,
@@ -1334,7 +1365,7 @@
             }
 
             try {
-                const taskData = {
+                await addDoc(collection(db, "tasks"), {
                     title,
                     description,
                     category,
@@ -1347,13 +1378,10 @@
                     autovalidat,
                     status: 'active',
                     createdAt: serverTimestamp()
-                };
-
-                await setDoc(doc(db, "tasks", 'task_' + Date.now()), taskData);
+                });
 
                 showMessage('✅ Mission créée avec succès', 'success');
                 
-                // Reset form
                 document.getElementById('task-title').value = '';
                 document.getElementById('task-description').value = '';
                 document.getElementById('task-link').value = '';
@@ -1560,6 +1588,112 @@
             await rejectSubmission(taskId, userId);
         };
 
+        // ========== LOAD WITHDRAWALS ==========
+        async function loadWithdrawals() {
+            try {
+                document.getElementById('withdrawals-loading').style.display = 'block';
+                const withdrawalsRef = collection(db, "withdrawals");
+                const q = query(withdrawalsRef, orderBy("requestedAt", "desc"));
+                const snapshot = await getDocs(q);
+                allWithdrawals = await Promise.all(snapshot.docs.map(async doc => {
+                    const data = doc.data();
+                    // Récupérer l'email de l'utilisateur
+                    let userEmail = 'Inconnu';
+                    if (data.userId) {
+                        const userDoc = await getDoc(doc(db, "users", data.userId));
+                        if (userDoc.exists()) {
+                            userEmail = userDoc.data().email || 'Inconnu';
+                        }
+                    }
+                    return {
+                        id: doc.id,
+                        ...data,
+                        userEmail
+                    };
+                }));
+                displayWithdrawals(allWithdrawals);
+                document.getElementById('withdrawals-loading').style.display = 'none';
+            } catch (error) {
+                console.error('Erreur chargement retraits:', error);
+                document.getElementById('withdrawals-loading').style.display = 'none';
+            }
+        }
+
+        function displayWithdrawals(withdrawals) {
+            const container = document.getElementById('withdrawals-container');
+            const filter = document.getElementById('withdrawal-filter').value;
+
+            let filtered = withdrawals;
+            if (filter !== 'all') {
+                filtered = withdrawals.filter(w => w.status === filter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px;"><p>Aucune demande de retrait</p></div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(w => {
+                const date = w.requestedAt ? new Date(w.requestedAt.seconds * 1000).toLocaleString('fr-FR') : 'Date inconnue';
+                const statusClass = w.status === 'approved' ? 'status-approved' : w.status === 'rejected' ? 'status-rejected' : 'status-pending';
+                const statusText = w.status === 'approved' ? '✅ Approuvé' : w.status === 'rejected' ? '❌ Rejeté' : '⏳ En attente';
+
+                return `
+                    <div class="item-card">
+                        <div class="item-header">
+                            <div class="item-title">💸 ${(w.amount || 0).toFixed(2)}$</div>
+                            <span class="submission-status ${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="item-details">
+                            <p>👤 ${w.userEmail}</p>
+                            <p>📅 ${date}</p>
+                            <p>🏦 Méthode: ${w.method || 'Non spécifiée'}</p>
+                            <p>📝 ${w.address || ''}</p>
+                        </div>
+                        ${w.status === 'pending' ? `
+                            <div class="item-actions">
+                                <button class="btn-success" onclick="approveWithdrawal('${w.id}', '${w.userId}', ${w.amount})">✅ Approuver</button>
+                                <button class="btn-danger" onclick="rejectWithdrawal('${w.id}')">❌ Rejeter</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== APPROVE WITHDRAWAL ==========
+        window.approveWithdrawal = async (withdrawalId, userId, amount) => {
+            if (!confirm(`Marquer ce retrait de ${amount.toFixed(2)}$ comme payé ?`)) return;
+            try {
+                await updateDoc(doc(db, "withdrawals", withdrawalId), {
+                    status: 'approved',
+                    processedAt: serverTimestamp()
+                });
+                showMessage('✅ Retrait approuvé', 'success');
+                await loadWithdrawals();
+                await loadStats();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur: ' + error.message, 'error');
+            }
+        };
+
+        // ========== REJECT WITHDRAWAL ==========
+        window.rejectWithdrawal = async (withdrawalId) => {
+            if (!confirm('Rejeter cette demande de retrait ?')) return;
+            try {
+                await updateDoc(doc(db, "withdrawals", withdrawalId), {
+                    status: 'rejected',
+                    processedAt: serverTimestamp()
+                });
+                showMessage('✅ Retrait rejeté', 'success');
+                await loadWithdrawals();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur: ' + error.message, 'error');
+            }
+        };
+
         // ========== LOAD USERS ==========
         async function loadUsers() {
             try {
@@ -1642,10 +1776,14 @@
             const pending = allSubmissions.filter(s => s.status === 'pending').length;
             document.getElementById('stat-pending').innerText = pending;
 
+            const pendingWithdrawals = allWithdrawals.filter(w => w.status === 'pending').length;
+            document.getElementById('stat-pending-withdrawals').innerText = pendingWithdrawals;
+
             // Dashboard
             document.getElementById('dashboard-surfs').innerText = allSurfs.length;
             document.getElementById('dashboard-tasks').innerText = allTasks.length;
             document.getElementById('dashboard-pending').innerText = pending;
+            document.getElementById('dashboard-pending-withdrawals').innerText = pendingWithdrawals;
             document.getElementById('dashboard-users').innerText = allUsers.length;
         }
 
@@ -1671,6 +1809,7 @@
         document.getElementById('surf-filter').addEventListener('change', () => displaySurfs(allSurfs));
         document.getElementById('task-filter').addEventListener('change', () => displayTasks(allTasks));
         document.getElementById('submission-filter').addEventListener('change', () => displaySubmissions(allSubmissions));
+        document.getElementById('withdrawal-filter').addEventListener('change', () => displayWithdrawals(allWithdrawals));
 
         // ========== SEARCH ==========
         document.getElementById('surf-search').addEventListener('input', (e) => {
@@ -1793,7 +1932,7 @@
             });
         }
 
-        // ========== ALERTES (admin) ==========
+        // ========== ALERTES ==========
         const alertContainer = document.getElementById('alert-container');
 
         function listenForAlerts() {
@@ -1889,7 +2028,9 @@
                 snapshot.docs.forEach(doc => {
                     const a = doc.data();
                     const date = a.timestamp ? new Date(a.timestamp.toDate()).toLocaleString('fr-FR') : '';
-                    const targetText = a.target === 'all' ? '👥 Tous' : `👤 ${a.target}`;
+                    // Pour l'affichage, si target est un UID, on essaie de récupérer l'email
+                    let targetText = a.target === 'all' ? '👥 Tous' : `👤 ${a.target}`;
+                    // On pourrait améliorer en cherchant l'email, mais pour l'admin c'est suffisant
                     html += `
                         <div style="background:var(--glass); padding:10px; border-radius:10px;">
                             <div style="display:flex; justify-content:space-between;">
