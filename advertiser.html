@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script src="https://pl28770798.effectivegatecpm.com/28/49/54/2849545e65e2cb2b058df396c6c609f0.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Annonceur - YCash Empire</title>
@@ -29,7 +30,7 @@
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .section { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; }
+        .section { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 30px; margin-bottom: 30px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group label { margin-bottom: 5px; color: #aaa; }
@@ -39,6 +40,40 @@
         .btn-deposit { background: var(--success); color: black; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
         .checkbox-group input { width: 20px; height: 20px; }
+
+        /* Nouveaux styles pour les cartes de campagne */
+        .campaigns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
+        .campaign-card { background: var(--glass); border: 2px solid var(--glass-border); border-radius: 20px; padding: 20px; transition: 0.3s; }
+        .campaign-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .campaign-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .campaign-title { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .campaign-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
+        .badge-active { background: rgba(0,255,136,0.2); border: 1px solid var(--success); color: var(--success); }
+        .badge-paused { background: rgba(255,193,7,0.2); border: 1px solid var(--warning); color: var(--warning); }
+        .badge-completed { background: rgba(255,87,87,0.2); border: 1px solid var(--danger); color: var(--danger); }
+        .campaign-stats { display: flex; justify-content: space-between; margin: 15px 0; padding: 10px 0; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); }
+        .campaign-stat { text-align: center; }
+        .campaign-stat-label { font-size: 0.7rem; color: #aaa; }
+        .campaign-stat-value { font-weight: bold; color: white; }
+        .campaign-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+        .btn-sm { padding: 8px 15px; font-size: 0.8rem; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-sm:hover { transform: translateY(-2px); }
+        .btn-pause { background: var(--warning); color: var(--dark); }
+        .btn-resume { background: var(--success); color: var(--dark); }
+        .btn-delete { background: var(--danger); color: white; }
+        .btn-add { background: var(--primary); color: var(--dark); }
+        .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Modal pour ajouter des crédits */
+        .modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:10000; }
+        .modal.active { display:flex; }
+        .modal-content { background: var(--darker); border:2px solid var(--primary); border-radius:20px; padding:30px; max-width:450px; width:100%; }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-title { color:var(--primary); font-size:1.5rem; font-weight:bold; }
+        .modal-close { background:none; border:none; color:#aaa; font-size:1.5rem; cursor:pointer; }
+        .info-cost { background: rgba(0,242,254,0.1); border:1px solid var(--primary); padding:15px; border-radius:10px; margin:20px 0; }
+        .btn-modal { background: var(--success); color:var(--dark); border:none; padding:14px; border-radius:10px; font-weight:bold; width:100%; cursor:pointer; }
+        .btn-modal:hover { transform:translateY(-3px); }
     </style>
 </head>
 <body>
@@ -62,20 +97,30 @@
             <button class="btn-deposit" onclick="requestDeposit()">➕ FAIRE UN DÉPÔT</button>
         </section>
 
+        <!-- Statistiques améliorées -->
         <div class="admin-stats">
             <div class="stat-card">
                 <div style="color:#aaa; font-size:0.8rem;">SOLDE DISPONIBLE</div>
                 <div class="stat-value" id="stat-adv-balance">0.0000$</div>
             </div>
             <div class="stat-card">
-                <div style="color:#aaa; font-size:0.8rem;">VUES REÇUES</div>
-                <div class="stat-value" id="stat-impressions">0</div>
+                <div style="color:#aaa; font-size:0.8rem;">DÉPENSÉ TOTAL</div>
+                <div class="stat-value" id="stat-total-spent">0.0000$</div>
+            </div>
+            <div class="stat-card">
+                <div style="color:#aaa; font-size:0.8rem;">CAMPAGNES ACTIVES</div>
+                <div class="stat-value" id="stat-active-campaigns">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="color:#aaa; font-size:0.8rem;">VUES RÉALISÉES</div>
+                <div class="stat-value" id="stat-total-views">0</div>
             </div>
         </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('tab-surf')">🏄 Créer Surf Ads</button>
             <button class="tab-btn" onclick="switchTab('tab-task')">📝 Créer Mission</button>
+            <button class="tab-btn" onclick="switchTab('tab-campaigns')">📊 Mes Campagnes</button>
         </div>
 
         <!-- TAB SURF -->
@@ -90,6 +135,10 @@
                     <div class="form-group">
                         <label>URL du lien</label>
                         <input type="url" id="surf-url" class="form-input" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (optionnelle)</label>
+                        <textarea id="surf-description" class="form-textarea" placeholder="Ce que l'utilisateur doit faire..."></textarea>
                     </div>
                     <div class="form-group">
                         <label>Nombre de vues</label>
@@ -124,6 +173,10 @@
                         <input type="url" id="task-url" class="form-input" placeholder="https://...">
                     </div>
                     <div class="form-group">
+                        <label>Description détaillée</label>
+                        <textarea id="task-description" class="form-textarea" placeholder="Décrivez exactement ce que l'utilisateur doit faire..."></textarea>
+                    </div>
+                    <div class="form-group">
                         <label>Nombre de personnes</label>
                         <input type="number" id="task-count" class="form-input" value="10" min="1" oninput="updateCost('task')">
                     </div>
@@ -138,13 +191,45 @@
                 <button class="btn-success" onclick="createCampaign('task')">PUBLIER LA MISSION</button>
             </div>
         </div>
+
+        <!-- TAB MES CAMPAGNES -->
+        <div id="tab-campaigns" class="tab-content">
+            <div class="section">
+                <h3>🏄 Mes Surf Ads</h3>
+                <div id="surf-campaigns-container" class="campaigns-grid"></div>
+            </div>
+            <div class="section">
+                <h3>📝 Mes Missions</h3>
+                <div id="task-campaigns-container" class="campaigns-grid"></div>
+            </div>
+        </div>
     </main>
+
+    <!-- Modal pour ajouter des crédits -->
+    <div class="modal" id="add-credit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Ajouter des crédits</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div id="modal-campaign-info"></div>
+            <div class="form-group">
+                <label>Quantité supplémentaire</label>
+                <input type="number" id="modal-quantity" class="form-input" min="1" value="10">
+            </div>
+            <div class="info-cost">
+                <p>💰 Coût additionnel: <span id="modal-cost">0.0000$</span></p>
+                <p>Votre solde actuel: <span id="modal-balance">0.0000$</span></p>
+            </div>
+            <button class="btn-modal" onclick="confirmAddCredits()">✅ CONFIRMER L'AJOUT</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
-            getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, serverTimestamp, runTransaction, query, where, getDocs 
+            getFirestore, doc, getDoc, collection, addDoc, updateDoc, increment, serverTimestamp, runTransaction, query, where, getDocs, deleteDoc 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -161,66 +246,244 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let currentBalance = 0;
         const PRICES = { surf: 0.0005, app: 0.005, signup: 0.002 };
+        let currentCampaign = null; // pour le modal
 
-        // Redirection si non connecté
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = "index.html"; return; }
             currentUser = user;
             document.getElementById('user-email-header').innerText = user.email;
             await loadBalanceAndStats();
+            loadCampaigns();
         });
 
-        // Charger le solde et le nombre total d'impressions reçues
         async function loadBalanceAndStats() {
             if (!currentUser) return;
-            try {
-                // Solde
-                const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-                if (userSnap.exists()) {
-                    document.getElementById('stat-adv-balance').innerText = userSnap.data().balance.toFixed(4) + "$";
-                }
-
-                // Impressions (vues sur les surf + remplissages de missions)
-                let totalImpressions = 0;
-
-                // Surfs créées par cet utilisateur
-                const surfsQuery = query(collection(db, "surfs"), where("createdBy", "==", currentUser.uid));
-                const surfsSnap = await getDocs(surfsQuery);
-                surfsSnap.forEach(doc => {
-                    totalImpressions += doc.data().clicksCompleted || 0;
-                });
-
-                // Missions créées par cet utilisateur
-                const tasksQuery = query(collection(db, "tasks"), where("advertiser", "==", currentUser.uid));
-                const tasksSnap = await getDocs(tasksQuery);
-                tasksSnap.forEach(doc => {
-                    totalImpressions += doc.data().slotsFilled || 0;
-                });
-
-                document.getElementById('stat-impressions').innerText = totalImpressions;
-            } catch (error) {
-                console.error("Erreur chargement stats:", error);
+            const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+            if (userSnap.exists()) {
+                currentBalance = userSnap.data().balance || 0;
+                document.getElementById('stat-adv-balance').innerText = currentBalance.toFixed(4) + "$";
             }
+            // Les autres stats sont mises à jour dans loadCampaigns
         }
 
-        // Mise à jour du coût total affiché
-        window.updateCost = (type) => {
-            if (type === 'surf') {
-                const count = parseInt(document.getElementById('surf-count').value) || 0;
-                document.getElementById('cost-surf').innerText = (count * PRICES.surf).toFixed(4) + "$";
-            } else {
-                const mode = document.getElementById('task-type').value;
-                const count = parseInt(document.getElementById('task-count').value) || 0;
-                document.getElementById('cost-task').innerText = (count * PRICES[mode]).toFixed(4) + "$";
+        async function loadCampaigns() {
+            if (!currentUser) return;
+            // Charger les surf ads de l'utilisateur
+            const surfsQuery = query(collection(db, "surfs"), where("createdBy", "==", currentUser.uid));
+            const surfsSnap = await getDocs(surfsQuery);
+            let surfs = surfsSnap.docs.map(doc => ({ id: doc.id, type: 'surf', ...doc.data() }));
+
+            // Charger les tasks de l'utilisateur
+            const tasksQuery = query(collection(db, "tasks"), where("advertiser", "==", currentUser.uid));
+            const tasksSnap = await getDocs(tasksQuery);
+            let tasks = tasksSnap.docs.map(doc => ({ id: doc.id, type: 'task', ...doc.data() }));
+
+            // Vérifier l'état "completed" (épuisé) et mettre à jour si nécessaire
+            surfs = await checkAndUpdateSurfStatus(surfs);
+            tasks = await checkAndUpdateTaskStatus(tasks);
+
+            // Calcul des stats
+            let totalSpent = 0;
+            let totalViews = 0;
+            let activeCount = 0;
+
+            surfs.forEach(s => {
+                if (s.status === 'active') activeCount++;
+                totalSpent += (s.reward || 0) * (s.clicksCompleted || 0);
+                totalViews += (s.clicksCompleted || 0);
+            });
+            tasks.forEach(t => {
+                if (t.status === 'active') activeCount++;
+                totalSpent += (t.reward || 0) * (t.slotsFilled || 0);
+                totalViews += (t.slotsFilled || 0);
+            });
+
+            document.getElementById('stat-total-spent').innerText = totalSpent.toFixed(4) + '$';
+            document.getElementById('stat-active-campaigns').innerText = activeCount;
+            document.getElementById('stat-total-views').innerText = totalViews;
+
+            displaySurfCampaigns(surfs);
+            displayTaskCampaigns(tasks);
+        }
+
+        async function checkAndUpdateSurfStatus(surfs) {
+            for (let surf of surfs) {
+                if (surf.status === 'active' && surf.clicksRemaining <= 0) {
+                    surf.status = 'completed';
+                    await updateDoc(doc(db, "surfs", surf.id), { status: 'completed' });
+                }
+            }
+            return surfs;
+        }
+
+        async function checkAndUpdateTaskStatus(tasks) {
+            for (let task of tasks) {
+                if (task.status === 'active' && (task.slotsFilled || 0) >= (task.totalSlots || 0)) {
+                    task.status = 'completed';
+                    await updateDoc(doc(db, "tasks", task.id), { status: 'completed' });
+                }
+            }
+            return tasks;
+        }
+
+        function displaySurfCampaigns(surfs) {
+            const container = document.getElementById('surf-campaigns-container');
+            if (surfs.length === 0) {
+                container.innerHTML = '<p style="color:#aaa;">Aucune surf ad créée.</p>';
+                return;
+            }
+            container.innerHTML = surfs.map(surf => {
+                const badgeClass = surf.status === 'active' ? 'badge-active' : (surf.status === 'paused' ? 'badge-paused' : 'badge-completed');
+                const badgeText = surf.status === 'active' ? 'Active' : (surf.status === 'paused' ? 'En pause' : 'Terminée');
+                const remaining = surf.clicksRemaining || 0;
+                const delivered = surf.clicksCompleted || 0;
+                const total = delivered + remaining;
+                return `
+                    <div class="campaign-card">
+                        <div class="campaign-header">
+                            <span class="campaign-title">${surf.title}</span>
+                            <span class="campaign-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:#aaa;">${surf.description || 'Aucune description'}</p>
+                        <div class="campaign-stats">
+                            <div class="campaign-stat"><span class="campaign-stat-label">Vues</span><span class="campaign-stat-value">${delivered}/${total}</span></div>
+                            <div class="campaign-stat"><span class="campaign-stat-label">Récompense</span><span class="campaign-stat-value">${surf.reward.toFixed(4)}$</span></div>
+                            <div class="campaign-stat"><span class="campaign-stat-label">Dépensé</span><span class="campaign-stat-value">${(surf.reward * delivered).toFixed(4)}$</span></div>
+                        </div>
+                        <div class="campaign-actions">
+                            ${surf.status === 'active' ? `<button class="btn-sm btn-pause" onclick="pauseCampaign('surf','${surf.id}')">⏸️ Pause</button>` : ''}
+                            ${surf.status === 'paused' ? `<button class="btn-sm btn-resume" onclick="resumeCampaign('surf','${surf.id}')">▶️ Reprendre</button>` : ''}
+                            ${surf.status !== 'active' ? `<button class="btn-sm btn-delete" onclick="deleteCampaign('surf','${surf.id}')">🗑️ Supprimer</button>` : ''}
+                            ${surf.status === 'completed' ? `<button class="btn-sm btn-add" onclick="openAddModal('surf','${surf.id}', ${surf.reward})">➕ Ajouter des vues</button>` : ''}
+                            ${surf.status === 'paused' && remaining > 0 ? `<button class="btn-sm btn-add" onclick="openAddModal('surf','${surf.id}', ${surf.reward})">➕ Ajouter des vues</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function displayTaskCampaigns(tasks) {
+            const container = document.getElementById('task-campaigns-container');
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="color:#aaa;">Aucune mission créée.</p>';
+                return;
+            }
+            container.innerHTML = tasks.map(task => {
+                const badgeClass = task.status === 'active' ? 'badge-active' : (task.status === 'paused' ? 'badge-paused' : 'badge-completed');
+                const badgeText = task.status === 'active' ? 'Active' : (task.status === 'paused' ? 'En pause' : 'Terminée');
+                const filled = task.slotsFilled || 0;
+                const total = task.totalSlots || 0;
+                return `
+                    <div class="campaign-card">
+                        <div class="campaign-header">
+                            <span class="campaign-title">${task.title}</span>
+                            <span class="campaign-badge ${badgeClass}">${badgeText}</span>
+                        </div>
+                        <p style="font-size:0.8rem; color:#aaa;">${task.description || 'Aucune description'}</p>
+                        <div class="campaign-stats">
+                            <div class="campaign-stat"><span class="campaign-stat-label">Réalisées</span><span class="campaign-stat-value">${filled}/${total}</span></div>
+                            <div class="campaign-stat"><span class="campaign-stat-label">Récompense</span><span class="campaign-stat-value">${task.reward.toFixed(4)}$</span></div>
+                            <div class="campaign-stat"><span class="campaign-stat-label">Dépensé</span><span class="campaign-stat-value">${(task.reward * filled).toFixed(4)}$</span></div>
+                        </div>
+                        <div class="campaign-actions">
+                            ${task.status === 'active' ? `<button class="btn-sm btn-pause" onclick="pauseCampaign('task','${task.id}')">⏸️ Pause</button>` : ''}
+                            ${task.status === 'paused' ? `<button class="btn-sm btn-resume" onclick="resumeCampaign('task','${task.id}')">▶️ Reprendre</button>` : ''}
+                            ${task.status !== 'active' ? `<button class="btn-sm btn-delete" onclick="deleteCampaign('task','${task.id}')">🗑️ Supprimer</button>` : ''}
+                            ${task.status === 'completed' ? `<button class="btn-sm btn-add" onclick="openAddModal('task','${task.id}', ${task.reward})">➕ Ajouter des places</button>` : ''}
+                            ${task.status === 'paused' && (total - filled) > 0 ? `<button class="btn-sm btn-add" onclick="openAddModal('task','${task.id}', ${task.reward})">➕ Ajouter des places</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Gestion des actions
+        window.pauseCampaign = async (type, id) => {
+            await updateDoc(doc(db, type === 'surf' ? "surfs" : "tasks", id), { status: 'paused' });
+            loadCampaigns();
+        };
+
+        window.resumeCampaign = async (type, id) => {
+            await updateDoc(doc(db, type === 'surf' ? "surfs" : "tasks", id), { status: 'active' });
+            loadCampaigns();
+        };
+
+        window.deleteCampaign = async (type, id) => {
+            if (!confirm('Supprimer définitivement cette campagne ?')) return;
+            await deleteDoc(doc(db, type === 'surf' ? "surfs" : "tasks", id));
+            loadCampaigns();
+        };
+
+        // Modal d'ajout de crédits
+        window.openAddModal = (type, id, reward) => {
+            currentCampaign = { type, id, reward };
+            document.getElementById('modal-campaign-info').innerHTML = `<p>Campagne: <strong>${id}</strong></p><p>Prix unitaire: ${reward.toFixed(4)}$</p>`;
+            document.getElementById('modal-balance').innerText = currentBalance.toFixed(4) + '$';
+            document.getElementById('modal-quantity').value = 10;
+            updateModalCost();
+            document.getElementById('add-credit-modal').classList.add('active');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('add-credit-modal').classList.remove('active');
+            currentCampaign = null;
+        };
+
+        document.getElementById('modal-quantity').addEventListener('input', updateModalCost);
+        function updateModalCost() {
+            if (!currentCampaign) return;
+            const qty = parseInt(document.getElementById('modal-quantity').value) || 0;
+            const cost = qty * currentCampaign.reward;
+            document.getElementById('modal-cost').innerText = cost.toFixed(4) + '$';
+        }
+
+        window.confirmAddCredits = async () => {
+            if (!currentCampaign) return;
+            const qty = parseInt(document.getElementById('modal-quantity').value);
+            if (qty <= 0) return alert('Quantité invalide');
+            const cost = qty * currentCampaign.reward;
+            if (cost > currentBalance) return alert('Solde insuffisant');
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const userRef = doc(db, "users", currentUser.uid);
+                    const userSnap = await transaction.get(userRef);
+                    if (!userSnap.exists()) throw new Error("Utilisateur introuvable");
+                    if (userSnap.data().balance < cost) throw new Error("Solde insuffisant");
+
+                    transaction.update(userRef, { balance: increment(-cost) });
+
+                    const campaignRef = doc(db, currentCampaign.type === 'surf' ? "surfs" : "tasks", currentCampaign.id);
+                    const campSnap = await transaction.get(campaignRef);
+                    if (!campSnap.exists()) throw new Error("Campagne introuvable");
+
+                    if (currentCampaign.type === 'surf') {
+                        transaction.update(campaignRef, {
+                            clicksRemaining: increment(qty),
+                            status: 'active'  // on réactive automatiquement
+                        });
+                    } else {
+                        transaction.update(campaignRef, {
+                            totalSlots: increment(qty),
+                            status: 'active'
+                        });
+                    }
+                });
+
+                alert('✅ Crédits ajoutés avec succès !');
+                closeModal();
+                await loadBalanceAndStats();
+                loadCampaigns();
+            } catch (error) {
+                alert('❌ Erreur : ' + error.message);
             }
         };
 
-        // Création d'une campagne (surf ou task)
+        // Création de campagne (inchangée, mais ajout de la description)
         window.createCampaign = async (type) => {
             if (!currentUser) return;
-
-            // Récupération des valeurs communes
             const countInput = type === 'surf' ? 'surf-count' : 'task-count';
             const count = parseInt(document.getElementById(countInput).value);
             const title = document.getElementById(type === 'surf' ? 'surf-title' : 'task-title').value;
@@ -242,7 +505,6 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
-                    // Vérifier le solde de l'utilisateur
                     const userRef = doc(db, "users", currentUser.uid);
                     const userSnap = await transaction.get(userRef);
                     if (!userSnap.exists()) throw new Error("Utilisateur introuvable");
@@ -250,132 +512,112 @@
                     if (userData.balance < totalCost) {
                         throw new Error(`Solde insuffisant. Il vous manque ${(totalCost - userData.balance).toFixed(4)}$`);
                     }
-
-                    // Déduire le montant
-                    transaction.update(userRef, {
-                        balance: increment(-totalCost)
-                    });
+                    transaction.update(userRef, { balance: increment(-totalCost) });
 
                     if (type === 'surf') {
                         const url = document.getElementById('surf-url').value;
                         if (!url) throw new Error("L'URL est obligatoire");
-
-                        // Créer le document surf
+                        const description = document.getElementById('surf-description').value;
                         const newSurfRef = doc(collection(db, "surfs"));
                         transaction.set(newSurfRef, {
                             title: title,
                             url: url,
+                            description: description || 'Aucune description',
                             reward: unitPrice,
                             clicksRemaining: count,
                             clicksCompleted: 0,
                             status: "active",
                             createdBy: currentUser.uid,
                             createdAt: serverTimestamp(),
-                            duration: 15  // temps de visualisation en secondes (par défaut)
+                            duration: 15
                         });
                     } else {
-                        // Task
                         const url = document.getElementById('task-url').value;
                         if (!url) throw new Error("L'URL de validation est obligatoire");
                         const autoValidate = document.getElementById('task-auto').checked;
-
-                        // Créer le document task (avec les champs observés dans la base)
+                        const description = document.getElementById('task-description').value;
                         const newTaskRef = doc(collection(db, "tasks"));
                         transaction.set(newTaskRef, {
                             title: title,
                             validationlink: url,
+                            description: description || 'Aucune description',
                             reward: unitPrice,
                             totalSlots: count,
                             slotsFilled: 0,
                             status: "active",
                             advertiser: currentUser.uid,
                             createdAt: serverTimestamp(),
-                            autoValidate: autoValidate,
-                            // Champs supplémentaires pour compatibilité
                             autovalidat: autoValidate,
                             category: "",
-                            description: "",
                             difficulty: "facile",
                             estimatedtime: "5 min",
-                            creatidAt: 0 // pour correspondre à l'existant (peut être ignoré)
+                            creatidAt: 0
                         });
                     }
                 });
 
                 alert("✅ Campagne lancée avec succès !");
-                // Recharger les stats
                 await loadBalanceAndStats();
-                // Réinitialiser les champs (optionnel)
+                loadCampaigns();
+                // Reset champs
                 if (type === 'surf') {
                     document.getElementById('surf-title').value = '';
                     document.getElementById('surf-url').value = '';
+                    document.getElementById('surf-description').value = '';
                 } else {
                     document.getElementById('task-title').value = '';
                     document.getElementById('task-url').value = '';
+                    document.getElementById('task-description').value = '';
                 }
             } catch (error) {
                 alert("❌ Erreur : " + error.message);
             }
         };
 
-// Demande de dépôt avec preuve
-window.requestDeposit = async () => {
-    if (!currentUser) return;
-    
-    // Montant minimum
-    const amount = prompt("Montant du dépôt ($) : (minimum 5$)", "10");
-    if (!amount || isNaN(amount) || parseFloat(amount) < 5) {
-        alert("Le montant minimum est de 5$.");
-        return;
-    }
+        // Demande de dépôt avec preuve (inchangé)
+        window.requestDeposit = async () => {
+            if (!currentUser) return;
+            const amount = prompt("Montant du dépôt ($) : (minimum 5$)", "10");
+            if (!amount || isNaN(amount) || parseFloat(amount) < 5) {
+                alert("Le montant minimum est de 5$.");
+                return;
+            }
+            try {
+                await addDoc(collection(db, "alerts"), {
+                    message: `💰 DEMANDE DÉPÔT: ${amount}$ de ${currentUser.email} (UID: ${currentUser.uid})`,
+                    target: "all",
+                    timestamp: serverTimestamp()
+                });
+                const subject = `Dépôt YCash Empire - ${currentUser.email}`;
+                const body = `Bonjour,\n\nJe souhaite déposer ${amount}$ sur mon compte YCash Empire.\n\nMes informations :\n- Email : ${currentUser.email}\n- UID : ${currentUser.uid}\n\nAdresses pour l'envoi des fonds (choisissez celle qui vous convient) :\n- Bitcoin (BTC) : 1LyF1nLbsdsXGeGqbCsLBnekpMaZGvFL5U\n- Ethereum (ETH) : 0x6b1fED951a05e12D41b0Ac6a5595F873C0bAA173\n- Litecoin (LTC) : ltc1q3rt922f222zz6d6utlurm32wdklnul3euszd7t\n- Tron (TRX) : TLgkZmHQ81czHjGB7sF51e3fDGNjMrUENM\n\nJ'ai effectué le virement et je joins la preuve de paiement (capture d'écran, hash de transaction, etc.).\n\nMerci de créditer mon compte dès réception.\n\nCordialement.`;
+                window.location.href = `mailto:ycashempirre@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                alert("📧 Email ouvert. Veuillez l'envoyer avec votre preuve de paiement jointe.");
+            } catch (error) {
+                console.error("Erreur demande dépôt:", error);
+                alert("Erreur lors de la demande. Veuillez réessayer.");
+            }
+        };
 
-    try {
-        // 1. Créer une alerte pour l'admin (collection "alerts")
-        await addDoc(collection(db, "alerts"), {
-            message: `💰 DEMANDE DÉPÔT: ${amount}$ de ${currentUser.email} (UID: ${currentUser.uid})`,
-            target: "all",
-            timestamp: serverTimestamp()
-        });
-
-        // 2. Ouvrir l'email pré-rempli avec les adresses crypto et instructions
-        const subject = `Dépôt YCash Empire - ${currentUser.email}`;
-        const body = `Bonjour,
-
-Je souhaite déposer ${amount}$ sur mon compte YCash Empire.
-
-Mes informations :
-- Email : ${currentUser.email}
-- UID : ${currentUser.uid}
-
-Adresses pour l'envoi des fonds (choisissez celle qui vous convient) :
-- Bitcoin (BTC) : 1LyF1nLbsdsXGeGqbCsLBnekpMaZGvFL5U
-- Ethereum (ETH) : 0x6b1fED951a05e12D41b0Ac6a5595F873C0bAA173
-- Litecoin (LTC) : ltc1q3rt922f222zz6d6utlurm32wdklnul3euszd7t
-- Tron (TRX) : TLgkZmHQ81czHjGB7sF51e3fDGNjMrUENM
-
-J'ai effectué le virement et je joins la preuve de paiement (capture d'écran, hash de transaction, etc.).
-
-Merci de créditer mon compte dès réception.
-
-Cordialement.`;
-
-        window.location.href = `mailto:ycashempirre@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-        alert("📧 Email ouvert. Veuillez l'envoyer avec votre preuve de paiement jointe. Dès que les fonds seront reçus et vérifiés, votre solde sera crédité manuellement (généralement sous 24h).");
-    } catch (error) {
-        console.error("Erreur demande dépôt:", error);
-        alert("Erreur lors de la demande. Veuillez réessayer.");
-    }
-};
+        // Mise à jour des coûts affichés
+        window.updateCost = (type) => {
+            if (type === 'surf') {
+                const count = parseInt(document.getElementById('surf-count').value) || 0;
+                document.getElementById('cost-surf').innerText = (count * PRICES.surf).toFixed(4) + "$";
+            } else {
+                const mode = document.getElementById('task-type').value;
+                const count = parseInt(document.getElementById('task-count').value) || 0;
+                document.getElementById('cost-task').innerText = (count * PRICES[mode]).toFixed(4) + "$";
+            }
+        };
 
         // Changer d'onglet
         window.switchTab = (id) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            // L'événement currentTarget n'est pas accessible directement, on cherche le bouton cliqué
-            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.textContent.includes(id === 'tab-surf' ? 'Surf' : 'Mission'));
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.textContent.includes(id === 'tab-surf' ? 'Surf' : id === 'tab-task' ? 'Mission' : 'Campagnes'));
             if (activeBtn) activeBtn.classList.add('active');
+            if (id === 'tab-campaigns') loadCampaigns();
         };
 
         // Initialisation des coûts
