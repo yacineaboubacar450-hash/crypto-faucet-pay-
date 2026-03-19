@@ -163,6 +163,24 @@
             transform: translateY(-2px);
         }
 
+        .btn-signup {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.5);
+        }
+
         /* ========== MAIN ========== */
         main {
             margin-top: 80px;
@@ -564,8 +582,8 @@
             box-shadow: 0 10px 30px rgba(0, 242, 254, 0.4);
         }
 
-        /* ========== AUTH OVERLAY ========== */
-        #auth-overlay {
+        /* ========== AUTH MODAL ========== */
+        .auth-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -573,11 +591,15 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 10000;
             padding: 20px;
+        }
+
+        .auth-modal-overlay.active {
+            display: flex;
         }
 
         .auth-container {
@@ -616,6 +638,7 @@
             text-align: center;
             width: 100%;
             max-width: 450px;
+            margin: 0 auto;
             box-shadow: 0 20px 60px rgba(0, 242, 254, 0.3);
         }
 
@@ -655,7 +678,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .btn-later {
+        .btn-close {
             background: none;
             border: 1px solid #555;
             color: #999;
@@ -666,7 +689,7 @@
             transition: 0.3s;
         }
 
-        .btn-later:hover {
+        .btn-close:hover {
             border-color: var(--primary);
             color: var(--primary);
         }
@@ -1006,6 +1029,9 @@
                         <div class="user-email" id="user-email-header">user@gmail.com</div>
                     </div>
                 </div>
+                <button class="btn-signup" id="btn-show-auth" onclick="showAuthModal()">
+                    🔐 S'inscrire / Se connecter
+                </button>
                 <button class="btn-logout" id="btn-logout" style="display: none;" onclick="logoutUser()">
                     🚪 Déconnexion
                 </button>
@@ -1172,8 +1198,8 @@
         </div>
     </main>
 
-    <!-- ========== AUTH OVERLAY ========== -->
-    <div id="auth-overlay">
+    <!-- ========== AUTH MODAL ========== -->
+    <div class="auth-modal-overlay" id="auth-modal">
         <div class="auth-container">
             <div class="auth-left">
                 <h1>Bienvenue sur YCash Empire</h1>
@@ -1187,7 +1213,7 @@
             <div class="auth-card">
                 <h2>🚀 Commencer</h2>
                 <script async="async" data-cfasync="false" src="https://pl28770694.effectivegatecpm.com/f8bc199792b981d43e6a432c5842ca2f/invoke.js"></script>
-<div id="container-f8bc199792b981d43e6a432c5842ca2f"></div>
+                <div id="container-f8bc199792b981d43e6a432c5842ca2f"></div>
                 <p>Connectez-vous avec Google pour débloquer tous les gains et fonctionnalités.</p>
                 
                 <button class="btn-google" id="google-login-btn">
@@ -1195,8 +1221,8 @@
                     Continuer avec Google
                 </button>
 
-                <button class="btn-later" onclick="dismissAuth()">
-                    Découvrir plus tard
+                <button class="btn-close" onclick="hideAuthModal()">
+                    Fermer
                 </button>
             </div>
         </div>
@@ -1236,7 +1262,7 @@
             getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
-            getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs, onSnapshot, updateDoc, increment, serverTimestamp, arrayUnion 
+            getFirestore, doc, getDoc, setDoc, collection, query, orderBy, limit, getDocs, onSnapshot, updateDoc, increment, serverTimestamp, arrayUnion, where 
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ========== CONFIG ==========
@@ -1262,60 +1288,8 @@
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('ref');
         }
-// Dans ton bloc <script type="module">
 
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // ... Ton code existant pour afficher le profil ...
-        
-        // AJOUTE CECI : Charger le Captcha MyLead pour l'utilisateur connecté
-        renderMyLeadCaptcha();
-        
-        // Vérifier si l'utilisateur revient d'une validation réussie
-        checkMyLeadSuccess(user);
-    } else {
-        // ... Code pour l'utilisateur déconnecté ...
-    }
-});
-
-function renderMyLeadCaptcha() {
-    const container = document.getElementById('captcha-space');
-    if (container) {
-        container.innerHTML = `
-            <div id="cpa-locker-174120d0-18f6-11f1-97a9-129a1c289511"></div>
-        `;
-        // On recharge le script MyLead
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.id = 'cpljs-174120d0-18f6-11f1-97a9-129a1c289511';
-        script.src = 'https://bestlocker.eu/iframeLoader/174120d0-18f6-11f1-97a9-129a1c289511';
-        document.body.appendChild(script);
-    }
-}
-
-async function checkMyLeadSuccess(user) {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('verify') === 'success') {
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, {
-            balance: increment(0.0001)
-        });
-        showAlertToast("✅ Vérification validée ! +0.0001 YCash", "success");
-        // Nettoyer l'URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-}
-
-        async function findReferrerByCode(code) {
-            if (!code) return null;
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("referralCode", "==", code));
-            const snapshot = await getDocs(q);
-            return snapshot.empty ? null : snapshot.docs[0];
-        }
-
-        // ========== AUTH STATE ==========
-        onAuthStateChanged(auth, async (user) => {
+        auth.onAuthStateChanged(async (user) => {
             currentUser = user;
 
             if (user) {
@@ -1372,27 +1346,63 @@ async function checkMyLeadSuccess(user) {
                 if (user.uid === ADMIN_UID || userData?.role === 'admin') {
                     document.getElementById('admin-card').style.display = 'block';
                 }
+
+                // Charger le Captcha MyLead pour l'utilisateur connecté
+                renderMyLeadCaptcha();
+                
+                // Vérifier si l'utilisateur revient d'une validation réussie
+                checkMyLeadSuccess(user);
+                
+                // Cacher le bouton d'inscription et afficher le user-card
+                document.getElementById('btn-show-auth').style.display = 'none';
+                document.getElementById('user-card').style.display = 'flex';
+                document.getElementById('btn-logout').style.display = 'block';
+                
+                // Cacher la modale si elle est ouverte
+                hideAuthModal();
             } else {
-                showAuthOverlay();
+                showGuestView();
             }
         });
 
-        // ========== SHOW DASHBOARD ==========
-        function showUserDashboard(user) {
-            document.getElementById('auth-overlay').style.display = 'none';
-            document.getElementById('user-stats').style.display = 'block';
-            document.getElementById('referral-section').style.display = 'block';
-            document.getElementById('top-referrers-section').style.display = 'block';
-            document.getElementById('achievements-section').style.display = 'block';
-            document.getElementById('leaderboard-section').style.display = 'block';
-            document.getElementById('user-card').style.display = 'flex';
-            document.getElementById('btn-logout').style.display = 'block';
-            document.getElementById('user-email-header').innerText = user.email;
+        function renderMyLeadCaptcha() {
+            const container = document.getElementById('captcha-space');
+            if (container) {
+                container.innerHTML = `
+                    <div id="cpa-locker-174120d0-18f6-11f1-97a9-129a1c289511"></div>
+                `;
+                // On recharge le script MyLead
+                const script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.id = 'cpljs-174120d0-18f6-11f1-97a9-129a1c289511';
+                script.src = 'https://bestlocker.eu/iframeLoader/174120d0-18f6-11f1-97a9-129a1c289511';
+                document.body.appendChild(script);
+            }
         }
 
-        // ========== SHOW AUTH ==========
-        function showAuthOverlay() {
-            document.getElementById('auth-overlay').style.display = 'flex';
+        async function checkMyLeadSuccess(user) {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verify') === 'success') {
+                const userRef = doc(db, "users", user.uid);
+                await updateDoc(userRef, {
+                    balance: increment(0.0001)
+                });
+                showAlertToast("✅ Vérification validée ! +0.0001 YCash", "success");
+                // Nettoyer l'URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        async function findReferrerByCode(code) {
+            if (!code) return null;
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("referralCode", "==", code));
+            const snapshot = await getDocs(q);
+            return snapshot.empty ? null : snapshot.docs[0];
+        }
+
+        // ========== AUTH STATE ==========
+        function showGuestView() {
             document.getElementById('user-stats').style.display = 'none';
             document.getElementById('referral-section').style.display = 'none';
             document.getElementById('top-referrers-section').style.display = 'none';
@@ -1400,7 +1410,29 @@ async function checkMyLeadSuccess(user) {
             document.getElementById('leaderboard-section').style.display = 'none';
             document.getElementById('user-card').style.display = 'none';
             document.getElementById('btn-logout').style.display = 'none';
+            document.getElementById('btn-show-auth').style.display = 'block';
+            
+            // Cacher la modale
+            hideAuthModal();
         }
+
+        function showUserDashboard(user) {
+            document.getElementById('user-stats').style.display = 'block';
+            document.getElementById('referral-section').style.display = 'block';
+            document.getElementById('top-referrers-section').style.display = 'block';
+            document.getElementById('achievements-section').style.display = 'block';
+            document.getElementById('leaderboard-section').style.display = 'block';
+            document.getElementById('user-email-header').innerText = user.email;
+        }
+
+        // ========== SHOW/HIDE AUTH MODAL ==========
+        window.showAuthModal = () => {
+            document.getElementById('auth-modal').classList.add('active');
+        };
+
+        window.hideAuthModal = () => {
+            document.getElementById('auth-modal').classList.remove('active');
+        };
 
         // ========== LOAD USER DATA ==========
         async function loadUserData(uid) {
@@ -1525,13 +1557,9 @@ async function checkMyLeadSuccess(user) {
         };
 
         // ========== FUNCTIONS ==========
-        window.dismissAuth = () => {
-            document.getElementById('auth-overlay').style.display = 'none';
-        };
-
         window.checkAuthAndRedirect = (url) => {
             if (!currentUser) {
-                document.getElementById('auth-overlay').style.display = 'flex';
+                showAuthModal();
                 return;
             }
 
@@ -1551,6 +1579,10 @@ async function checkMyLeadSuccess(user) {
         };
 
         window.copyReferralCode = () => {
+            if (!currentUser) {
+                showAuthModal();
+                return;
+            }
             const code = document.getElementById('referral-code').innerText;
             const link = window.location.origin + '/?ref=' + code;
             navigator.clipboard.writeText(link);
@@ -1578,6 +1610,10 @@ async function checkMyLeadSuccess(user) {
         const chatSend = document.getElementById('chat-send');
 
         chatToggle.addEventListener('click', () => {
+            if (!currentUser) {
+                showAuthModal();
+                return;
+            }
             chatPanel.classList.toggle('active');
             if (chatPanel.classList.contains('active') && currentUser) loadChatMessages();
         });
@@ -1685,8 +1721,6 @@ async function checkMyLeadSuccess(user) {
             alertContainer.appendChild(toast);
             setTimeout(() => toast.remove(), 10000);
         }
-
-
 
   </script>
 

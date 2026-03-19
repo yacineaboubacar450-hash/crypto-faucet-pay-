@@ -700,6 +700,23 @@
 
     <main>
         <div class="container">
+<div id="mylead-offerwall-container" style="width: 100%; height: 800px; margin-top: 20px; border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border);">
+    <iframe id="mylead-iframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+</div>
+
+<script>
+    // Ce script va configurer le lien avec l'ID de l'utilisateur connecté
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            const myLeadBaseUrl = "https://reward-me.eu/1a5e4b52-19c9-11f1-80d5-129a1c289511";
+            // On ajoute l'UID de l'utilisateur Firebase au lien pour le suivi
+            document.getElementById('mylead-iframe').src = myLeadBaseUrl + "?player_id=" + user.uid;
+        } else {
+            // Si l'utilisateur n'est pas connecté, on peut cacher le mur ou mettre un message
+            document.getElementById('mylead-offerwall-container').innerHTML = "<p style='color:white; text-align:center;'>Veuillez vous connecter pour voir les offres.</p>";
+        }
+    });
+</script>
 
             <section class="hero">
                 <h1>💼 Complétez des Missions</h1>
